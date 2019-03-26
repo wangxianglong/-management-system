@@ -79,7 +79,7 @@
             </el-form-item>
             <el-form-item>
                 <el-button>加载上一个</el-button>
-                <el-button type="primary" @click="onSubmit">保存并加载下一个</el-button>
+                <el-button type="primary" @click="onSubmit">保存并拨打下一个</el-button>
             </el-form-item>
             </el-form>
         </el-dialog>

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
+//import { Loading } from 'element-ui';
 
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
@@ -7,18 +8,30 @@ axios.defaults.timeout = 1000 * 10;
 
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
-axios.interceptors.request.use(function (config) { // axios 拦截器 需要调接口之前调用下 比如判断用户是否登录
-   //  加逻辑
-//    if()else 
+// let loading;
+
+// let openLoading = () => {
+//     loading=loading.service({
+//         lock:false,
+//         background:'rgba(0,0,0,0.7)'
+//     })
+// }
+
+// let closeLoading = () => {
+//     loading.close()
+// }
+
+axios.interceptors.request.use(function (config) {
+    //openLoading()
     return config;
 }, function (err) {
     return Promise.reject(err);
 });
-axios.interceptors.response.use(function (response) { // 接口之后调用
-     //  加逻辑
-//    if()else 
+axios.interceptors.response.use(function (response) {
+    //closeLoading();
     return response;
 }, function (err) {
+    //closeLoading();
     return Promise.reject(err);
 });
 

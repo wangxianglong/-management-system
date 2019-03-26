@@ -24,7 +24,8 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header @selection-change="changeFun">
+            <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
             <el-table-column label="号码" prop="name" width="300px" sortable></el-table-column>
             <el-table-column label="使用次数" prop="num" width="300px" sortable></el-table-column>
@@ -115,6 +116,7 @@
                 }],
                 currentPage:1,
                 pagesize:10,
+                selectLis:[]
             }
         },
         methods:{
@@ -128,8 +130,11 @@
                 
              }
                 
-        },
-
+            },
+            changeFun(val){
+                this.selectList=val
+                console.log(this.selectList)
+            }, 
             indexMethod(index) {
                 return index+1;
             },

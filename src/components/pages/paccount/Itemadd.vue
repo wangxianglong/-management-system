@@ -41,7 +41,9 @@
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="活动名" prop="activityName"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
@@ -95,7 +97,7 @@
     export default {
         data(){
             return { 
-                loading:false,
+                loading:true,
                 myData:{
                     id:null,
                     activityName:null,
@@ -140,6 +142,7 @@
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list
+                        this.loading=false
                     }else{
                         this.$message.error(res.data.message)
                     }
@@ -169,11 +172,9 @@
                 //console.log(this.rowData)
                 this.$http.post(this.$api.platform.activity,params).then(res=>{
                     //console.log(res)
-                    this.loading=true
                     if(res.data.code===0){
                         //that.tableData=res.data.param.resultList 
                         console.log(this.tableData)
-                        this.loading=false
                         this.activityShow=false;
                         this.getTablelist()
                     }

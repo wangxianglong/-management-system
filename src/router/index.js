@@ -10,7 +10,7 @@ import store from '../store/index'
 Vue.use(Router)
 
 const router= new Router({
-  
+  mode:'history',
   routes: [
     {
       path:'/test',
@@ -95,7 +95,7 @@ const router= new Router({
         },
         {
           path:'/pmtask',
-          name:'pmdtask',
+          name:'pmtask',
           component:resolve => require(['../components/pages/firmAccount/Pmtask.vue'],resolve),
           meta: {title:'项目管理详情分配任务'},
         },
@@ -190,21 +190,17 @@ router.beforeEach((to,from,next) => {
   //   }
   // }
  let token =store.state.token
- if(to.meta.isLogin){
-    if(token){
-      next(
-        this.$http.post(this.$api.login.login,{token}).then(
-          console.log("succes")
-        )
-      )
-    }else{
-      next({
-        path:'/login',
-        //query:{redirect:to.fullPath}
-      })
-    }
- }else{
-   next()
- }
+  if(to.meta.isLogin){
+      if(token){
+        next()
+      }else{
+        next({
+          path:'/login',
+          //query:{redirect:to.fullPath}
+        })
+      }
+  }else{
+    next()
+  }
 })
 export default router

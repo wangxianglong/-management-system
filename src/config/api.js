@@ -14,6 +14,9 @@ const platform={
 const firm= {
     itemList:'api/item/list',        //获取项目列表
     addItem:'api/item/save',          //新建项目
+    newItem:'api/item/distribution',     //分配活动
+    //userList:'api/user/userList',        //任务列表
+    monitorList:'api/user/monitorList'   //班长列表
 }
 //外呼
 const callee={

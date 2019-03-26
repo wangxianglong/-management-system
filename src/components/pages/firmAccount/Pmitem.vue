@@ -135,16 +135,14 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
-            coreView(index,row) {
+            coreView(row) {
                 //console.log(row);//每行的数据
                 //console.log(row.name)//获取活动名
                 //console.log(row.num)//获取数据量
-                this.dialogVisible=true
-                this.$router.push({name:'pmdetail'})
+                //console.log(row.id)
+                let id=row.id
+                this.$router.push({name:'pmdetail',params:{id:id}})
             },
-            
-            
-            
             delBtn(row){
                 this.tableData.splice(row,1)
             },
@@ -170,6 +168,9 @@
                     const data = this.formatJson(filterVal, list);
                     export_json_to_excel(tHeader, data, '项目管理');
                 })
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]))
             },
         },
         created(){

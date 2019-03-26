@@ -24,13 +24,49 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:20px">
-            <el-button type="primary" @click='getActivity'>分配</el-button>
-            <el-button type="primary">退回</el-button>
-            <el-button type="primary">修改</el-button>
-            <el-button type="primary">返回</el-button>
+            <el-button type="primary" @click='assignedBtn'>分配</el-button>
+            <el-button type="primary" @click='returnBtn'>退回</el-button>
+            <el-button type="primary" @click='amendBtn'>修改</el-button>
+            <el-button type="primary" @click='backBtn'>返回</el-button>
             <span style="margin-left:40px">当前可分配客户量：{{count}}</span>
         </div>
         <div class="divider"></div>
+        <!--弹框-->
+        <el-dialog title="批量分配" :visible.sync="taskDialog" width="30%">
+            <span>当前勾选坐席 {{num1}} 人</span>
+            <span>平均每人分配</span>
+            <input type="text" placeholder="上限为100" class="dialogInput">
+            <span>条数据</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="taskDialog = false">取 消</el-button>
+            <el-button type="primary" @click="assignedTasks">确 定</el-button>
+        </span>
+        </el-dialog>
+        <el-dialog title="批量退回" :visible.sync="returnDialog" width="30%">
+            <span>当前勾选坐席 {{num2}} 人</span>
+            <span>确定退回全部  {{num3}}  条数据？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="returnDialog = false">取 消</el-button>
+            <el-button type="primary" @click="goReturn">确 定</el-button>
+        </span>
+        </el-dialog>
+        <el-dialog title="批量删除" :visible.sync="deleteDialog" width="30%">
+            <span>当前勾选坐席 {{num4}} 人</span>
+            <span>可删除项目坐席 {{num5}} 确认删除？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="deleteDialog = false">取 消</el-button>
+            <el-button type="primary" @click="myDelete">确 定</el-button>
+        </span>
+        </el-dialog>
+        <el-dialog title="修改" :visible.sync="amendDialog" width="30%">
+            <span>当前坐席 可修改数据量 范围</span>
+            <input type="text" placeholder="1005~29067" class="dialogInput">
+            <span>确认修改？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="amendDialog = false">取 消</el-button>
+            <el-button type="primary" @click="amend">确 定</el-button>
+        </span>
+        </el-dialog>
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
             <el-table-column type="selection"></el-table-column>
@@ -65,6 +101,15 @@
     export default {
         data(){
             return {
+                taskDialog:false,
+                num1:12, 
+                returnDialog:false,
+                num2:12,
+                num3:123,
+                deleteDialog:false,
+                num4:3,
+                num5:2,
+                amendDialog:false,
                 searchList:{
                     taskname:'',
                     activityname:'',
@@ -137,11 +182,34 @@
             getActivityList(){
                 console.log("发送请求")
             },
-            //获取活动
-            getActivity(){
-                
+             //分配
+            assignedBtn(){
+                this.taskDialog=true
             },
-            
+            assignedTasks(){
+                this.taskDialog=false
+            },
+            //退回
+            returnBtn(){
+                this.returnDialog=true
+            },
+            goReturn(){
+                this.returnDialog=false
+            },
+            //删除
+            myDelete(){
+                this.deleteDialog=false
+            },
+            //修改
+            amendBtn(){
+                this.amendDialog=true
+            },
+            amend(){
+                this.amendDialog=false
+            },
+            backBtn(){
+                this.$router.push({name:'taskmanagement'})
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -175,5 +243,8 @@
 <style scoped>
     .pagebutton {
         float:right
+    }
+    .dialogInput {
+        width:80px
     }
 </style>

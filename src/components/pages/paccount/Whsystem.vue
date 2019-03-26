@@ -264,7 +264,6 @@
                 console.log("x详情")
                 this.$router.push({name:'whdetail',params:{userId:'wish'}})
             },
-           
             //表格选中事件
             changeFun(val){
                 this.selectList=val

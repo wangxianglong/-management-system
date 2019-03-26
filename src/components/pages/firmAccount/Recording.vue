@@ -54,7 +54,7 @@
             <el-table-column label="备注" prop="endTime"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">详情</el-button>
+                    <el-button type="text" @click="particulars(scope.row)">详情</el-button>
                     <!--<audio :src="" controls="controls" preload class="audio"></audio>-->
                 </template>
             </el-table-column>
@@ -64,12 +64,75 @@
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" layout="total, sizes, prev, pager, next, jumper" :total="400">
             </el-pagination>
         </div>
+        <!--详情-->
+        <el-dialog title="修改" :visible.sync="particularsDialog" width="600px">
+            <el-form ref="form" :model="form" label-width="80px" label-position="right">
+                <el-form-item label="营销情况">
+                    <el-select v-model="form.status" placeholder="请选择">
+                        <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="坐席反馈">
+                    <el-input type="textarea" v-model="form.desc"></el-input>
+                </el-form-item>
+                <el-form-item label="质检评级">
+                    <el-select v-model="form.deji" placeholder="请选择">
+                        <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="质检反馈">
+                    <el-input type="textarea" v-model="form.desc"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="particularsDialog = false">取 消</el-button>
+                <el-button type="primary" @click="particularsDialog = false">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
     export default {
         data(){
             return {
+                form:{
+                    desc:'',
+                    status:'',
+                    deji:''
+                },
+               particularsDialog:false,
+                options2: [{
+                    value: '选项1',
+                    label: '成功'
+                }, {
+                    value: '选项2',
+                    label: '下次再呼'
+                },{
+                    value: '选项3',
+                    label: '拉黑'
+                },{
+                    value: '选项4',
+                    label: '其他'
+                },{
+                    value: '选项5',
+                    label: '未保存'
+                },{
+                    value: '选项6',
+                    label: '失败'
+                }],
+                options1:[{
+                    value: '选项1',
+                    label: '优'
+                }, {
+                    value: '选项2',
+                    label: '良'
+                },{
+                    value: '选项3',
+                    label: '一般'
+                },{
+                    value: '选项4',
+                    label: '差'
+                }],
                 options: [{
                     value: '选项1',
                     label: '成功'
@@ -146,6 +209,9 @@
             },
             addTel(){
                 console.log('新增号码')
+            },
+            particulars(row){
+                this.particularsDialog=true
             }
         },
         created(){

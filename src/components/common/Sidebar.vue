@@ -1,5 +1,5 @@
 <template>
-    <div class="sideBar" >
+    <div class="sideBar" style="height:100%">
         <div>
         <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#000"
             text-color="#fff" active-text-color="#20a0ff" unique-opened router>
@@ -88,7 +88,6 @@
         computed:{
             onRoutes(){
                 return this.$route.path.replace('/','');
-                
             }
         },
         created(){

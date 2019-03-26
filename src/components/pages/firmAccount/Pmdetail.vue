@@ -10,13 +10,13 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="创建时间">
-                <el-date-picker v-model="tableData.crdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="开始时间：">
-                <el-date-picker v-model="tableData.stdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间：">
-                <el-date-picker v-model="tableData.jsdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item>
                 <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
@@ -34,7 +34,7 @@
         <el-dialog title="分配活动" :visible.sync="activityDialog" width="40%">
             <span>
                 <el-checkbox-group v-model="checkList">
-                    <el-checkbox v-for="activityitem in activity" :label="activityitem" :key="activityitem"></el-checkbox>
+                    <el-checkbox v-for="activityitem in activity" :label="activityitem" :key="activityitem.id">{{activityitem.activityName}}</el-checkbox>
                 </el-checkbox-group>
             </span>
             <span slot="footer" class="dialog-footer">
@@ -60,7 +60,7 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button>
+                    <el-button type="text" @click="taskEdit(scope.row)">分配任务</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -75,6 +75,9 @@
     export default {
         data(){
             return {
+                searchList:{
+                    name:''
+                },
                 checkList:[],
                 activity:[],
                 activityDialog:false,
@@ -109,6 +112,8 @@
                 tableData:[],
                 currentPage:1,
                 pagesize:10,
+                ids:null,
+                itemId:null
             }
         },
         methods:{
@@ -135,24 +140,36 @@
                 let params={pageIndex:1,pageSize:5,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res)
-                        this.activity=res.data.list.map(v=>v.activityName)
-                        console.log(this.activity)
+                        //console.log(res)
+                        this.activity=res.data.list
                     }else{
                         this.$message.error(res.data.message)
                     }
                 }).catch((e)=>{
                     console.log(e)
                 })
-                
             },
             addActivity(){
-                
-                this.activityDialog = false
+                console.log(this.checkList.map(v=>v.id).join())
+                let ids=this.checkList.map(v=>v.id).join()
+                let itemId=this.itemId
+                console.log(itemId)
+                this.$http.post(this.$api.firm.newItem,{ids:ids,itemId:itemId}).then(res => {
+                    if(res.data.code === 0){
+                        //console.log(res.data)
+                        this.activityDialog = false
+                        this.getactivityList()
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
+                }) 
             },
             goBack(){
                 this.$router.push({name:'pmitem'})
             },
+            //获取table列表
             getactivityList(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
@@ -168,13 +185,14 @@
                     console.log(e)
                 })
             },
+            //获取可分配活动
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
                 let params={pageIndex:1,pageSize:5,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res)
+                        //console.log(res)
                         this.count=res.data.count
                     }else{
                         this.$message.error(res.data.message)
@@ -184,13 +202,24 @@
                 })
             },
             //分配任务
-            taskEdit(index,row){
-                this.rputer.push({name:"pmtask"})
+            taskEdit(row){
+                console.log(row.id)
+                let  taskId=row.activityId
+                this.$router.push({name:"pmtask",params:{id:taskId}})
+            },
+            getId(){
+                var routerParams=this.$route.params.id
+                this.itemId=routerParams
+                //console.log(this.itemId)
             }
+        },
+        watch:{
+            '$route':'getId'
         },
         created(){
             this.getactivityList()
             this.getuserActivity()
+            this.getId()
         }
     }
 </script>

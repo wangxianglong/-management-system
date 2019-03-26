@@ -70,8 +70,8 @@ import register from '@/components/register'
                     if(valid) {
                         let userName=this.loginData.userName
                         let passWord=this.loginData.passWord
-                        this.$cookieStore.setCookie( userName ,'',60);
-                        this.$cookieStore.getCookie(userName)
+                        // this.$cookieStore.setCookie( userName ,'',1800);
+                        // this.$cookieStore.getCookie(userName)
                         this.$http.post(this.$api.login.login,{
                             userName,
                             passWord

@@ -23,9 +23,8 @@
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="活动名" prop="orderNum" sortable></el-table-column>
-            <el-table-column label="数据量" prop="orderMargin" sortable></el-table-column>
-            <el-table-column label="剩余数量" prop="createTime" sortable></el-table-column>
+            <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
+            <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
@@ -38,7 +37,7 @@
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" @click="taskEdit(scope.$index,scope.row)">进入外呼</el-button>
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">回退剩余数据</el-button>
+                    <!--<el-button type="text" @click="taskEdit(scope.$index,scope.row)">回退剩余数据</el-button>-->
                 </template>
             </el-table-column>
         </el-table>
@@ -123,9 +122,15 @@
             init (){
                 
             },
-            //获取活动列表
+            //获取表格列表
             getActivityList(){
-                console.log("发送请求")
+                let token=this.$cookieStore.getCookie('token')
+                this.$http.get(this.$api.monitor.taskAssign,{params:{token:token,pageIndex:1,pageSize:5}}).then(res =>{
+                    if(res.data.code===0){
+                        console.log(res.data.list)
+                        this.tableData=res.data.list
+                    }
+                })
             },
             //获取活动
             getActivity(){
@@ -145,7 +150,9 @@
                 this.dialogVisible=true
                 this.name=row.name
                 this.num=row.num
-                this.$router.push({name:'taskdetail'})
+                let id=row.activityId
+                //console.log(id)
+                this.$router.push({name:'taskdetail',query:{id:id}})
             },
             saveEdit(index){
                 this.dialogVisible=false 

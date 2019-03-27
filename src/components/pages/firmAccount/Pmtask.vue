@@ -4,6 +4,7 @@
             <el-form-item label="班长名">
                 <el-input placeholder="请输入任务名称" v-model="searchList.taskname"></el-input>
             </el-form-item>
+            <!--
             <el-form-item label="数据量">
                 <el-input v-model="searchList.activityname"></el-input>
             </el-form-item>
@@ -18,14 +19,16 @@
             <el-form-item label="结束时间">
                 <el-date-picker v-model="searchList.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
+            -->
             <el-form-item>
                 <el-button type='primary' style="margin-left:50px;">搜索</el-button>
             </el-form-item>
+            
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:20px">
             <el-button type="primary" @click='assignedBtn'>分配</el-button>
-            <el-button type="primary" @click='returnBtn'>退回</el-button>
+            <!--<el-button type="primary" @click='returnBtn'>退回</el-button>-->
             <!--<el-button type="primary" @click='amendBtn'>修改</el-button>-->
             <el-button type="primary" @click='backBtn'>返回</el-button>
             <span style="margin-left:40px">当前可分配客户量：{{count}}</span>
@@ -35,22 +38,23 @@
         <el-dialog title="批量分配" :visible.sync="taskDialog" width="30%">
             <span>当前勾选坐席 {{num1}} 人</span>
             <span>平均每人分配</span>
-            <input type="text" placeholder="上限为100" class="dialogInput">
+            <input type="text" :placeholder="holder" v-model="myNum" class="dialogInput">
             <span>条数据</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="taskDialog = false">取 消</el-button>
             <el-button type="primary" @click="assignedTasks">确 定</el-button>
         </span>
         </el-dialog>
+        <!--
         <el-dialog title="批量退回" :visible.sync="returnDialog" width="30%">
             <span>当前勾选坐席 {{num2}} 人</span>
-            <span>确定退回全部  {{num3}}  条数据？</span>
+            <span>确定退回全部  {{num2}}  条数据？</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="returnDialog = false">取 消</el-button>
             <el-button type="primary" @click="goReturn">确 定</el-button>
         </span>
         </el-dialog>
-        <!--
+        
         <el-dialog title="批量删除" :visible.sync="deleteDialog" width="30%">
             <span>当前勾选坐席 {{num4}} 人</span>
             <span>可删除项目坐席 {{num5}} 确认删除？</span>
@@ -59,7 +63,7 @@
             <el-button type="primary" @click="myDelete">确 定</el-button>
         </span>
         </el-dialog>
-        -->
+        
         <el-dialog title="修改" :visible.sync="amendDialog" width="30%">
             <span>当前坐席 可修改数据量 范围</span>
             <input type="text" placeholder="1005~29067" class="dialogInput">
@@ -69,9 +73,10 @@
             <el-button type="primary" @click="amend">确 定</el-button>
         </span>
         </el-dialog>
+        -->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header @selection-change="changeFun">
-            <el-table-column type="selection"></el-table-column>
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+            <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <!--<el-table-column type="index" label="序号" :index="indexMethod" align="center" width="300px"></el-table-column>-->
             <el-table-column label="班长" prop="userName" align="center"></el-table-column>
             <el-table-column label="未分配" prop="num" sortable align="center"></el-table-column>
@@ -107,21 +112,23 @@
     export default {
         data(){
             return {
+                holder:null,
+                selectList:[],
+                myNum:null,
                 taskDialog:false,
                 num1:12, 
-                returnDialog:false,
-                num2:12,
-                num3:123,
+                //returnDialog:false,
+                //num2:12,
                 //deleteDialog:false,
                 //num4:3,
                 //num5:2,
-                amendDialog:false,
+                //amendDialog:false,
                 searchList:{
                     taskname:'',
                     activityname:'',
                     time:''
                 }, 
-                selectList:[],
+                multipleSelection:[],
                 count:1,
                 selectName:'',
                 firmName:[],
@@ -157,40 +164,8 @@
                     label: '已过期'
                 }],
                 
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:2
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }],
-                taskId:null
+                tableData:[],
+                taskId:null,
             }
         },
         methods:{
@@ -198,10 +173,14 @@
             init (){
                 
             },
+            getRowKeys(row){
+                return row.key
+            },
             //表格选中事件
-            changeFun(val){
-                this.selectList=val
-                console.log(this.selectList)
+            handleSelectionChange(val){
+                var that=this
+                this.multipleSelection=val
+                //console.log(this.multipleSelection)
             }, 
             //获取活动列表
             getTablelist(){
@@ -217,30 +196,68 @@
             },
             //分配
             assignedBtn(){
-                
-                this.taskDialog=true
+                if (this.multipleSelection.length === 0) {
+                    this.$message({
+                        message: '请至少勾选一项，再进行操作',
+                        type: 'warning'
+                    });
+                    
+                } else {
+                    this.num1=this.multipleSelection.length
+                    this.taskDialog=true
+                    
+                }
             },
             assignedTasks(){
-                this.taskDialog=false
+                var arr=this.multipleSelection
+                let multis=[]
+                for(var i=0;i<arr.length;i++){
+                    multis.push(arr[i].id);
+                    //console.log(multis)
+                }
+                let activityId=this.taskId
+                let num=this.myNum
+                let ids=multis
+                //console.log(ids)
+                let params={activityId:activityId,num:num,ids:ids}
+                //console.log(activityId)
+                this.$http.post(this.$api.firm.assignMonitor,params).then(res=>{
+                    if(res.data.code===0){
+                        //this.tableData=res.data.list
+                        this.taskDialog=false
+                        this.getTablelist()
+                    }
+                })
+                
+                this.$refs.multipleTable.clearSelection()
             },
             //退回
-            returnBtn(){
-                this.returnDialog=true
-            },
-            goReturn(){
-                this.returnDialog=false
-            },
+            // returnBtn(){
+            //     if (this.multipleSelection.length === 0) {
+            //         this.$message({
+            //             message: '请至少勾选一项，再进行操作',
+            //             type: 'warning'
+            //         });
+                    
+            //     } else {
+            //         this.num2=this.multipleSelection.length
+            //         this.returnDialog=true
+            //     }
+            // },
+            // goReturn(){
+            //     this.returnDialog=false
+            // },
             //删除
             // myDelete(){
             //     this.deleteDialog=false
             // },
             //修改
-            amendBtn(){
-                this.amendDialog=true
-            },
-            amend(){
-                this.amendDialog=false
-            },
+            // amendBtn(){
+            //     this.amendDialog=true
+            // },
+            // amend(){
+            //     this.amendDialog=false
+            // },
             backBtn(){
                 this.$router.push({name:'pmdetail'})
             },
@@ -250,19 +267,19 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
-            taskEdit(index,row) {
-                //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
-                //console.log(row.num)//获取数据量
-                this.dialogVisible=true
-                this.name=row.name
-                this.num=row.num
-                this.$router.push({name:''})
-            },
-            saveEdit(index){
-                this.dialogVisible=false 
+            // taskEdit(index,row) {
+            //     //console.log(row);//每行的数据
+            //     //console.log(row.name)//获取活动名
+            //     //console.log(row.num)//获取数据量
+            //     this.dialogVisible=true
+            //     this.name=row.name
+            //     this.num=row.num
+            //     this.$router.push({name:''})
+            // },
+            // saveEdit(index){
+            //     this.dialogVisible=false 
                 
-            },
+            // },
             getId(){
                 var routerParams=this.$route.params.id
                 this.taskId=routerParams

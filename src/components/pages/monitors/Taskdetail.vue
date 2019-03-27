@@ -180,7 +180,15 @@
             },
             //获取活动列表
             getActivityList(){
-                console.log("发送请求")
+                let token=this.$cookieStore.getCookie('token')
+                let id=this.$route.query.id
+                //console.log(id)
+                this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id}}).then(res =>{
+                    if(res.data.code===0){
+                        console.log(res.data.list)
+                        this.tableData=res.data.list
+                    }
+                })
             },
              //分配
             assignedBtn(){

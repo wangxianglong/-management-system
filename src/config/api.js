@@ -16,7 +16,13 @@ const firm= {
     addItem:'api/item/save',          //新建项目
     newItem:'api/item/distribution',     //分配活动
     //userList:'api/user/userList',        //任务列表
-    monitorList:'api/user/monitorList'   //班长列表
+    monitorList:'api/user/monitorList',   //班长列表
+    assignMonitor:'api/project/assignMonitor'  //分配班长任务
+}
+//班长
+const monitor={
+    taskAssign:'api/project/taskAssign',         //班长任务管理
+    seatList:'api/user/seatList',               //班长详情
 }
 //外呼
 const callee={
@@ -26,5 +32,6 @@ export default {
     platform,
     login,
     callee,
-    firm
+    firm,
+    monitor
 }

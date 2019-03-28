@@ -20,20 +20,20 @@
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="活动名" prop="orderMargin" sortable></el-table-column>
-            <el-table-column label="数据量" prop="createTime" sortable></el-table-column>
+            <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
+            <el-table-column label="数据量" prop="num" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.status===0">未完成</el-button>
-                    <el-button type="text" v-if="scope.row.status===1">已完成</el-button>
+                    <el-button type="text" style="color:red" v-if="scope.row.status===3">进行中</el-button>
+                    <el-button type="text" v-if="scope.row.status===4">已完成</el-button>
                 </template> 
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" @click="taskEdit(scope.$index,scope.row)">进入外呼</el-button>
-                    <el-button type="text">回退剩余数据</el-button>
+                    <!-- <el-button type="text">回退剩余数据</el-button> -->
                 </template>
             </el-table-column>
         </el-table>
@@ -78,39 +78,7 @@
                     label:'未完成'
                 }],
                 
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }]
+                tableData:[]
             }
         },
         methods:{
@@ -120,7 +88,16 @@
             },
             //获取活动列表
             getActivityList(){
-                console.log("发送请求")
+                let token=this.$cookieStore.getCookie('token')
+                let params={token:token}
+                this.$http.get(this.$api.amati.seatActive,{params:params}).then(res =>{
+                    if(res.data.code===0){
+                        this.tableData=res.data.list
+                        console.log(this.tableData)
+                    }
+                }).catch(error => {
+                    console.log("出错了")
+                })
             },
             //获取活动
             getActivity(){
@@ -140,7 +117,8 @@
                 this.dialogVisible=true
                 this.name=row.name
                 this.num=row.num
-                this.$router.push({name:'calleedetail'})
+                let activityId=row.activityId
+                this.$router.push({name:'calleedetail',query:{activityId:activityId}})
             },
             saveEdit(index){
                 this.dialogVisible=false 

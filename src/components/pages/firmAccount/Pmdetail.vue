@@ -113,7 +113,6 @@
                 currentPage:1,
                 pagesize:10,
                 ids:null,
-                itemId:null
             }
         },
         methods:{
@@ -136,6 +135,7 @@
             fpActivity(){
                 this.activityDialog=true
                 let token=this.$cookieStore.getCookie('token')
+                //let status=this.$route.query.status
                 //console.log(token)
                 let params={pageIndex:1,pageSize:5,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
@@ -152,7 +152,7 @@
             addActivity(){
                 console.log(this.checkList.map(v=>v.id).join())
                 let ids=this.checkList.map(v=>v.id).join()
-                let itemId=this.itemId
+                let itemId=this.$route.query.id
                 console.log(itemId)
                 this.$http.post(this.$api.firm.newItem,{ids:ids,itemId:itemId}).then(res => {
                     if(res.data.code === 0){
@@ -205,21 +205,22 @@
             taskEdit(row){
                 console.log(row.id)
                 let  taskId=row.activityId
-                this.$router.push({name:"pmtask",params:{id:taskId}})
+                let status=row.status
+                this.$router.push({name:"pmtask",query:{id:taskId,status:status}})
             },
-            getId(){
-                var routerParams=this.$route.params.id
-                this.itemId=routerParams
-                //console.log(this.itemId)
-            }
+            // getId(){
+            //     var routerParams=this.$route.params.id
+            //     this.itemId=routerParams
+            //     //console.log(this.itemId)
+            // }
         },
         watch:{
-            '$route':'getId'
+            //'$route':'getId'
         },
         created(){
             this.getactivityList()
             this.getuserActivity()
-            this.getId()
+            //this.getId()
         }
     }
 </script>

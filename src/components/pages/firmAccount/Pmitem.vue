@@ -41,7 +41,7 @@
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
             <el-table-column label="项目名" prop="itemName"></el-table-column>
-            <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
+            <el-table-column label="活动量" prop="num" sortable></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
@@ -102,7 +102,8 @@
             },
             //获取项目列表
             getItemlist(){
-                let params={pageSize:5,pageIndex:1}
+                let token=this.$cookieStore.getCookie('token')
+                let params={pageSize:5,pageIndex:1,token:token}
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
@@ -141,7 +142,8 @@
                 //console.log(row.num)//获取数据量
                 //console.log(row.id)
                 let id=row.id
-                this.$router.push({name:'pmdetail',params:{id:id}})
+                
+                this.$router.push({name:'pmdetail',query:{id:id}})
             },
             delBtn(row){
                 this.tableData.splice(row,1)

@@ -29,9 +29,9 @@
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.status===0">未开始</el-button>
-                    <el-button type="text" v-if="scope.row.status===1">进行中</el-button>
-                    <el-button type="text" style="color:#000" v-if="scope.row.status===2">已完成</el-button>
+                    
+                    <el-button type="text" v-if="scope.row.status===2||scope.row.status===3">进行中</el-button>
+                    <el-button type="text" style="color:#000" v-if="scope.row.status===4">已完成</el-button>
                 </template> 
             </el-table-column>
             <el-table-column label="操作">
@@ -151,8 +151,10 @@
                 this.name=row.name
                 this.num=row.num
                 let id=row.activityId
+                let status=row.status
+                console.log(status)
                 //console.log(id)
-                this.$router.push({name:'taskdetail',query:{id:id}})
+                this.$router.push({name:'taskdetail',query:{id:id,status:status}})
             },
             saveEdit(index){
                 this.dialogVisible=false 

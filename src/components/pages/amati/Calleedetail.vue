@@ -26,16 +26,16 @@
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="姓氏/性别" prop="orderNum" sortable></el-table-column>
-            <el-table-column label="电话" prop="orderMargin" sortable></el-table-column>
-            <el-table-column label="省份" prop="createTime" sortable></el-table-column>
-            <el-table-column label="地市" prop="startTime" sortable></el-table-column>
-            <el-table-column label="呼叫次数" prop="endTime" sortable></el-table-column>
-            <el-table-column label="最后拨打时间" prop="endTime" sortable></el-table-column>
-            <el-table-column label="通话时长" prop="endTime" sortable></el-table-column>
-            <el-table-column label="客户有效期" sortable>
+            <el-table-column label="姓氏/性别" prop="cName" sortable width="150px"></el-table-column>
+            <el-table-column label="电话" prop="phoneNum" sortable width="150px"></el-table-column>
+            <el-table-column label="省份" prop="provide" sortable></el-table-column>
+            <el-table-column label="地市" prop="area" sortable></el-table-column>
+            <el-table-column label="呼叫次数" prop="callNum" sortable width="200px"></el-table-column>
+            <el-table-column label="最后拨打时间" prop="lastCallTime" sortable width="200px"></el-table-column>
+            <el-table-column label="通话时长" prop="callDuratiom" sortable width="200px"></el-table-column>
+            <!-- <el-table-column label="客户有效期" sortable>
                 <el-button type="text" @click="whdialog">失效</el-button>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" @click="taskEdit(scope.$index,scope.row)">外呼</el-button>
@@ -48,38 +48,45 @@
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
             </el-pagination>
         </div>
-        <el-dialog title="呼叫主席" :visible.sync="showcalleeDialog" width="600px">
+        <el-dialog title="呼叫主席" :visible.sync="showcalleeDialog" width="600px" :before-close="beforClose">
             <el-form ref="form" :model="form" label-width="60px">
-            <span style="color:red;margin:0 20px">外显({{form.tel}})</span><span>电话正在拨打中......{{form.time}}</span>
+            <span style="color:red;margin:0 20px">电话正在拨打中......{{form.time}}</span>
             <el-form-item label="姓名">
-                <el-radio-group v-model="form.gender">
-                <el-radio label="先生"></el-radio>
-                <el-radio label="女士"></el-radio>
-                </el-radio-group>
+                <template>
+                    <span>{{form.cName}}</span>
+                </template>
             </el-form-item>
             <el-form-item label="手机">
-                <el-input type="text" v-model="form.phone" size="mini"></el-input>
+                <span>{{form.phoneNum}}</span>
             </el-form-item>
-            <el-form-item label="状态">
-                <el-checkbox-group v-model="form.type">
-                    <el-checkbox label="已成交" name="type"></el-checkbox>
-                    <el-checkbox label="A" name="type"></el-checkbox>
-                    <el-checkbox label="B" name="type"></el-checkbox>
-                    <el-checkbox label="C" name="type"></el-checkbox>
-                    <el-checkbox label="D" name="type"></el-checkbox>
-                    <el-checkbox label="未接通" name="type"></el-checkbox>
-                    <el-checkbox label="其他" name="type" disabled></el-checkbox>
-                </el-checkbox-group>
+            <el-form-item label="意向">
+                <el-radio-group v-model="form.intention">
+                    <el-radio :label="1">A</el-radio>
+                    <el-radio :label="2">B</el-radio>
+                    <el-radio :label="3">C</el-radio>
+                    <el-radio :label="4">D</el-radio>
+                    <el-radio :label="5">未接通</el-radio>
+                    <el-radio :label="6">其他</el-radio>
+                </el-radio-group>
+                <!-- <el-checkbox-group v-model="intention">
+                    <el-checkbox label="1">A</el-checkbox>
+                    <el-checkbox label="B"></el-checkbox>
+                    <el-checkbox label="C"></el-checkbox>
+                    <el-checkbox label="D"></el-checkbox>
+                    <el-checkbox label="未接通"></el-checkbox>
+                    <el-checkbox label="其他"></el-checkbox>
+                </el-checkbox-group> -->
             </el-form-item>
-            <el-form-item>
+            <!-- <el-form-item>
                 <el-input type="textarea" v-model="form.desc" size="medium"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="话术">
-                <el-input type="textarea" v-model="form.desc"></el-input>
+                <el-input type="textarea" v-model="form.content"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button>加载上一个</el-button>
-                <el-button type="primary" @click="onSubmit">保存并拨打下一个</el-button>
+                <el-button type="primary" @click="afterload">加载上一个</el-button>
+                <el-button type="primary" @click="saveEdit">保存</el-button>
+                <el-button type="primary" @click="onSubmit">拨打下一个</el-button>
             </el-form-item>
             </el-form>
         </el-dialog>
@@ -91,13 +98,14 @@
         data(){
             return {
                 showcalleeDialog:false,
+                
                 form:{
                     tel:1234444,
                     time:222,
                     phone:"",
                     desc:'',
                     type:["其他"],
-                    desc:''
+                    intention:''
                 },
                 showcalleeDialog:false,
                 searchList:{
@@ -146,39 +154,9 @@
                     value: '选项2',
                     label: '女士'
                 }],
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:2
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }]
+                tableData:[],
+                isSave:false,
+                customerId:null
             }
         },
         methods:{
@@ -191,11 +169,15 @@
             },
             //获取活动列表
             getActivityList(){
-                console.log("发送请求")
-            },
-            //获取活动
-            getActivity(){
-                
+                let token=this.$cookieStore.getCookie('token')
+                let params={token:token,pageIndex:1,pageSize:5}
+                this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
+                    if(res.data.code===0){
+                        this.tableData=res.data.list
+                    }
+                }).catch(error => {
+                    console.log("出错了")
+                })
             },
             
             indexMethod(index) {
@@ -211,17 +193,46 @@
                 this.dialogVisible=true
                 this.name=row.name
                 this.num=row.num
-                this.showcalleeDialog=true
+                this.customerId=row.customerId
+                let activityId=this.$route.query.activityId
+                let params={customerId:this.customerId,activityId:activityId,pageIndex:1,pageSize:5}
+                this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
+                    if(res.data.code===0){
+                        this.form=res.data.data
+                        this.showcalleeDialog=true
+                    }
+                }).catch(error => {
+                    console.log("出错了")
+                })  
             },
-            saveEdit(index){
-                this.dialogVisible=false 
-                
+            beforClose(){
+                if(!this.isSave){
+                    alert("未保存")
+                    return
+                }
+                this.showcalleeDialog=false
             },
-            whdialog(){
-                this.showcalleeDialog=true
+            // whdialog(){
+            //     this.showcalleeDialog=true
+            // },
+            afterload(){
+
             },
             onSubmit(){
-                console.log("保存")
+                console.log(row)
+            },
+            saveEdit(){
+                
+                let intention=this.form.intention
+                let params={customerId:this.customerId,intention:intention}
+                this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
+                    if(res.data.code===0){
+                        console.log(res)
+                        this.isSave=true
+                    }
+                }).catch(error => {
+                    console.log("出错了")
+                }) 
             }
         },
         created(){

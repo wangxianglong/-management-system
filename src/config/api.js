@@ -23,6 +23,14 @@ const firm= {
 const monitor={
     taskAssign:'api/project/taskAssign',         //班长任务管理
     seatList:'api/user/seatList',               //班长详情
+    assignSeat:'api/project/assignSeat'         //分配任务
+}
+//坐席
+const amati={
+    seatActive:'api/project/seatActive',       //坐席外呼
+    getDataList:'api/call/getDataList',         //坐席外呼详情
+    getDataDetail:'api/call/getDataDetail',     //外呼
+    updateCustomer:'api/call/updateCustomer'    //保存
 }
 //外呼
 const callee={
@@ -33,5 +41,6 @@ export default {
     login,
     callee,
     firm,
-    monitor
+    monitor,
+    amati
 }

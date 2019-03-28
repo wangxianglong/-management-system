@@ -165,7 +165,7 @@
                 }],
                 
                 tableData:[],
-                taskId:null,
+                //taskId:null,
             }
         },
         methods:{
@@ -182,15 +182,27 @@
                 this.multipleSelection=val
                 //console.log(this.multipleSelection)
             }, 
-            //获取活动列表
+            //获取表格列表
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
-                let activityId=this.taskId
+                let activityId=this.$route.query.id
+                let status=this.$route.query.status
+                //console.log(status+'jia')
                 //console.log(activityId)
-                this.$http.get(this.$api.firm.monitorList,{params:{token:token,activityId:activityId}}).then(res=>{
+                this.$http.get(this.$api.firm.monitorList,{params:{token:token,activityId:activityId,status:status}}).then(res=>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
+                        
                         this.count=res.data.count
+                        //let arr=this.tableData
+                        if(status==1){
+                            for(let i=0;i<this.tableData.length;i++){
+                                //this.tableData[i].num=0
+                                this.$set(this.tableData[i],'num',0)
+                                //console.log("aaa")
+                            } 
+                        }
+                        
                     }
                 })
             },
@@ -215,7 +227,7 @@
                     multis.push(arr[i].id);
                     //console.log(multis)
                 }
-                let activityId=this.taskId
+                let activityId=this.$route.query.id
                 let num=this.myNum
                 let ids=multis
                 //console.log(ids)
@@ -280,20 +292,23 @@
             //     this.dialogVisible=false 
                 
             // },
-            getId(){
-                var routerParams=this.$route.params.id
-                this.taskId=routerParams
-                //console.log(this.taskId)
-            }
+            // getId(){
+            //     var routerParams=this.$route.params.id
+            //     this.taskId=routerParams
+            //     //console.log(this.taskId)
+            // }
         },
         created(){
             this.init(
-                this.getId(),
-                this.getTablelist(),
+                //this.getId(),
+                //this.getTablelist(),
             )
         },
+        mounted(){
+            this.getTablelist()
+        },
         watch:{
-            '$route':'getId'
+            //'$route':'getId'
         },
         computed:{
             

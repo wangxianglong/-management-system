@@ -25,8 +25,10 @@
         <div class="small-divider"></div>
         <div style="padding:20px">
             <el-button type="primary" @click='assignedBtn'>分配</el-button>
+            <!--
             <el-button type="primary" @click='returnBtn'>退回</el-button>
             <el-button type="primary" @click='amendBtn'>修改</el-button>
+            -->
             <el-button type="primary" @click='backBtn'>返回</el-button>
             <span style="margin-left:40px">当前可分配客户量：{{count}}</span>
         </div>
@@ -35,13 +37,14 @@
         <el-dialog title="批量分配" :visible.sync="taskDialog" width="30%">
             <span>当前勾选坐席 {{num1}} 人</span>
             <span>平均每人分配</span>
-            <input type="text" placeholder="上限为100" class="dialogInput">
+            <input type="text" class="dialogInput" v-model="myNum" :placeholder="holder">
             <span>条数据</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="taskDialog = false">取 消</el-button>
             <el-button type="primary" @click="assignedTasks">确 定</el-button>
         </span>
         </el-dialog>
+        <!--
         <el-dialog title="批量退回" :visible.sync="returnDialog" width="30%">
             <span>当前勾选坐席 {{num2}} 人</span>
             <span>确定退回全部  {{num3}}  条数据？</span>
@@ -67,12 +70,14 @@
             <el-button type="primary" @click="amend">确 定</el-button>
         </span>
         </el-dialog>
+        -->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
-            <el-table-column type="selection"></el-table-column>
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+            <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="坐席" prop="activityName"></el-table-column>
-            <el-table-column label="客户量" prop="orderNum" sortable></el-table-column>
+            <el-table-column label="坐席" prop="userName" align="center"></el-table-column>
+            <el-table-column label="客户量" prop="num" align="center"></el-table-column>
+            <!--
             <el-table-column label="任务开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="任务结束时间" prop="endTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
@@ -87,6 +92,7 @@
                     <el-button type="text" @click="taskEdit(scope.$index,scope.row)">2019-2-12</el-button>
                 </template>
             </el-table-column>
+            -->
         </el-table>
         </div>
         <!--分页导航-->
@@ -101,15 +107,17 @@
     export default {
         data(){
             return {
+                myNum:null,
+                multipleSelection:[],
                 taskDialog:false,
                 num1:12, 
-                returnDialog:false,
-                num2:12,
-                num3:123,
-                deleteDialog:false,
-                num4:3,
-                num5:2,
-                amendDialog:false,
+                // returnDialog:false,
+                // num2:12,
+                // num3:123,
+                // deleteDialog:false,
+                // num4:3,
+                // num5:2,
+                // amendDialog:false,
                 searchList:{
                     taskname:'',
                     activityname:'',
@@ -137,40 +145,8 @@
                     value:'选项3',
                     label:'项目2'
                 }],
-                
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:2
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }]
+                holder:null,
+                tableData:[]
             }
         },
         methods:{
@@ -178,43 +154,84 @@
             init (){
                 
             },
-            //获取活动列表
+            getRowKeys(row){
+                return row.key
+            },
+            handleSelectionChange(val){
+                var that=this
+                this.multipleSelection=val
+                //console.log(this.multipleSelection)
+            },
+            //获取表格列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
                 let id=this.$route.query.id
+                let status=this.$route.query.status
                 //console.log(id)
-                this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id}}).then(res =>{
+                this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id,status:status}}).then(res =>{
                     if(res.data.code===0){
-                        console.log(res.data.list)
+                        //console.log(res.data.list)
                         this.tableData=res.data.list
+                        this.count=res.data.count
                     }
                 })
             },
              //分配
             assignedBtn(){
-                this.taskDialog=true
+                if (this.multipleSelection.length === 0) {
+                    this.$message({
+                        message: '请至少勾选一项，再进行操作',
+                        type: 'warning'
+                    });
+                    
+                } else {
+                    this.num1=this.multipleSelection.length
+                    this.taskDialog=true
+                    
+                }
             },
             assignedTasks(){
-                this.taskDialog=false
+                let token=this.$cookieStore.getCookie('token')
+                var arr=this.multipleSelection
+                let multis=[]
+                for(var i=0;i<arr.length;i++){
+                    multis.push(arr[i].id);
+                    //console.log(multis)
+                }
+                let activityId=this.$route.query.id
+                let num=this.myNum
+                let ids=multis
+                //console.log(ids)
+                let params={token:token,num:num,ids:ids,activityId:activityId}
+                //console.log(activityId)
+                this.$http.post(this.$api.monitor.assignSeat,params).then(res=>{
+                    if(res.data.code===0){
+                        //this.tableData=res.data.list
+                        this.taskDialog=false
+                        this.getActivityList()
+                    }
+                })
+                
+                this.$refs.multipleTable.clearSelection()
             },
-            //退回
-            returnBtn(){
-                this.returnDialog=true
-            },
-            goReturn(){
-                this.returnDialog=false
-            },
-            //删除
-            myDelete(){
-                this.deleteDialog=false
-            },
-            //修改
-            amendBtn(){
-                this.amendDialog=true
-            },
-            amend(){
-                this.amendDialog=false
-            },
+            // //退回
+            // returnBtn(){
+            //     this.returnDialog=true
+            // },
+            // goReturn(){
+            //     this.returnDialog=false
+            // },
+            // //删除
+            // myDelete(){
+            //     this.deleteDialog=false
+            // },
+            // //修改
+            // amendBtn(){
+            //     this.amendDialog=true
+            // },
+            // amend(){
+            //     this.amendDialog=false
+            // },
             backBtn(){
                 this.$router.push({name:'taskmanagement'})
             },
@@ -231,7 +248,6 @@
                 this.dialogVisible=true
                 this.name=row.name
                 this.num=row.num
-                this.$router.push({name:''})
             },
             saveEdit(index){
                 this.dialogVisible=false 

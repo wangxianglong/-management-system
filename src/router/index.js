@@ -88,13 +88,13 @@ const router= new Router({
           meta: {title:'项目管理'},
         },
         {
-          path:'/pmdetail/:id',
+          path:'/pmdetail',
           name:'pmdetail',
           component:resolve => require(['../components/pages/firmAccount/Pmdetail.vue'],resolve),
           meta: {title:'项目管理详情'},
         },
         {
-          path:'/pmtask/:id',
+          path:'/pmtask',
           name:'pmtask',
           component:resolve => require(['../components/pages/firmAccount/Pmtask.vue'],resolve),
           meta: {title:'项目管理详情分配任务'},

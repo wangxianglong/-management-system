@@ -52,10 +52,21 @@
                 </template> 
             </el-table-column>
             <el-table-column label="备注" prop="endTime"></el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="400px">
                 <template slot-scope="scope">
                     <el-button type="text" @click="particulars(scope.row)">详情</el-button>
-                    <!--<audio :src="" controls="controls" preload class="audio"></audio>-->
+                    <audio src="audio.mp3" preload="auto" controls autoplay></audio>
+                    <!--
+                    <div class="in-audio">
+                        <audio src="http://sc1.111ttt.com/2017/4/05/10/298101104389.mp3" id="audio"></audio>
+                        <div class="progress">
+                        <mu-slider v-model="value" class="progress-item" v-on:change="changeprogress" />
+                        </div>
+                        <div class="play" v-on:click="startaudio">播放</div>
+                        <div class="stop" v-on:click="stopaudio">暂停</div>
+                        <div class="time">{{currentminutetime}}:{{currentsecondtime}} / {{allminutetime}}:{{allsecondtime}}</div>
+                    </div>
+                    -->
                 </template>
             </el-table-column>
         </el-table>

@@ -1,6 +1,7 @@
 //登录
 const login={
-    login:'api/login'
+    login:'api/login',
+    seatLogin:'api/call/seatLogin'
 }
 //平台账户
 const platform={

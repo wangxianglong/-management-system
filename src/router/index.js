@@ -4,9 +4,12 @@ import Router from 'vue-router'
 import Test from '@/components/test.vue'
 import login from '@/components/Login.vue'
 import store from '../store/index'
+import $http from '../config/axios'
+import $api from '../config/api';
 //import {setCookie,getCookie,delCookie} from '@/config/cookie'
 
-
+Vue.use($api)
+Vue.use($http)
 Vue.use(Router)
 
 const router= new Router({
@@ -145,7 +148,7 @@ const router= new Router({
           path:'/recall',
           name:'recall',
           component:resolve => require(['../components/pages/amati/Recall.vue'],resolve),
-          meta: {title:'外呼'},
+          meta: {title:'重呼'},
         },
         {
           path:'/calleedetail',
@@ -177,30 +180,29 @@ const router= new Router({
   ]
 })
 router.beforeEach((to,from,next) => {
-  // let userName=getCookie('userName')
-  // if(to.meta.isLogin){
-  //   if(userName==""||userName=='undefine'){
-  //     next({
-  //       path:'/login'
-  //     })
-  //   }else{
-  //     next({
-  //       path:'/index'
-  //     })
-  //   }
-  // }
- let token =store.state.token
-  if(to.meta.isLogin){
-      if(token){
-        next()
-      }else{
-        next({
-          path:'/login',
-          //query:{redirect:to.fullPath}
-        })
-      }
-  }else{
-    next()
-  }
+//  let token =store.state.token
+//   if(to.meta.isLogin){
+//       if(token){
+//         next()
+//       }else{
+//         next({
+//           path:'/login',
+//           //query:{redirect:to.fullPath}
+//         })
+//       }
+//   }else{
+//     next()
+//   }
+    if(to.meta.title==="外呼"){
+      let token =store.state.token
+      $http.post($api.login.seatLogin,{token:token}).then( res =>{
+        console.log(res)
+      }).catch(error=>{
+        console.log(error)
+      })
+    }else{
+      next()
+    }
+
 })
 export default router

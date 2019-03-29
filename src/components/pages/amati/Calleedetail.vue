@@ -84,9 +84,9 @@
                 <el-input type="textarea" v-model="form.content"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="afterload">加载上一个</el-button>
+                <!-- <el-button type="primary" @click="afterload">加载上一个</el-button> -->
                 <el-button type="primary" @click="saveEdit">保存</el-button>
-                <el-button type="primary" @click="onSubmit">拨打下一个</el-button>
+                <el-button type="primary" @click="onSubmit" v-if="showBtn">拨打下一个</el-button>
             </el-form-item>
             </el-form>
         </el-dialog>
@@ -98,7 +98,7 @@
         data(){
             return {
                 showcalleeDialog:false,
-                
+                showBtn:true,
                 form:{
                     tel:1234444,
                     time:222,
@@ -156,7 +156,10 @@
                 }],
                 tableData:[],
                 isSave:false,
-                customerId:null
+                customerId:null,
+                row:null,
+                index:null,
+                activityId:null
             }
         },
         methods:{
@@ -193,9 +196,11 @@
                 this.dialogVisible=true
                 this.name=row.name
                 this.num=row.num
+                this.row=row
+                this.index=index+1
                 this.customerId=row.customerId
-                let activityId=this.$route.query.activityId
-                let params={customerId:this.customerId,activityId:activityId,pageIndex:1,pageSize:5}
+                this.activityId=this.$route.query.activityId
+                let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.form=res.data.data
@@ -215,19 +220,35 @@
             // whdialog(){
             //     this.showcalleeDialog=true
             // },
-            afterload(){
+            // afterload(){
 
-            },
+            // },
             onSubmit(){
-                console.log(row)
+                if(index===total){
+                    this.showBtn=false
+                } 
+                let index=this.index++
+                let total=this.tableData.length-1
+                // console.log(index)
+                // console.log(total)
+                let customerId=this.tableData[index].customerId
+                let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
+                this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
+                    if(res.data.code===0){
+                        this.form=res.data.data
+                        //console.log(this.form)
+                    }
+                }).catch(error => {
+                    console.log("出错了")
+                })
+                 
             },
             saveEdit(){
-                
                 let intention=this.form.intention
                 let params={customerId:this.customerId,intention:intention}
                 this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.isSave=true
                     }
                 }).catch(error => {
@@ -240,9 +261,7 @@
                 this.getActivityList()
             )
         },
-        computed:{
-            
-        }
+        
     }
 </script>
 <style scoped>

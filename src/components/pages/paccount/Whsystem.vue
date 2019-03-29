@@ -41,6 +41,10 @@
             </el-table-column>
         </el-table>
         </div>
+
+        <el-dialog title="房产教育" :visible.sync="boardDialog" center width="90%">
+            <v-board></v-board>
+        </el-dialog>
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
             </el-pagination>
@@ -48,11 +52,13 @@
     </div>
 </template>
 <script>
+    import vBoard from '../../common/Board.vue'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     export default {
         data(){
             return {
+                boardDialog:false,
                 myData:{
                     name:'',
                     num:'',
@@ -247,6 +253,9 @@
                 selectList:[]
             }
         },
+        components:{
+            vBoard
+        },
         methods:{
             gosearch(){
                 //this.searchList=this.tableData
@@ -258,7 +267,7 @@
                 this.currentPage =currentPage;
             },
             handleKb(index,row){
-                console.log("kanban")
+                this.boardDialog=true
             },
             handleXq(index,row){
                 console.log("x详情")

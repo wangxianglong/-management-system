@@ -19,20 +19,20 @@
         <el-table id="out-table" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="70px"></el-table-column>
-            <el-table-column label="项目名称" prop="name" width="100px"></el-table-column>
-            <el-table-column label="数据量" prop="num" sortable width="100px"></el-table-column>
-            <el-table-column label="下发量" prop="xfnum" sortable width="100px"></el-table-column>
-            <el-table-column label="呼出量" prop="hcnum" sortable width="100px"></el-table-column>
-            <el-table-column label="拨打量" prop="bdnum" sortable width="100px"></el-table-column>
-            <el-table-column label="呼通量" prop="htnum" sortable width="100px"></el-table-column>
-            <el-table-column label="成功量" prop="cgnum" sortable width="100px"></el-table-column>
-            <el-table-column label="成功率" prop="win" sortable width="100px"></el-table-column>
-            <el-table-column label="失败量" prop="sbnum" sortable width="100px"></el-table-column>
-            <el-table-column label="失败率" prop="failure" sortable width="100px"></el-table-column>
-            <el-table-column label="再呼次数" prop="againnum" sortable width="100px"></el-table-column>
-            <el-table-column label="再呼率" prop="againx" sortable width="100px"></el-table-column>
-            <el-table-column label="总时长" prop="ztotal" sortable width="100px"></el-table-column>
-            <el-table-column label="计费时长" prop="timetotal" sortable width="100px"></el-table-column>
+            <el-table-column label="项目名称" prop="itemName" width="100px"></el-table-column>
+            <el-table-column label="数据量" prop="cusNum" sortable width="100px"></el-table-column>
+            <el-table-column label="下发量" prop="assignNum" sortable width="100px"></el-table-column>
+            <el-table-column label="呼出量" prop="expiration" sortable width="100px"></el-table-column>
+            <el-table-column label="拨打量" prop="dialNum" sortable width="100px"></el-table-column>
+            <el-table-column label="呼通量" prop="flux" sortable width="100px"></el-table-column>
+            <el-table-column label="成功量" prop="successNum" sortable width="100px"></el-table-column>
+            <el-table-column label="成功率" prop="successRate" sortable width="100px" :formatter="formatWin"></el-table-column>
+            <el-table-column label="失败量" prop="failNum" sortable width="100px"></el-table-column>
+            <el-table-column label="失败率" prop="failRate" sortable width="100px" :formatter="formatfail"></el-table-column>
+            <el-table-column label="再呼次数" prop="againNum" sortable width="100px" :formatter="formatagainNum"></el-table-column>
+            <el-table-column label="再呼率" prop="againRate" sortable width="100px" :formatter="formatagainRate"></el-table-column>
+            <el-table-column label="总时长" prop="duration" sortable width="100px"></el-table-column>
+            <el-table-column label="计费时长" prop="charging" sortable width="100px"></el-table-column>
             <el-table-column label="详情"  width="100px">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="handleKb(scope.$index,scope.row)">看板</el-button>
@@ -43,7 +43,7 @@
         </div>
 
         <el-dialog title="房产教育" :visible.sync="boardDialog" center width="90%">
-            <v-board></v-board>
+            <v-board :childData="childData" :seatList="seatList" :myRow="myRow" v-if="childData.length > 0"></v-board>
         </el-dialog>
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
@@ -64,193 +64,17 @@
                     num:'',
                     time:''
                 },
+                win:null,
                 value:'',
                 createtime:'',
-                tableData:[{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    win:'50%',
-                    sbnum:356,
-                    failure:"30%",
-                    againnum:35456,
-                    againx:333,
-                    ztotal:100000,
-                    timetotal:"00:00:00"
-                }],
+                tableData:[],
                 rowData:'',
                 currentPage:1,
                 pagesize:10,
-                selectList:[]
+                selectList:[],
+                childData:[],
+                seatList:[],
+                myRow:null,
             }
         },
         components:{
@@ -266,7 +90,68 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
+            //获取表格数据
+            getTablelist(){
+                let token=this.$cookieStore.getCookie('token')
+                //console.log(token)
+                this.$http.get(this.$api.callee.statistics,{params:{pageIndex:1,pageSize:5,token:token}}).then(res => {
+                    if(res.data.code === 0){
+                        console.log(res.data)
+                        this.tableData=res.data.list
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
+                })
+            },
+            formatWin(row,column){
+                let successRate=row[column.property]
+                successRate=row.successNum/row.cusNum
+                if(!row.cusNum){
+                    return '--'
+                }else{
+                    return successRate
+                }
+            },
+            formatfail(row,column){
+                let failRate=row[column.property]
+                failRate=row.failNum/row.cusNum
+                if(!row.cusNum){
+                    return '--'
+                }else{
+                    return failRate
+                }
+            },
+            formatagainNum(row,column){
+                let againNum=row[column.property]
+                againNum=row.dialNum-row.expiration
+                return againNum
+            },
+            formatagainRate(row,column){
+                let againRate=row[column.property]
+                againRate=(row.dialNum-row.expiration)/row.cusNum
+                if(!row.cusNum){
+                    return '--'
+                }else{
+                    return againRate
+                }
+            },
             handleKb(index,row){
+                this.myRow=row
+                let token=this.$cookieStore.getCookie('token')
+                let id=row.id
+                this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id,token:token}}).then(res => {
+                    if(res.data.code === 0){
+                        //console.log(res.data)
+                        this.childData=res.data.data
+                        this.seatList=res.data.seatList
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
+                })
                 this.boardDialog=true
             },
             handleXq(index,row){
@@ -306,7 +191,10 @@
             },
         },
         created(){
-            
+            this.getTablelist()
+        },
+        computed:{
+
         }
     }
 </script>

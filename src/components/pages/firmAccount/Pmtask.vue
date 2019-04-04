@@ -195,13 +195,13 @@
                         
                         this.count=res.data.count
                         //let arr=this.tableData
-                        if(status==1){
-                            for(let i=0;i<this.tableData.length;i++){
-                                //this.tableData[i].num=0
-                                this.$set(this.tableData[i],'num',0)
-                                //console.log("aaa")
-                            } 
-                        }
+                        // if(status==1){
+                        //     for(let i=0;i<this.tableData.length;i++){
+                        //         //this.tableData[i].num=0
+                        //         this.$set(this.tableData[i],'num',0)
+                        //         //console.log("aaa")
+                        //     } 
+                        // }
                         
                     }
                 })

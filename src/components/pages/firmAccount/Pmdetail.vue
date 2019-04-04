@@ -172,8 +172,9 @@
             //获取table列表
             getactivityList(){
                 let token=this.$cookieStore.getCookie('token')
+                let id=this.$route.query.id
                 //console.log(token)
-                let params={pageIndex:1,pageSize:5,token:token}
+                let params={pageIndex:1,pageSize:5,token:token,itemId:id}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)

@@ -30,32 +30,39 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
-            <el-button type="primary" @click="addTel">下载录音</el-button>
+            <el-button type="primary" @click="loadRecord">下载录音</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="客户电话" prop="activityName"></el-table-column>
-            <el-table-column label="营销情况" prop="orderNum"></el-table-column>
-            <el-table-column label="省份" prop="orderMargin"></el-table-column>
-            <el-table-column label="城市" prop="createTime"></el-table-column>
-            <el-table-column label="姓氏/性别" prop="startTime"></el-table-column>
-            <el-table-column label="外呼时间" prop="endTime"></el-table-column>
-            <el-table-column label="坐席" prop="endTime"></el-table-column>
-            <el-table-column label="通话时长" prop="endTime" sortable></el-table-column>
-            <el-table-column label="呼叫次数" prop="endTime"></el-table-column>
-            <el-table-column label="质检评级" sortable>
+            <el-table-column label="客户电话" prop="phone_num"></el-table-column>
+            <el-table-column label="营销情况" prop="intention"></el-table-column>
+            <el-table-column label="省份" prop="provide"></el-table-column>
+            <el-table-column label="城市" prop="area"></el-table-column>
+            <el-table-column label="姓氏/性别" prop="cName"></el-table-column>
+            <el-table-column label="外呼时间" prop="startTime"></el-table-column>
+            <el-table-column label="坐席" prop="agend_id"></el-table-column>
+            <el-table-column label="通话时长" prop="callDuration" sortable width="100px"></el-table-column>
+            <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
+            <el-table-column label="质检评级" sortable width="100px">
                 <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.status===0">优</el-button>
+                    <el-button type="text" style="color:red" v-if="scope.row.level===0">优</el-button>
                     <el-button type="text" v-if="scope.row.status===1">良</el-button>
+                    <el-button type="text" v-if="scope.row.status===2">一般</el-button>
+                    <el-button type="text" v-if="scope.row.status===3">差</el-button>
                 </template> 
             </el-table-column>
             <el-table-column label="备注" prop="endTime"></el-table-column>
-            <el-table-column label="操作" width="400px">
-                <template slot-scope="scope">
-                    <el-button type="text" @click="particulars(scope.row)">详情</el-button>
-                    <audio src="audio.mp3" preload="auto" controls autoplay></audio>
+            <el-table-column label="操作" width="300px">
+                <template slot-scope="scope" style="text-align:center">
+                    <div class="audioBox">
+                        <el-button type="text" @click="particulars(scope.row)">详情</el-button>
+                        <audio src="/i/song.ogg" controls="controls" style="width:200px;height:30px">
+                        Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                    
                     <!--
                     <div class="in-audio">
                         <audio src="http://sc1.111ttt.com/2017/4/05/10/298101104389.mp3" id="audio"></audio>
@@ -212,21 +219,29 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
-            handleFp(index,row){
-                console.log("分配")
-            },
             search(){
                 console.log('搜索')
             },
-            addTel(){
-                console.log('新增号码')
+            //获取表格列表
+            getTableList(){
+                let token=this.$cookieStore.getCookie('token')
+                let params={token:token}
+                this.$http.get(this.$api.firm.recordList,{params:params}).then(res=>{
+                    if(res.data.code===0){
+                        console.log(res)
+                        this.tableData=res.data.list
+                    }
+                })
             },
             particulars(row){
                 this.particularsDialog=true
+            },
+            loadRecord(){
+
             }
         },
         created(){
-
+            this.getTableList()
         }
     }
 </script>
@@ -237,6 +252,10 @@
     .audio {
         width:200px;
         
+    }
+    .audioBox{
+        display:flex;
+        align-items: center
     }
 </style>
 

@@ -32,7 +32,7 @@
             <el-table-column label="地市" prop="area" sortable></el-table-column>
             <el-table-column label="呼叫次数" prop="callNum" sortable width="200px"></el-table-column>
             <el-table-column label="最后拨打时间" prop="lastCallTime" sortable width="200px"></el-table-column>
-            <el-table-column label="通话时长" prop="callDuratiom" sortable width="200px"></el-table-column>
+            <el-table-column label="通话时长" prop="callDuration" sortable width="200px"></el-table-column>
             <!-- <el-table-column label="客户有效期" sortable>
                 <el-button type="text" @click="whdialog">失效</el-button>
             </el-table-column> -->
@@ -170,6 +170,16 @@
             goback(){
                 this.$router.push({name:'callee'})
             },
+            user(){
+                let token=this.$cookieStore.getCookie('token')
+                this.$http.post(this.$api.login.seatLogin,{token:token}).then( res =>{
+                if(res.data.code===0){
+                    console.log(res)
+                }
+                }).catch(error=>{
+                console.log(error)
+                })
+            },
             //获取活动列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
@@ -203,8 +213,16 @@
                 let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
+                        console.log(res)
                         this.form=res.data.data
                         this.showcalleeDialog=true
+                        let activityId=this.form.activityId
+                        let customerId=this.form.customerId
+                        let provideId=this.form.provideId
+                        let token=this.$cookieStore.getCookie('token')
+                        this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                            console.log(res)
+                        })
                     }
                 }).catch(error => {
                     console.log("出错了")
@@ -258,7 +276,8 @@
         },
         created(){
             this.init(
-                this.getActivityList()
+                this.getActivityList(),
+                this.user()
             )
         },
         

@@ -24,31 +24,33 @@
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="企业名称" prop="name"></el-table-column>
-            <el-table-column label="登陆账号" prop="num" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="xfnum" sortable></el-table-column>
-            <el-table-column label="账户有效期" prop="hcnum" sortable></el-table-column>
-            <el-table-column label="税号" prop="bdnum" sortable></el-table-column>
-            <el-table-column label="营业执照" prop="htnum" sortable>
-                <img src="../../../assets/logo.png" alt="" style="widht:30px;height:50px" preview preview-text="描述">
+            <el-table-column label="企业名称" prop="company"></el-table-column>
+            <el-table-column label="登陆账号" prop="userName" sortable ></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable width="150px"></el-table-column>
+            <el-table-column label="账户有效期" prop="validity" sortable width="150px"></el-table-column>
+            <el-table-column label="税号" prop="taxNumber" sortable></el-table-column>
+            <el-table-column label="营业执照" sortable>
+                <template slot-scope="scope">
+                    <img :src="url+scope.row.businessLicense" style="widht:30px;height:50px" preview preview-text="描述">
+                </template>
             </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <span style="color:red" v-if="scope.row.status===0">待审核</span>
-                    <span v-if="scope.row.status===1">试用中</span>
-                    <span v-if="scope.row.status===2">使用中</span>
+                    <span v-if="scope.row.status===1">使用中</span>
+                    <span v-if="scope.row.status===2">试用中</span>
                     <span v-if="scope.row.status===3">已打回</span>
                     <span v-if="scope.row.status===4">冻结中</span>
                 </template> 
             </el-table-column>
             <el-table-column label="操作" width='250px'>
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.$index,scope.row)">试用</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==2" @click="handletg(scope.$index,scope.row)">通过</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==3" @click="handledh(scope.$index,scope.row)">打回</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==4" @click="handledj(scope.$index,scope.row)">冻结</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.$index,scope.row)">解冻</el-button>
-                    <el-button type="text" size="mini" @click="handleXq(scope.$index,scope.row)">详情</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status!==2" @click="handletg(scope.row)">通过</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status!==3" @click="handledh(scope.row)">打回</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status!==4" @click="handledj(scope.row)">冻结</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button>
+                    <el-button type="text" size="mini" @click="handleXq(scope.row)">详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -117,7 +119,8 @@
                 }],
                 currentPage:1,
                 pagesize:10,
-                selectList:[]
+                selectList:[],
+                url:'http://47.99.37.96:88'
             }
         },
         methods:{
@@ -158,30 +161,86 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
-            handlesy(index,row){
-                console.log(row.status)
-                this.tableData[index].status=1
+            handlesy(row){
+                // console.log(row.status)
+                // this.tableData[index].status=1
+                let id=row.id
+                let params={id:id,status:2}
+                this.$http.post(this.$api.platform.update,params).then(res=>{
+                    if(res.data.code===0){
+                        this.getTableList()
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
             },
-            handletg(index,row){
-                this.tableData[index].status=2
+            handletg(row){
+                //this.tableData[index].status=2
+                let id=row.id
+                let params={id:id,status:1}
+                this.$http.post(this.$api.platform.update,params).then(res=>{
+                    if(res.data.code===0){
+                        this.getTableList()
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
             },
-            handledh(index,row){
-                this.tableData[index].status=3
+            handledh(row){
+                //this.tableData[index].status=3
+                let id=row.id
+                let params={id:id,status:3}
+                this.$http.post(this.$api.platform.update,params).then(res=>{
+                    if(res.data.code===0){
+                        this.getTableList()
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
             },
-            handledj(index,row){
-                this.tableData[index].status=4
+            handledj(row){
+                //this.tableData[index].status=4
+                let id=row.id
+                let params={id:id,status:4}
+                this.$http.post(this.$api.platform.update,params).then(res=>{
+                    if(res.data.code===0){
+                        this.getTableList()
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
             },
-            handlejd(index,row){
-                this.tableData[index].status=0
+            handlejd(row){
+                //this.tableData[index].status=0
+                let id=row.id
+                let params={id:id,status:1}
+                this.$http.post(this.$api.platform.update,params).then(res=>{
+                    if(res.data.code===0){
+                        this.getTableList()
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
             },
-            handleXq(index,row){
-                console.log("x详情")
-                this.$router.push({name:'zhdetail',params:{userId:'wish'}})
+            handleXq(row){
+                console.log(row)
+                let agentId=row.id
+                this.$router.push({name:'zhdetail',query:{agentId:agentId}})
             },
-            
+            getTableList(){
+                let token=this.$cookieStore.getCookie('token')
+                this.$http.get(this.$api.platform.userList,{params:{pageIndex:1,pageSize:5,token:token,roleId:3}}).then(res=>{
+                    if(res.data.code===0){
+                        //console.log(res)
+                        this.tableData=res.data.list
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
         },
         created(){
-
+            this.getTableList()
         }
     }
 </script>

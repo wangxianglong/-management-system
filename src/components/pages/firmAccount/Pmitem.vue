@@ -106,7 +106,7 @@
                 let params={pageSize:5,pageIndex:1,token:token}
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.tableData=res.data.list
                     }
                 })
@@ -116,12 +116,12 @@
                 this.addNewitemdialog=true
             },
             add(){
-                console.log(this.itemName)
+                //console.log(this.itemName)
                 let token=this.$cookieStore.getCookie('token')
                 let params={itemName:this.itemName,token:token}
                 this.$http.post(this.$api.firm.addItem,params).then(res =>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.addNewitemdialog = false
                         this.getItemlist()
                         // this.newItem=res.data

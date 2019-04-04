@@ -4,30 +4,30 @@
             <div class="title">公司认证</div>
             <div class="boxSize">
                 <el-form-item label="公司名称">
-                    <el-input v-model="form.name"></el-input>
+                    <span>{{form.company}}</span>
                 </el-form-item>
-                <el-form-item label="账号类型">
-                    <span>已审核</span>
+                <el-form-item label="状态">
+                    <span>未审核</span>
                 </el-form-item>
-                <el-form-item label="账号时限">
+                <!-- <el-form-item label="账号时限">
                     <span>3</span>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="公司税号：">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.taxNumber"></el-input>
                 </el-form-item>
                 <el-form-item label="营业执照">
                     <el-upload
                         class="avatar-uploader"
-                        action="https://jsonplaceholder.typicode.com/posts/"
+                        action="api/upload"
                         :show-file-list="false"
                         :on-success="handleAvatarSuccess"
-                        :before-upload="beforeAvatarUpload">
-                        <img v-if="form.imageUrl" :src="form.imageUrl" class="avatar">
+                        >
+                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                 </el-form-item>
             </div>
-            <div class="title">管理员</div>
+            <!-- <div class="title">管理员</div>
             <div class="boxSize">
                 <el-form-item label="唯一标识">
                     <el-input v-model="form.name"></el-input>
@@ -47,10 +47,10 @@
                 <el-form-item label="手机号码">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
-            </div>
+            </div> -->
             <el-form-item size="medium" class="formBtn">
                 <el-button>取消</el-button>
-                <el-button type="primary">确认修改</el-button>
+                <el-button type="primary" @click="mySure">确认修改</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -60,16 +60,18 @@
         data(){
             return {
                 form:{
-                    name:'aaa',
-                    imageUrl:''
-                }
+                    company:null,
+                    taxNumber:null
+                },
+                imageUrl:null
             }
         },
         methods:{
             handleAvatarSuccess(res, file) {
-                this.form.imageUrl = URL.createObjectURL(file.raw);
+                this.imageUrl = URL.createObjectURL(file.raw);
+                this.form.businessLicense=res.imgPath;
             },
-            beforeAvatarUpload(file) {
+            //beforeAvatarUpload(file) {
                 // const isJPG = file.type === 'image/jpeg';
                 // const isLt2M = file.size / 1024 / 1024 < 2;
                 // if (!isJPG) {
@@ -79,7 +81,32 @@
                 // this.$message.error('上传头像图片大小不能超过 2MB!');
                 // }
                 // return isJPG && isLt2M;
+            //},
+            handleRemove(){
+                
+            },
+            getDetail(){
+                let token=this.$cookieStore.getCookie('token')
+                let params={token:token}
+                this.$http.get(this.$api.firm.approve,{params:params}).then(res=>{
+                    if(res.data.code===0){
+                        this.form=res.data.user
+                    }
+                })
+            },
+            mySure(){
+                let params=this.form
+                this.form.status=3
+                this.$http.post(this.$api.firm.update,params).then(res=>{
+                    if(res.data.code===0){
+                        console.log(res)
+                        this.$router.push({name:'login'})
+                    }
+                })
             }
+        },
+        created(){
+            this.getDetail()
         }
     }
 </script>

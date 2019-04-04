@@ -46,6 +46,7 @@
           logout () {
             this.$confirm('确定退出登录吗？', '提示')
                 .then(() => {
+                  
                     this.$router.push({name:'login'})
                 });
           },

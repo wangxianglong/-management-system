@@ -6,8 +6,8 @@
             <div class="logo"><img src="../../assets/logo.png"></div>
             <template v-for="item in items">
                 <template>
-                    <el-menu-item :index="item.index" :key="item.index">
-                        <i class="el-icon-date"></i><span slot="title">{{ item.title }}</span>
+                    <el-menu-item :index="item.path" :key="item.path">
+                        <i class="el-icon-date"></i><span slot="title">{{ item.name }}</span>
                     </el-menu-item>
                 </template>
             </template>
@@ -21,68 +21,7 @@
         data() {
             return {
                 collapse: false,
-                items: [
-                    {    
-                        index: 'index',
-                        title: '首页'
-                    },
-                    {
-                        index: 'itemadd',
-                        title: '活动管理'
-                    },
-                    {
-                        index: 'whsystem',
-                        title: '外呼统计'
-                    },
-                    {
-                        index: 'exontotal',
-                        title: '外显管理'
-                    },
-                    {
-                        index: 'zhsystem',
-                        title: '账户管理'
-                    },
-                    {
-                        index:'pmitem',
-                        title:'项目管理'
-                    },
-                    {
-                        index:'numberpublic',
-                        title:'外显号码'
-                    },
-                    {
-                        index:'recording',
-                        title:'录音管理'
-                    },
-                    {
-                        index:'hybridAccount',
-                        title:'账号管理'
-                    },
-                    {
-                        index:'approve',
-                        title:'企业认证'
-                    },
-                    {
-                        index:'taskmanagement',
-                        title:'任务管理'
-                    },
-                    {
-                        index:'callee',
-                        title:'外呼'
-                    },
-                    {
-                        index:'recall',
-                        title:'重呼'
-                    },
-                    {
-                        index:'qualitypage',
-                        title:'质检'
-                    },
-                    {
-                        index:'caccount',
-                        title:'关联账号'
-                    }
-                ]
+                items: [],
             }
         },
         computed:{
@@ -90,11 +29,16 @@
                 return this.$route.path.replace('/','');
             }
         },
+        mounted() {
+            this.items=JSON.parse(localStorage.getItem("router"));
+            //console.log(this.items)
+        },
         created(){
             // 通过 Event Bus 进行组件间通信，来折叠侧边栏
             bus.$on('collapse', msg => {
                 this.collapse = msg;
             })
+            
         }
     }
 </script>

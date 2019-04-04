@@ -65,7 +65,7 @@
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="用户名称" prop="name" sortable></el-table-column>
-            <el-table-column label="坐席姓名" prop="num" sortable></el-table-column>
+            <el-table-column label="姓名" prop="num" sortable></el-table-column>
             <el-table-column label="角色" prop="xfnum" sortable></el-table-column>
             <el-table-column label="分机号码" prop="hcnum" sortable></el-table-column>
             <el-table-column label="创建时间" prop="bdnum" sortable></el-table-column>
@@ -97,7 +97,7 @@
                  <el-form-item label="密码">
                      <el-input v-model="amendformList.password"></el-input>
                  </el-form-item>
-                 <el-form-item label="坐席姓名">
+                 <el-form-item label="姓名">
                      <el-input v-model="amendformList.name" placeholder="请输入姓名"></el-input>
                  </el-form-item>
                  <el-form-item label="手机号码">
@@ -199,6 +199,18 @@
             }
         },
         methods:{
+            //获取列表
+            getTableList(){
+                let agentId=this.$route.query.agentId
+                let params={roleId:3,agentId:agentId,pageIndex:1,pageSize:5}
+                this.$http.get(this.$api.platform.userList,{params:params}).then(res=>{
+                    if(res.data.code===0){
+                        console.log(res)
+                    }
+                }).catch(error=>{
+                    console.log(error)
+                })
+            },
             //新增号码
             add(){
                 this.addDialog = false
@@ -233,7 +245,7 @@
             }
         },
         created(){
-
+            this.getTableList()
         }
     }
 </script>

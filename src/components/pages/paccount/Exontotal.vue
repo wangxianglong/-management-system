@@ -8,20 +8,20 @@
                 <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
-        <div class="small-divider"></div>
-        <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="addTel">新增号码</el-button></div>
+        <!-- <div class="small-divider"></div>
+        <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="addTel">新增号码</el-button></div> -->
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px;"></el-table-column>
-            <el-table-column label="企业名称" prop="name" width="200px"></el-table-column>
+            <el-table-column label="企业名称" prop="company" width="200px"></el-table-column>
             <el-table-column label="外显量" prop="num" width="200px"></el-table-column>
-            <el-table-column label="使用中" prop="using" width="200px"></el-table-column>
+            <!-- <el-table-column label="使用中" prop="using" width="200px"></el-table-column>
             <el-table-column label="未使用" prop="unuse" width="200px"></el-table-column>
-            <el-table-column label="已停用" prop="stopped" width="200px"></el-table-column>
+            <el-table-column label="已停用" prop="stopped" width="200px"></el-table-column> -->
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="handleFp(scope.$index,scope.row)">分配</el-button>
+                    <el-button type="text" size="mini" @click="addBtn(scope.$index,scope.row)">新增</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -31,7 +31,7 @@
             </el-pagination>
         </div>
         <!--新增号码-->
-        <el-dialog title="号码管理" :visible.sync="transferDialog" width="550px">
+        <!-- <el-dialog title="号码管理" :visible.sync="transferDialog" width="550px">
             <span>
             <el-transfer v-model="yesData" :props="{key: 'id',label: 'name'}" :titles="['未使用', '待使用']" @change="handleChange" :data="noData"></el-transfer>
             </span>
@@ -39,15 +39,22 @@
                 <el-button @click="transferDialog = false">取 消</el-button>
                 <el-button type="primary" @click="transferDialog = false">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
         <!--分配任务-->
-        <el-dialog title="号码管理" :visible.sync="tasktransferDialog" width="550px">
+        <!-- <el-dialog title="号码管理" :visible.sync="tasktransferDialog" width="550px">
             <span>
             <el-transfer v-model="rightData" :props="{key: 'id',label: 'name'}" :titles="['待使用','使用中']" @change="myOperate" :data="leftData"></el-transfer>
             </span>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="tasktransferDialog = false">取 消</el-button>
                 <el-button type="primary" @click="tasktransferDialog = false">确 定</el-button>
+            </span>
+        </el-dialog> -->
+        <el-dialog title="新增" :visible.sync="addDialog" width="550px">
+            <span>外显号码：</span><el-input type="num" v-model="addNum" style="width:300px"></el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="addDialog = false">取 消</el-button>
+                <el-button type="primary" @click="addItem">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -56,69 +63,48 @@
     export default {
         data(){
             return {
-                transferDialog:false,
-                noData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
-                yesData: [1,3],
-                tasktransferDialog:false,
-                leftData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
-                rightData: [],
+                addNum:null,
+                addDialog:false,
+                //transferDialog:false,
+                // noData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
+                // yesData: [1,3],
+                // tasktransferDialog:false,
+                // leftData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
+                // rightData: [],
                 myData:{
                     name:''
                 },
                 value:'',
                 createtime:'',
-                tableData:[{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                }],
+                tableData:[],
                 currentPage:1,
                 pagesize:10,
+                item:null,
             }
         },
         methods:{
-            handleChange(value, direction, movedKeys) {
-            console.log(value, direction, movedKeys);
-             //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
-             if(direction === "right") {
+            // handleChange(value, direction, movedKeys) {
+            // console.log(value, direction, movedKeys);
+            //  //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
+            //  if(direction === "right") {
                 
-             }
-             if(direction === "left") {
+            //  }
+            //  if(direction === "left") {
                 
-             }
+            //  }
                 
-            },
-            myOperate(value, direction, movedKeys) {
-            console.log(value, direction, movedKeys);
-             //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
-             if(direction === "right") {
+            // },
+            // myOperate(value, direction, movedKeys) {
+            // console.log(value, direction, movedKeys);
+            //  //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
+            //  if(direction === "right") {
                 
-             }
-             if(direction === "left") {
+            //  }
+            //  if(direction === "left") {
                 
-             }
+            //  }
                 
-            },
+            // },
 
             indexMethod(index) {
                 return index+1;
@@ -126,20 +112,55 @@
             handleCurrentChange(currentPage) {
                 this.currentPage =currentPage;
             },
-            handleFp(index,row){
-                console.log("分配")
-                this.tasktransferDialog=true
-            },
+            // handleFp(index,row){
+            //     console.log("分配")
+            //     this.tasktransferDialog=true
+            // },
             search(){
                 console.log('搜索')
             },
-            addTel(){
-                console.log('新增号码')
-                this.transferDialog=true
+            // addTel(){
+            //     console.log('新增号码')
+            //     this.transferDialog=true
+            // }
+            //获取表格列表
+            getTableList(){
+                this.$http.get(this.$api.platform.companyList).then(res=>{
+                    if(res.data.code===0){
+                        this.tableData=res.data.list
+                        //console.log(this.tableData)
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            addBtn(index,row){
+                this.addDialog=true
+                this.item=row
+            },
+            addItem(){
+                let userId=this.item.id
+                let showNum=this.addNum
+                let params={userId:userId,showNum:showNum}
+                if(showNum!==null){
+                    this.$http.post(this.$api.platform.save,params).then(res=>{
+                        if(res.data.code===0){
+                            //console.log(res)
+                            this.addDialog=false
+                            this.getTableList()
+                        }
+                    })
+                }else{
+                    this.$message({
+                        type:'error',
+                        message:'请输入外显号码'
+                    })
+                    return
+                }
             }
         },
         created(){
-
+            this.getTableList()
         }
     }
 </script>

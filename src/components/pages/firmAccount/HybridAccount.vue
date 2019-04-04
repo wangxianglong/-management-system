@@ -154,6 +154,13 @@
             }
         },
         methods:{
+            getTablelist(){
+                this.$http.get(this.$api.firm.userList).then(res=>{
+                    if(res.data.code===0){
+                        console.log(res)
+                    }
+                })
+            },
             changeHandler(value){
                  if(value=="坐席"){
                      this.isShow=true
@@ -174,7 +181,7 @@
             },
         },
         created(){
-
+            this.getTablelist()
         }
     }
 </script>

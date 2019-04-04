@@ -4,9 +4,12 @@
             <div class="logo"><img src="../assets/logo.png" alt=""></div>
             <div class="title"><span>精准营销外呼平台</span></div>
         </div>
-        <div class="mybtn">
-            <div><el-button type="primary" @click="registerBtn" v-show="isShow">注册</el-button></div>
-            <div><el-button @click="loginBtn" v-show="isShow">登录</el-button></div>
+        <div>
+            
+        </div>
+        <div class="mybtn"  v-show="isShow">
+            <div><el-button type="primary" @click="registerBtn">注册</el-button></div>
+            <div><el-button @click="loginBtn">登录</el-button></div>
         </div>
         <div class="login-form" v-if="showlogin">
             <el-form :model="loginData" :rules="rules" ref="loginData">
@@ -22,10 +25,23 @@
                 <el-form-item>
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
                 </el-form-item>
+                <el-form-item>
+                    <el-button @click="goBack" style="width:100px" v-if="myBackbtn">返回</el-button>
+                </el-form-item>
             </el-form>
         </div>
+        
         <div v-if="showforget">
-            <forgetpassword></forgetpassword>
+            <div class="forgetPw">
+                <el-form>
+                    <el-form-item>
+                        <el-input placeholder="请联系工作人员：0571-88013101" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="goBack">返回</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
         </div>
         <div v-if="showregister">
             <register></register>
@@ -38,6 +54,7 @@ import register from '@/components/register'
     export default {
         data(){
             return {
+                myBackbtn:false,
                 showforget:false,
                 isShow:true,
                 showlogin:false,
@@ -57,13 +74,22 @@ import register from '@/components/register'
             }
         },
         methods:{
+            goBack(){
+                this.myBackbtn=false
+                this.isShow=true;
+                this.showlogin=false;
+                this.showregister=false
+                this.showforget=false
+            },
             loginBtn(){
+                this.myBackbtn=true
                 this.isShow=!this.isShow
-                this.showlogin=!this.showlogin
+                this.showlogin=true
             },
             registerBtn(){
+                this.myBackbtn=true
                 this.isShow=!this.isShow
-                this.showregister=!this.showregiste
+                this.showregister=true
             },
             submitLogin(loginData){
                 this.$refs[loginData].validate((valid) =>{
@@ -76,16 +102,29 @@ import register from '@/components/register'
                             userName,
                             passWord
                         }).then((res) => {
-                                console.log(res)
-                                if(res.status===200){ 
-                                    this.$store.commit('SET_TOKEN',res.data.token)
-                                    this.$store.commit("GET_USER",res.data.userName)
+                                //console.log(res)
+                                if(res.data.data.status=="success"){
+                                    let token=this.$cookieStore.getCookie('token') 
+                                    this.$store.commit('SET_TOKEN',token)
+                                    this.$store.commit("GET_USER",userName)
+                                    this.$store.commit("GET_ROUTER",res.data.data.router)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'
                                     })
-                                    this.$router.push({name:'index'})
+                                    this.$router.push({name:'home'})
+                                    // if(res.data.data.roleId===1||res.data.data.roleId===2||res.data.data.roleId===3){
+                                    //     this.$router.push({name:'index'})
+                                    // }else{
+                                    //     this.$router.push({name:''})
+                                    // }
+                                    
                                     //console.log(token)
+                                }else{
+                                    this.$message({
+                                        message:res.data.msg,
+                                        type:'error'
+                                    })
                                 }
                             }).catch(function(error){
                                 console.log(error)
@@ -97,6 +136,7 @@ import register from '@/components/register'
                 })
             },
             forgetpassword(){
+                this.myBackbtn=false
                 this.showlogin=!this.showlogin
                 this.showforget=!this.showforget
             },

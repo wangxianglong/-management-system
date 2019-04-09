@@ -123,8 +123,6 @@
                 value:'', 
                 currentPage:1,
                 pagesize:10,
-                name:'',
-                num:'',
                 options:[{
                     value:'选项1',
                     label:'已完成'
@@ -183,7 +181,7 @@
             //获取活动列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
-                let params={token:token,pageIndex:1,pageSize:5}
+                let params={token:token,pageIndex:1,pageSize:5,status:2}
                 this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
@@ -204,16 +202,14 @@
                 //console.log(row.name)//获取活动名
                 //console.log(row.num)//获取数据量
                 this.dialogVisible=true
-                this.name=row.name
-                this.num=row.num
-                this.row=row
-                this.index=index+1
+                //console.log(row,index)
+                this.index=index
                 this.customerId=row.customerId
                 this.activityId=this.$route.query.activityId
                 let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.form=res.data.data
                         this.showcalleeDialog=true
                         let activityId=this.form.activityId
@@ -221,12 +217,19 @@
                         let provideId=this.form.provideId
                         let token=this.$cookieStore.getCookie('token')
                         this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                            console.log(res)
+                            //console.log(res)
                         })
                     }
                 }).catch(error => {
                     console.log("出错了")
                 })  
+                let total=this.tableData.length-1
+                if(this.index===total){
+                    this.showBtn=false 
+                }else{
+                    this.showBtn=true 
+                }
+                this.isSave=false
             },
             beforClose(){
                 if(!this.isSave){
@@ -234,6 +237,7 @@
                     return
                 }
                 this.showcalleeDialog=false
+                this.index=null
             },
             // whdialog(){
             //     this.showcalleeDialog=true
@@ -242,14 +246,17 @@
 
             // },
             onSubmit(){
-                if(index===total){
-                    this.showBtn=false
-                } 
-                let index=this.index++
+                if(!this.isSave){
+                    alert("请先保存")
+                    return
+                }
+                this.index++
+                //console.log(index+"a")
                 let total=this.tableData.length-1
-                // console.log(index)
-                // console.log(total)
-                let customerId=this.tableData[index].customerId
+                //console.log(index+"b")
+                //console.log(total)
+                
+                let customerId=this.tableData[this.index].customerId
                 let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
@@ -259,15 +266,25 @@
                 }).catch(error => {
                     console.log("出错了")
                 })
-                 
+                this.isSave=false
+                 if(this.index==total){
+                    this.showBtn=false
+                    return
+                } 
+                
             },
             saveEdit(){
+                this.isSave=true
                 let intention=this.form.intention
-                let params={customerId:this.customerId,intention:intention}
+                if(!intention){
+                    alert('请选择意向')
+                    return
+                }
+                let params={customerId:this.customerId,intention:intention,status:3}
                 this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)
-                        this.isSave=true
+                        
                     }
                 }).catch(error => {
                     console.log("出错了")

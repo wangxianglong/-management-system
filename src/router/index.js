@@ -6,11 +6,8 @@ import login from '@/components/Login.vue'
 import roleList from '@/components/pages/user/角色管理.vue'
 import addRole from '@/components/pages/user/新增角色.vue'
 import updateRole from '@/components/pages/user/修改角色.vue'
-import store from '../store/index'
-import axios from 'axios'
-// import $http from '../config/axios'
-import api from '../config/api';
-import {setCookie,getCookie,delCookie} from '@/config/cookie'
+
+import {getCookie} from '@/config/cookie'
 
 
 Vue.use(Router)
@@ -23,13 +20,7 @@ const router= new Router({
       name:'test',
       component:Test
     },
-    {
-      path:'*',
-      redirect:login,
-      meta:{
-        isLogin:false
-      }
-    },
+    
     {
         path: '/login',
         name: 'login',
@@ -181,9 +172,16 @@ const router= new Router({
         { path: '/roleList', component: roleList, name: 'roleList', meta:{title:'角色管理',isLogin:true }},
         { path: '/addRole', component: addRole, name: 'addRole',  meta:{title:'新增角色',isLogin:true }},
         { path: '/updateRole', component: updateRole, name: 'updateRole',  meta:{title:'修改角色',isLogin:true }},
+        
       ]
     },
-    
+    {
+      path:'*',
+      redirect:login,
+      meta:{
+        isLogin:false
+      }
+    },
   ]
 })
 router.beforeEach((to,from,next) => {

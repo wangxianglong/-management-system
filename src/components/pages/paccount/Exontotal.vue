@@ -27,7 +27,7 @@
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
         <!--新增号码-->
@@ -80,6 +80,7 @@
                 currentPage:1,
                 pagesize:10,
                 item:null,
+                total:1
             }
         },
         methods:{
@@ -109,8 +110,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTableList()
             },
             // handleFp(index,row){
             //     console.log("分配")

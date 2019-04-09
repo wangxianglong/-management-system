@@ -175,39 +175,7 @@
                 },
                 value:'',
                 createtime:'',
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }],
+                tableData:[],
                 currentPage:1,
                 pagesize:10,
             }

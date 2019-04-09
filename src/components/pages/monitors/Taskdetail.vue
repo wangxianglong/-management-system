@@ -155,7 +155,7 @@
                 
             },
             getRowKeys(row){
-                return row.key
+                return row.id
             },
             handleSelectionChange(val){
                 var that=this

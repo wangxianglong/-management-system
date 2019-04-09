@@ -39,10 +39,14 @@
         <div class="divider"></div>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header >
             <el-table-column label="项目名" prop="itemName"></el-table-column>
             <el-table-column label="活动量" prop="num" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable>
+                <template slot-scope="scope">
+                    {{scope.row.createTime | date}}
+                </template>
+            </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" style="color:red" v-if="scope.row.status===0">未分配</el-button>
@@ -60,13 +64,11 @@
         </div>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
-            </el-pagination>
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
         </div>
     </div>
 </template>
 <script>
-
     export default {
         data(){
             return {
@@ -80,7 +82,7 @@
                 dialogVisible:false,
                 value:'', 
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 options2: [{
                     value: '选项1',
                     label: '全部'
@@ -92,7 +94,8 @@
                     label:'项目2'
                 }],
                 newItem:{},
-                tableData:[]
+                tableData:[],
+                total:1
             }
         },
         methods:{
@@ -103,12 +106,31 @@
             //获取项目列表
             getItemlist(){
                 let token=this.$cookieStore.getCookie('token')
-                let params={pageSize:5,pageIndex:1,token:token}
+                let pageSize=this.pageSize
+                let pageIndex=this.currentPage
+                let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }
+                })
+            },
+            //获取可分配活动
+            getuserActivity(){
+                let token=this.$cookieStore.getCookie('token')
+                //console.log(token)
+                let params={pageIndex:1,pageSize:5,token:token,status:1}
+                this.$http.get(this.$api.platform.list,{params:params}).then(res => {
+                    if(res.data.code === 0){
+                        //console.log(res)
+                        this.count=res.data.count
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
                 })
             },
             //新建项目
@@ -133,8 +155,13 @@
             // indexMethod(index) {
             //     return index+1;
             // },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getItemlist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getItemlist()
             },
             coreView(row) {
                 //console.log(row);//每行的数据
@@ -146,7 +173,13 @@
                 this.$router.push({name:'pmdetail',query:{id:id}})
             },
             delBtn(row){
-                this.tableData.splice(row,1)
+                let id=row.id
+                let params={id:id}
+                this.$http.get(this.$api.firm.delete,{params:params}).then(res=>{
+                    if(res.data.code===0){
+                        this.getItemlist()
+                    }
+                })
             },
             //导出
             outExe() {
@@ -177,7 +210,8 @@
         },
         created(){
             this.init(
-                this.getItemlist() 
+                this.getItemlist(),
+                this.getuserActivity()
             )
         },
         computed:{

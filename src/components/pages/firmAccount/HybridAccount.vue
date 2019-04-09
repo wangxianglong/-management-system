@@ -22,7 +22,7 @@
         </el-form>
         <div class="small-divider"></div>
         <!--弹框-->
-        <el-dialog :title="dialogTitle" :visible.sync="dialogbox" width="40%">
+        <!-- <el-dialog :title="dialogTitle" :visible.sync="dialogbox" width="40%">
             <div class="small-divider"></div>
             <div class="radioGroup">
                 <span style="margin-right:30px">账号类型</span>
@@ -57,29 +57,38 @@
                 <el-button @click="dialogbox = false">取 消</el-button>
                 <el-button type="primary" @click="dialogbox = false">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="用户名称" prop="name" sortable></el-table-column>
-            <el-table-column label="坐席姓名" prop="num" sortable></el-table-column>
-            <el-table-column label="角色" prop="xfnum" sortable></el-table-column>
-            <el-table-column label="分机号码" prop="hcnum" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="bdnum" sortable></el-table-column>
-            <el-table-column label="最近登录时间" prop="htnum" sortable></el-table-column>
-            <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="用户名称" prop="userName" sortable></el-table-column>
+            <el-table-column label="姓名" prop="realName" sortable></el-table-column>
+            <el-table-column label="角色">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="handlexg(scope.$index,scope.row)">修改</el-button>
+                    <span v-if="scope.row.roleId===4">班长</span>
+                    <span v-if="scope.row.roleId===5">坐席</span>
+                    <span v-if="scope.row.roleId===6">质检</span>
                 </template>
             </el-table-column>
+            <el-table-column label="分机号码" prop="phoneNum" sortable></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable>
+                <template slot-scope="scope">
+                    {{scope.row.createTime | date}}
+                </template>
+            </el-table-column>
+            <el-table-column label="最近登录时间" prop="lastLoginTime" sortable></el-table-column>
+            <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
+            <!-- <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="text" size="mini" @click="handleAmend(scope.$index,scope.row)">修改</el-button>
+                </template>
+            </el-table-column> -->
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
-            </el-pagination>
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
         </div>
     </div>
 </template>
@@ -116,48 +125,23 @@
                     value:'选项3',
                     label:'班长'
                 }],
-                tableData:[{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                }],
+                tableData:[],
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
+                total:1
             }
         },
         methods:{
             getTablelist(){
-                this.$http.get(this.$api.firm.userList).then(res=>{
+                let token=this.$cookieStore.getCookie('token')
+                let pageSize=this.pageSize
+                let pageIndex=this.currentPage
+                let params={pageSize:pageSize,pageIndex:pageIndex,token:token,roleId:3}
+                this.$http.get(this.$api.firm.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
+                        this.tableData=res.data.list
+                        this.total=res.data.count
                     }
                 })
             },
@@ -171,8 +155,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTablelist()
             },
             handlexg(index,row){
                 console.log("修改")

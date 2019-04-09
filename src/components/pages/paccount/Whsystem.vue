@@ -26,17 +26,33 @@
             <el-table-column label="拨打量" prop="dialNum" sortable width="100px"></el-table-column>
             <el-table-column label="呼通量" prop="flux" sortable width="100px"></el-table-column>
             <el-table-column label="成功量" prop="successNum" sortable width="100px"></el-table-column>
-            <el-table-column label="成功率" prop="successRate" sortable width="100px" :formatter="formatWin"></el-table-column>
+            <el-table-column label="成功率" prop="successRate" sortable width="100px">
+                <template slot-scope="scope">
+                    {{scope.row.cusNum?scope.row.successNum/scope.row.cusNum:'-'}}
+                </template>
+            </el-table-column>
             <el-table-column label="失败量" prop="failNum" sortable width="100px"></el-table-column>
-            <el-table-column label="失败率" prop="failRate" sortable width="100px" :formatter="formatfail"></el-table-column>
-            <el-table-column label="再呼次数" prop="againNum" sortable width="100px" :formatter="formatagainNum"></el-table-column>
-            <el-table-column label="再呼率" prop="againRate" sortable width="100px" :formatter="formatagainRate"></el-table-column>
+            <el-table-column label="失败率" prop="failRate" sortable width="100px">
+                <template slot-scope="scope">
+                    {{scope.row.cusNum?scope.row.failNum/scope.row.cusNum:'-'}}
+                </template>
+            </el-table-column>
+            <el-table-column label="再呼次数" prop="againNum" sortable width="100px">
+                <template slot-scope="scope">
+                    {{scope.row.dialNum-scope.row.expiration}}
+                </template>
+            </el-table-column>
+            <el-table-column label="再呼率" prop="againRate" sortable width="100px">
+                <template slot-scope="scope">
+                    {{scope.row.cusNum?(scope.row.dialNum-scope.row.expiration)/scope.row.cusNum:'-'}}
+                </template>
+            </el-table-column>
             <el-table-column label="总时长" prop="duration" sortable width="100px"></el-table-column>
             <el-table-column label="计费时长" prop="charging" sortable width="100px"></el-table-column>
             <el-table-column label="详情"  width="100px">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="handleKb(scope.$index,scope.row)">看板</el-button>
-                    <el-button type="text" size="mini" @click="handleXq(scope.$index,scope.row)">详情</el-button>
+                    <!-- <el-button type="text" size="mini" @click="handleXq(scope.$index,scope.row)">详情</el-button> -->
                 </template>
             </el-table-column>
         </el-table>
@@ -96,7 +112,7 @@
                 //console.log(token)
                 this.$http.get(this.$api.callee.statistics,{params:{pageIndex:1,pageSize:5,token:token}}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res.data)
+                        //console.log(res.data)
                         this.tableData=res.data.list
                     }else{
                         this.$message.error(res.data.message)
@@ -105,40 +121,10 @@
                     console.log(e)
                 })
             },
-            formatWin(row,column){
-                let successRate=row[column.property]
-                successRate=row.successNum/row.cusNum
-                if(!row.cusNum){
-                    return '--'
-                }else{
-                    return successRate
-                }
-            },
-            formatfail(row,column){
-                let failRate=row[column.property]
-                failRate=row.failNum/row.cusNum
-                if(!row.cusNum){
-                    return '--'
-                }else{
-                    return failRate
-                }
-            },
-            formatagainNum(row,column){
-                let againNum=row[column.property]
-                againNum=row.dialNum-row.expiration
-                return againNum
-            },
-            formatagainRate(row,column){
-                let againRate=row[column.property]
-                againRate=(row.dialNum-row.expiration)/row.cusNum
-                if(!row.cusNum){
-                    return '--'
-                }else{
-                    return againRate
-                }
-            },
+            
             handleKb(index,row){
                 this.myRow=row
+                row.againNum=row.dialNum-row.expiration
                 let token=this.$cookieStore.getCookie('token')
                 let id=row.id
                 this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id,token:token}}).then(res => {
@@ -154,10 +140,10 @@
                 })
                 this.boardDialog=true
             },
-            handleXq(index,row){
-                console.log("x详情")
-                this.$router.push({name:'whdetail',params:{userId:'wish'}})
-            },
+            // handleXq(index,row){
+            //     console.log("x详情")
+            //     this.$router.push({name:'whdetail',params:{userId:'wish'}})
+            // },
             //表格选中事件
             changeFun(val){
                 this.selectList=val

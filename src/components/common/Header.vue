@@ -12,7 +12,7 @@
               <div class="header-right">
                 <div class="user">
                   <div class="myself"><img src="../../assets/myself.png"></div>
-                  <div><span style="font-size:14px">欢迎你，网聚管理员</span></div>
+                  <div><span style="font-size:14px">欢迎你，{{userName}}</span></div>
                   <div class="sss"><img src="../../assets/sss.png"></div>
                 </div>
                 <div class="close">
@@ -33,7 +33,8 @@
         data() {
           return {
               tabPosition: 'left',
-              collapse:true
+              collapse:true,
+              userName:null
           };
         },
         methods: {
@@ -46,8 +47,9 @@
           logout () {
             this.$confirm('确定退出登录吗？', '提示')
                 .then(() => {
-                  
-                    this.$router.push({name:'login'})
+                    //this.$store.commit('LOGOUT')
+                    this.$cookieStore.delCookie('token')
+                    this.$router.replace({name:'login'})
                 });
           },
         },
@@ -55,6 +57,7 @@
             if(document.body.clientWidth < 1500){
                 this.collapseChage();
             }
+            this.userName=JSON.parse(sessionStorage.getItem("userName"));
         }
     };
 </script>

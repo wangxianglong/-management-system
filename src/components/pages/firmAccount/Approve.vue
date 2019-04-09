@@ -1,6 +1,6 @@
 <template>
     <div class="approve">
-        <el-form :model="form" label-width="100px" class="formPage" label-position='left'>
+        <el-form :model="form" label-width="100px" class="formPage" label-position='left' :rules="rules">
             <div class="title">公司认证</div>
             <div class="boxSize">
                 <el-form-item label="公司名称">
@@ -12,10 +12,10 @@
                 <!-- <el-form-item label="账号时限">
                     <span>3</span>
                 </el-form-item> -->
-                <el-form-item label="公司税号：">
+                <el-form-item label="公司税号：" prop="taxNumber">
                     <el-input v-model="form.taxNumber"></el-input>
                 </el-form-item>
-                <el-form-item label="营业执照">
+                <el-form-item label="营业执照" prop="image">
                     <el-upload
                         class="avatar-uploader"
                         action="api/upload"
@@ -63,7 +63,12 @@
                     company:null,
                     taxNumber:null
                 },
-                imageUrl:null
+                imageUrl:null,
+                rules:{
+                    taxNumber: [
+                        { required: true, message: '请填写公司税号', trigger: 'change' }
+                    ],
+                }
             }
         },
         methods:{
@@ -95,13 +100,23 @@
                 })
             },
             mySure(){
+                // this.$refs[formName].validate((valid) => {
+                // if (valid) {
+                //     alert('submit!');
+                // } else {
+                //     console.log('error submit!!');
+                //     return false;
+                // }
+                // });
                 let params=this.form
                 this.form.status=3
-                this.$http.post(this.$api.firm.update,params).then(res=>{
-                    if(res.data.code===0){
-                        console.log(res)
-                        this.$router.push({name:'login'})
-                    }
+                this.$http.post(this.$api.firm.update,params).then(res=>{ 
+                    console.log(res)
+                    this.$message({
+                        type:'success',
+                        message:'认证成功'
+                    })
+                    this.$router.push({name:'login'})
                 })
             }
         },
@@ -113,8 +128,7 @@
 <style scoped>
     .approve {
         padding:20px 0;
-        background:#eee;
-        height:100%;
+        background:#fff;
         position:relative
     }
     .el-form .el-form-item {
@@ -133,11 +147,11 @@
         width:400px;
     }
     .formPage{
-        background-color:#fff;
+        background-color:#eee;
         width:800px;
         position:absolute;
         top:20px;
-        left:25%
+        left:20px
     }
     .avatar-uploader {
         width:178px;

@@ -13,25 +13,28 @@
         </div>
         <div class="login-form" v-if="showlogin">
             <el-form :model="loginData" :rules="rules" ref="loginData">
-                <el-form-item prop="username"> 
+                <el-form-item prop="userName"> 
                     <el-input placeholder="账号" v-model='loginData.userName'></el-input>
                 </el-form-item>
-                <el-form-item prop="password">
+                <el-form-item prop="passWord">
                     <el-input placeholder="密码" v-model='loginData.passWord' show-password></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="submitLogin('loginData')">登录</el-button>
                 </el-form-item>
-                <el-form-item>
+                <!-- <el-form-item>
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
-                </el-form-item>
-                <el-form-item>
-                    <el-button @click="goBack" style="width:100px" v-if="myBackbtn">返回</el-button>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
+            <div>
+            <el-button @click="goBack" v-if="myBackbtn">返回</el-button>
+            </div>
         </div>
         
-        <div v-if="showforget">
+        
+                
+        
+        <!-- <div v-if="showforget">
             <div class="forgetPw">
                 <el-form>
                     <el-form-item>
@@ -42,20 +45,23 @@
                     </el-form-item>
                 </el-form>
             </div>
-        </div>
-        <div v-if="showregister">
+        </div> -->
+        <div v-if="showregister" class="register-form">
             <register></register>
+            <div>
+            <el-button @click="goBack" v-if="myBackbtn">返回</el-button>
+            </div>
         </div>
     </div>
 </template>
 <script>
-import forgetpassword from '@/components/forgetpassword'
+// import forgetpassword from '@/components/forgetpassword'
 import register from '@/components/register'
     export default {
         data(){
             return {
                 myBackbtn:false,
-                showforget:false,
+                //showforget:false,
                 isShow:true,
                 showlogin:false,
                 showregister:false,
@@ -68,7 +74,7 @@ import register from '@/components/register'
                         { required: true, message: '请输入您的账号', trigger: 'blur' }
                     ],
                     passWord:[
-                        {required:true,validator:'请输入密码',trigger:'blur'}
+                        {required:true,message:'请输入密码',trigger:'blur'}
                     ]
                 }
             }
@@ -79,7 +85,7 @@ import register from '@/components/register'
                 this.isShow=true;
                 this.showlogin=false;
                 this.showregister=false
-                this.showforget=false
+                //this.showforget=false
             },
             loginBtn(){
                 this.myBackbtn=true
@@ -135,14 +141,14 @@ import register from '@/components/register'
                     }
                 })
             },
-            forgetpassword(){
-                this.myBackbtn=false
-                this.showlogin=!this.showlogin
-                this.showforget=!this.showforget
-            },
+            // forgetpassword(){
+            //     this.myBackbtn=false
+            //     this.showlogin=!this.showlogin
+            //     this.showforget=!this.showforget
+            // },
         },
         components: {
-            register,forgetpassword
+            register
         }
     }
 </script>
@@ -165,11 +171,12 @@ import register from '@/components/register'
         align-items: center;
     }
     .logo{
-        margin-left:60px;
+        margin-top:10px;
+        margin-left:50px;
         height:100%;
     }
     .logo img{
-        height:70px
+        height:55px
     }
     .title{
         color:#fff;
@@ -179,8 +186,8 @@ import register from '@/components/register'
     }
     .mybtn{
         position:absolute;
-        top:40%;
-        left:40%;
+        top:35%;
+        left:35%;
     }
     .mybtn div .el-button{
         width:350px;
@@ -189,8 +196,8 @@ import register from '@/components/register'
     }
     .login-form {
         position:absolute;
-        top:40%;
-        left:40%;
+        top:35%;
+        left:35%;
         display:flex;
         flex-direction: column;
         align-items: center
@@ -202,5 +209,16 @@ import register from '@/components/register'
     .login-form .footer {
         color:#fff;
     }
-    
+    .register-form{
+        position:absolute;
+        top:35%;
+        left:35%;
+        display:flex;
+        flex-direction: column;
+        align-items: center
+    }
+    .register-form .el-button{
+        width:400px;
+        margin-top:10px; 
+    }
 </style>

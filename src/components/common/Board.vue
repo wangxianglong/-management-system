@@ -11,22 +11,22 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{callRatio}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="callRatio" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{myRow.flux/2}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.flux/2" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             </el-col>
             <el-col :span="5">
                 <div class="callnum">
                     <span style="margin-right:30px">拨打量</span>
                     <span>
-                        <strong>82000</strong>
+                        <strong>{{myRow.dialNum}}</strong>
                         /
-                        <span style="font-size:14px">100000</span>
+                        <span style="font-size:14px">{{myRow.cusNum}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{callRatio}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="callRatio" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{myRow.dialNum/2}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.dialNum/2" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -34,14 +34,14 @@
                 <div class="callnum">
                     <span style="margin-right:30px">成功量</span>
                     <span>
-                        <strong>82000</strong>
+                        <strong>{{myRow.successNum}}</strong>
                         /
-                        <span style="font-size:14px">100000</span>
+                        <span style="font-size:14px">{{myRow.cusNum}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{callRatio}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="callRatio" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{myRow.successNum}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.successNum/2" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -49,14 +49,14 @@
                 <div class="callnum">
                     <span style="margin-right:30px">失败量</span>
                     <span>
-                        <strong>82000</strong>
+                        <strong>{{myRow.failNum}}</strong>
                         /
-                        <span style="font-size:14px">100000</span>
+                        <span style="font-size:14px">{{myRow.cusNum}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{callRatio}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="callRatio" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{myRow.failNum}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.failNum/2" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -64,14 +64,14 @@
                 <div class="callnum">
                     <span style="margin-right:30px">再呼次数</span>
                     <span>
-                        <strong>82000</strong>
+                        <strong>{{myRow.againNum}}</strong>
                         /
-                        <span style="font-size:14px">100000</span>
+                        <span style="font-size:14px">{{myRow.cusNum}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:50px;"><p style="color:#ccc;font-size:14px">再呼率</p><strong style="font-size:28px">{{callRatio}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="callRatio" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:50px;"><p style="color:#ccc;font-size:14px">再呼率</p><strong style="font-size:28px">{{myRow.againNum/2}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.againNum/2" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -79,21 +79,39 @@
         <el-row :gutter="20">
             <el-col :span="9">
                 <div class="grid-content">
-                    <div class="floor-title"><strong>通话时长&占比</strong><i class="el-icon-mobile-phone"></i></div>
-                    <div style="padding-right:50px">
+                    <div class="floor-title">
+                        <strong>通话时长&占比</strong>
+                        <el-tooltip placement="top">
+                            <div slot="content">各区间通话次数所占总呼<br/>通量的比</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
+                    <div>
                         <div id="chartmainbar" style="height:350px"> </div>
                     </div>
                 </div>
             </el-col>
             <el-col :span="8">
                 <div class="grid-content">
-                    <div class="floor-title"><strong>漏斗模型</strong><i class="el-icon-mobile-phone"></i></div>
+                    <div class="floor-title">
+                        <strong>漏斗模型</strong>
+                        <el-tooltip placement="top">
+                            <div slot="content">数据量：可外呼用户<br/>下发量：已下发给坐席的用户<br/>营销量：坐席拨打的用户<br/>呼通量：呼通15s以及以上用户<br/>成功量：通话质量标记为A、B的用户</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div id="chartmainfunnel" style="height:350px"></div>
                 </div>
             </el-col>
             <el-col :span="7">
                 <div class="grid-content" style="height:400px">
-                    <div class="floor-title"><strong>通话次数&意向客户排名</strong><i class="el-icon-mobile-phone"></i></div>
+                    <div class="floor-title">
+                        <strong>通话次数&意向客户排名</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">坐席按照通话次数和意向客户<br/>（通话质量标记为A、B的用户）排名</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" width="100%" show-header>
                         <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="user_name"></el-table-column>
@@ -101,7 +119,7 @@
                         <el-table-column label="意向数" prop="intention"></el-table-column>
                     </el-table>
                     <div class="fpage">
-                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[12,100,300,400]" :pager-count="5" :page-size="12" layout="sizes, prev, pager, next" :total="400">
+                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[12,100,300,400]" :pager-count="5" :page-size="12" layout=" prev, pager, next" :total="400">
                         </el-pagination>
                     </div>
                 </div>
@@ -134,6 +152,7 @@
                 pagesize:6,
                 tableData:this.seatList,
                 optionline:{
+                    color:['#f0657d','#41a2fc'],
                     title: {
                         text: '通话时长vs成功量'
                     },
@@ -158,12 +177,19 @@
                     yAxis: [
                         {
                             name:'通话时长',
-                            type: 'value'
+                            type: 'value',
+                            splitLine:{
+				        	    show:false
+				            },
                         },
                         {
                             name:'成功量',
-                            type:'value'
+                            type:'value',
+                            splitLine:{
+				        	    show:false
+				            },
                         }
+                        
                     ],
                     series: [
                         {
@@ -181,16 +207,16 @@
                             tooltip:{
                                 trigger:'axis'
                             },
-                            yAxisIndex:0,
-                            data:[150, 232, 201, 154, 190, 330, 410,333,44,555,67,777,88,888,888]
+                            yAxisIndex:1,
+                            data:[3, 4, 7, 9, 3, 5, 6,7,4,9,7,5,6,8,8]
                         },
                     ]
                 },
                 optionbar:{
+                        color:['#f0657d','#f9d248','#53ca76','#40cbca','#41a2fc'],
                         tooltip: {
                             trigger: 'item',
                             formatter: "{a} <br/>{b}: {c} ({d}%)",
-                            show:false
                         },
                         legend: {
                             orient: 'vertical',
@@ -217,7 +243,7 @@
                             {
                                 name:'访问来源',
                                 type:'pie',
-                                radius: ['40%', '60%'],
+                                radius: ['50%', '70%'],
                                 center:['40%','50%'],
                                 avoidLabelOverlap: false,
                                 label: {
@@ -248,7 +274,7 @@
                     
                 },
                 optionfunnel:{
-                    
+                    color:['#64a6e5','#80cd59','#edca67','#e19362','#df685b'],
                     tooltip: {
                         trigger: 'item',
                         formatter: "{a} <br/>{b} : {c}%"
@@ -311,7 +337,7 @@
         created(){
             // console.log(this.childData)
             // console.log(this.seatList)
-            //console.log(this.myRow)
+            //console.log(this.myRow.againNum)
         },
         mounted() {
             

@@ -1,5 +1,4 @@
 <template>
-    <div class="register-form">
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
         <el-form-item prop="phone">
             <el-input placeholder="手机号" v-model="ruleForm.phone"></el-input>
@@ -18,7 +17,6 @@
         </el-form-item>
         
     </el-form>
-    </div>
 </template>
 <script> 
     export default{
@@ -90,16 +88,8 @@
         }
     }
 </script>
-<style>
-    .register-form{
-        position:absolute;
-        top:40%;
-        left:40%;
-        display:flex;
-        flex-direction: column;
-        align-items: center
-    }
-    .register-form .el-button{
+<style scoped>
+    .el-button{
         width:400px;
         margin-top:10px; 
     }

@@ -29,9 +29,15 @@
         <el-row :gutter="20" class="fourbox">
             <el-col :span="6">
                 <div class="grid-content bg-purple wjhsInfo">
-                    <div class="one"><span>营销总量</span><i class="el-icon-info"></i></div>
-                    <div class="two"><span>1,500</span></div>
-                    <div class="three-box">
+                    <div class="one">
+                        <strong>营销总量</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">坐席拨打的用户量</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
+                    <div class="two" style="padding:20px"><span>{{num | toString}}</span></div>
+                    <!-- <div class="three-box">
                     <div class="three">
                         <span style="color:#aaa;margin-right:10px">同比</span>
                         <i class="el-icon-caret-top" style="color:green;margin-right:10px"></i>
@@ -41,21 +47,33 @@
                         <span>11%</span>
                     </div>
                     </div>
-                    <div class="four"><span class="buding">营销总量</span><span>2500</span></div>
+                    <div class="four"><span class="buding">营销总量</span><span>2500</span></div> -->
                 </div>
             </el-col>
             <el-col :span="6">
                 <div class="grid-content bg-purple wjhsInfo">  
-                    <div class="one"><span>外呼次数</span><i class="el-icon-info"></i></div>
+                    <div class="one">
+                        <strong>外呼次数</strong>
+                        <el-tooltip placement="top">
+                            <div slot="content">坐席拨打电话的次数</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div class="two" style="padding:20px"><span>6,560</span></div>
-                    <div class="four"><span class="buding">呼通率</span><span>60%</span></div>
+                    <!-- <div class="four"><span class="buding">呼通率</span><span>60%</span></div> -->
                 </div>
             </el-col>
             <el-col :span="6">
                 <div class="grid-content bg-purple wjhsInfo">
-                    <div class="one"><span>营销总量</span><i class="el-icon-info"></i></div>
-                    <div class="two"><span>1,500</span></div>
-                    <div class="three-box">
+                    <div class="one">
+                        <strong>呼叫成功率</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">呼通15s以及以上通话量<br/>占全部呼叫次数的比</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
+                    <div class="two" style="padding:20px"><span>78%</span></div>
+                    <!-- <div class="three-box">
                         <el-progress :percentage="78" :text-inside="true" :stroke-width="12" style="width:100%"></el-progress>
                     </div>
                     <div class="four">
@@ -67,27 +85,45 @@
                             <i class="el-icon-caret-bottom" style="color:red;margin-right:10px"></i>
                             <span>11%</span>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </el-col>
             <el-col :span="6">
                 <div class="grid-content bg-purple wjhsInfo">
-                    <div class="one"><span>拨打时长</span><i class="el-icon-info"></i></div>
+                    <div class="one">
+                        <strong>拨打时长</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">通话累计时长</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div class="two" style="padding:20px"><span>0D 15H 24M 54S</span></div>
-                    <div class="four"><span class="buding">累积拨打时长</span><span>1D 15H 24M 34S</span></div>
+                    <!-- <div class="four"><span class="buding">累积拨打时长</span><span>1D 15H 24M 34S</span></div> -->
                 </div>
             </el-col>
         </el-row>
         <el-row :gutter="20">
             <el-col :span="6">
                 <div class="grid-content bg-purple twoFloor" style="height:400px">
-                    <div class="floor-title"><strong>漏斗模型</strong><i class="el-icon-mobile-phone"></i></div>
+                    <div class="floor-title">
+                        <strong>漏斗模型</strong>
+                        <el-tooltip placement="top">
+                            <div slot="content">数据量：可外呼用户<br/>下发量：已下发给坐席的用户<br/>营销量：坐席拨打的用户<br/>呼通量：呼通15s以及以上用户<br/>成功量：通话质量标记为A、B的用户</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div id="chartmainfunnel" style="height:350px"></div>
                 </div>
             </el-col>
             <el-col :span="12">
                 <div class="grid-content bg-purple" style="height:400px">
-                    <div class="floor-title"><strong>通话时长&占比</strong><i class="el-icon-mobile-phone"></i></div>
+                    <div class="floor-title">
+                        <strong>通话时长&占比</strong>
+                        <el-tooltip placement="top">
+                            <div slot="content">各区间通话次数所占总呼<br/>通量的比</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div style="padding-right:50px">
                         <div id="chartmainbar" style="height:300px"> </div>
                     </div>
@@ -95,15 +131,21 @@
             </el-col>
             <el-col :span="6">
                 <div class="grid-content bg-purple" style="height:400px">
-                    <div class="floor-title"><strong>通话次数&意向客户排名</strong><i class="el-icon-mobile-phone"></i></div>
+                    <div class="floor-title">
+                        <strong>通话次数&坐席排名</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">坐席按照通话次数和意向客户<br/>（通话质量标记为A、B的用户）排名</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" width="100%" show-header>
-                        <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
+                        <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="name"></el-table-column>
                         <el-table-column label="呼叫次数" prop="num"></el-table-column>
                         <el-table-column label="意向数" prop="using"></el-table-column>
                     </el-table>
                     <div class="fpage">
-                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[12,100,300,400]" :pager-count="5" :page-size="12" layout="sizes, prev, pager, next" :total="400">
+                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[12,100,300,400]" :pager-count="5" :page-size="12" layout=" prev, pager, next" :total="400">
                         </el-pagination>
                     </div>
                 </div>
@@ -112,6 +154,13 @@
         <el-row :gutter="20" class="lineChart">
             <el-col :span="24">
                 <div class="grid-content bg-purple">
+                    <div class="floor-title">
+                        <strong>营销量&时间</strong>
+                        <el-tooltip placement="top">
+                        <div slot="content">不同时间段坐席营销量趋势</div>
+                            <i class="el-icon-info"></i>
+                        </el-tooltip>
+                    </div>
                     <div id="chartmainline" style="height:400px"></div> 
                 </div>
             </el-col>
@@ -129,6 +178,7 @@
     export default {
     data() {
       return {
+          num:1500,
         radio3: '今日',
         value4: [new Date(), new Date()],
         options: [{
@@ -171,7 +221,7 @@
         }],
         optionline:{
             color:['rgb(55,161,255)'],
-            title:{text:'外呼次数'},
+            
             tooltip:{},
             xAxis:{
                 data:["9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
@@ -188,10 +238,11 @@
             }]
         },
         optionbar:{
+                color:['#f0657d','#f9d248','#53ca76','#40cbca','#41a2fc'],
                  tooltip: {
                     trigger: 'item',
                     formatter: "{a} <br/>{b}: {c} ({d}%)",
-                    show:false
+                    
                 },
                 legend: {
                     orient: 'vertical',
@@ -254,14 +305,14 @@
             
         },
         optionfunnel:{
-            
+            color:['#64a6e5','#80cd59','#edca67','#e19362','#df685b'],
             tooltip: {
                 trigger: 'item',
                 formatter: "{a} <br/>{b} : {c}%"
             },
             
             legend: {
-                data: ['数据量','下发量','拨打量','呼通量','成功量'],
+                data: ['数据量','下发量','营销量','呼通量','成功量'],
                 bottom:0,
                 
             },
@@ -305,7 +356,7 @@
                     data: [
                         {value: 12345678, name: '数据量'},
                         {value: 2345678, name: '下发量'},
-                        {value: 345678, name: '拨打量'},
+                        {value: 345678, name: '营销量'},
                         {value: 45678, name: '呼通量'},
                         {value: 5678, name: '成功量'}
                     ]
@@ -387,17 +438,17 @@
       border:none; 
   }
   .wjhsInfo {
-      font-size:14px;
+      
       padding:20px 20px 5px 20px;
       margin-top:20px;
   }
   .wjhsInfo .one{
-      color:#aaa;
+      
       display:flex;
       justify-content: space-between
   }
   .wjhsInfo .two{
-      font-size:30px;
+      font-size:25px;
       margin-top:10px;
   }
   .wjhsInfo .three-box {
@@ -425,4 +476,5 @@
       float:right;
       padding:10px 0
   }
+
 </style>

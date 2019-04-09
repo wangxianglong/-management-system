@@ -47,7 +47,11 @@
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="活动名" prop="activityName"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable>
+                <template slot-scope="scope">
+                    {{scope.row.createTime | date(hour)}}
+                </template>
+            </el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
             <el-table-column label="状态" sortable>
@@ -87,7 +91,7 @@
         </el-dialog>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -97,6 +101,7 @@
     export default {
         data(){
             return { 
+                hour:true,
                 loading:true,
                 myData:{
                     id:null,
@@ -126,13 +131,14 @@
                     value: '1',
                     label: '已分配'
                 }],
-                tableData:[]//表格数据
+                tableData:[],//表格数据
+                total:1,
             }
         },
         methods:{
             //搜索
             goSearch(){
-                this.getTablelist()
+                
             },
             //获取表格列表
             getTablelist(){
@@ -142,6 +148,7 @@
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                         this.loading=false
                     }else{
                         this.$message.error(res.data.message)
@@ -185,8 +192,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTableList()
             },
             taskEdit(index,row) {
                 //console.log(row);//每行的数据

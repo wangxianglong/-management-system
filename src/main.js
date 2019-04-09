@@ -12,6 +12,7 @@ import axios from './config/axios'
 import api from './config/api';
 import preview from 'vue-photo-preview'
 import {setCookie,getCookie,delCookie} from '@/config/cookie'
+import filters from './config/filter';
 // import Blob from './excel/Blob'
 // import Export2Excel from './excel/Export2Excel'
 
@@ -35,6 +36,11 @@ Vue.prototype.$echarts = echarts;
 
 //API
 Vue.prototype.$api = api;
+
+// Filter
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key]);
+});
 
 Vue.config.productionTip = false
 

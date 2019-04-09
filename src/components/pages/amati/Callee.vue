@@ -93,7 +93,7 @@
                 this.$http.get(this.$api.amati.seatActive,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
-                        console.log(this.tableData)
+                        //console.log(this.tableData)
                     }
                 }).catch(error => {
                     console.log("出错了")

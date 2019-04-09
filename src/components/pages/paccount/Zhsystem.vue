@@ -118,7 +118,7 @@
                     status:1
                 }],
                 currentPage:1,
-                pagesize:10,
+                pagesize:100,
                 selectList:[],
                 url:'http://47.99.37.96:88'
             }
@@ -228,8 +228,8 @@
                 this.$router.push({name:'zhdetail',query:{agentId:agentId}})
             },
             getTableList(){
-                let token=this.$cookieStore.getCookie('token')
-                this.$http.get(this.$api.platform.userList,{params:{pageIndex:1,pageSize:5,token:token,roleId:3}}).then(res=>{
+                //let token=this.$cookieStore.getCookie('token')
+                this.$http.get(this.$api.platform.userList,{params:{pageIndex:1,pageSize:5,roleId:3}}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
                         this.tableData=res.data.list

@@ -174,7 +174,7 @@
                 
             },
             getRowKeys(row){
-                return row.key
+                return row.id
             },
             //表格选中事件
             handleSelectionChange(val){

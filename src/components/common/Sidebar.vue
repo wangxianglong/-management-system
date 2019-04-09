@@ -67,8 +67,8 @@
     .logo {
         padding:15px 10px 15px 14px;
         img{
-            width:120px;
-            height:40px;
+            width:130px;
+            
         }
     }
 </style>

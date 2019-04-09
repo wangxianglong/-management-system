@@ -18,12 +18,14 @@ const platform={
     save:'api/number/save',         //外显管理新增
     userList:'api/user/userList',        //账户管理
     update:'api/user/update',            //账户管理按钮接口
-    
+    addUser:'api/user/addUser',         //账户管理新增
+    agendList:'api/user/agentList',         //关联班长
 }
 //企业账户
 const firm= {
     itemList:'api/item/list',        //获取项目列表
     addItem:'api/item/save',          //新建项目
+    delete:'api/item/delete',           //删除
     newItem:'api/item/distribution',     //分配活动
     userList:'api/user/userList',        //任务列表
     monitorList:'api/user/monitorList',   //班长列表

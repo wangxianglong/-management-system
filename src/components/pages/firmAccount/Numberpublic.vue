@@ -46,7 +46,7 @@
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
         <!-- <el-dialog title="号码管理" :visible.sync="transferDialog" width="550px">
@@ -101,34 +101,11 @@
                 },
                 value:'',
                 createtime:'',
-                tableData:[{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                }],
+                tableData:[],
                 currentPage:1,
                 pagesize:10,
-                selectLis:[]
+                selectLis:[],
+                total:1,
             }
         },
         methods:{
@@ -150,8 +127,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTableList()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTableList()
             },
             // handleFp(index,row){
             //     console.log("分配")

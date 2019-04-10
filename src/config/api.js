@@ -9,6 +9,8 @@ const user={
 }
 //平台账户
 const platform={
+    index:'api/item/index',         //首页
+    itemList:'api/item/list',       //项目列表
     list:'api/project/projectList', //获取列表
     activityList:'api/activity/activityList',  //获取活动列表
     activity:'api/activity/getActivity', //获取活动

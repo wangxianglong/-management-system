@@ -75,7 +75,7 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <!--<el-table-column type="index" label="序号" :index="indexMethod" align="center" width="300px"></el-table-column>-->
             <el-table-column label="班长" prop="userName" align="center"></el-table-column>
@@ -102,8 +102,7 @@
         </div>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
-            </el-pagination>
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
         </div>
     </div>
 </template>
@@ -112,6 +111,7 @@
     export default {
         data(){
             return {
+                total:1,
                 holder:null,
                 selectList:[],
                 myNum:null,
@@ -138,7 +138,7 @@
                 dialogVisible:false,
                 value:'', 
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 name:'',
                 num:'',
                 options2: [{
@@ -189,10 +189,11 @@
                 let status=this.$route.query.status
                 //console.log(status+'jia')
                 //console.log(activityId)
-                this.$http.get(this.$api.firm.monitorList,{params:{token:token,activityId:activityId,status:status}}).then(res=>{
+                this.$http.get(this.$api.firm.monitorList,{params:{token:token,activityId:activityId,status:status,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res=>{
                     if(res.data.code===0){
+                        console.log(res)
                         this.tableData=res.data.list
-                        
+                        this.total=res.data.pageCount
                         this.count=res.data.count
                         //let arr=this.tableData
                         // if(status==1){
@@ -276,8 +277,13 @@
             // indexMethod(index) {
             //     return index+1;
             // },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTablelist()
             },
             // taskEdit(index,row) {
             //     //console.log(row);//每行的数据

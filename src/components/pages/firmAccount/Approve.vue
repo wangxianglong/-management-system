@@ -1,13 +1,14 @@
 <template>
     <div class="approve">
-        <el-form :model="form" label-width="100px" class="formPage" label-position='left' :rules="rules">
+        <el-form :model="form" label-width="100px" class="formPage" label-position='left' :rules="rules" ref="form">
             <div class="title">公司认证</div>
             <div class="boxSize">
                 <el-form-item label="公司名称">
                     <span>{{form.company}}</span>
                 </el-form-item>
                 <el-form-item label="状态">
-                    <span>未审核</span>
+                    <span v-if="form.status===0">未审核</span>
+                    <span v-if="form.status===3">已提交</span>
                 </el-form-item>
                 <!-- <el-form-item label="账号时限">
                     <span>3</span>
@@ -15,7 +16,7 @@
                 <el-form-item label="公司税号：" prop="taxNumber">
                     <el-input v-model="form.taxNumber"></el-input>
                 </el-form-item>
-                <el-form-item label="营业执照" prop="image">
+                <el-form-item label="营业执照" prop="businessLicense" style="margin:20px 0">
                     <el-upload
                         class="avatar-uploader"
                         action="api/upload"
@@ -49,8 +50,8 @@
                 </el-form-item>
             </div> -->
             <el-form-item size="medium" class="formBtn">
-                <el-button>取消</el-button>
-                <el-button type="primary" @click="mySure">确认修改</el-button>
+                <!-- <el-button>重置</el-button> -->
+                <el-button type="primary" @click="mySure('form')" style="width:100px">提交</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -61,12 +62,17 @@
             return {
                 form:{
                     company:null,
-                    taxNumber:null
+                    taxNumber:null,
+                    businessLicense:null
                 },
                 imageUrl:null,
                 rules:{
                     taxNumber: [
-                        { required: true, message: '请填写公司税号', trigger: 'change' }
+                        { required: true, message: '请填写公司税号', trigger: 'blur' },
+                        { min: 15, max: 20, message: '请填写正确公司税号', trigger: 'blur' }
+                    ],
+                    businessLicense: [
+                        { required: true, message: '请上传营业执照', trigger: 'blur' }
                     ],
                 }
             }
@@ -95,11 +101,12 @@
                 let params={token:token}
                 this.$http.get(this.$api.firm.approve,{params:params}).then(res=>{
                     if(res.data.code===0){
+                        console.log(res)
                         this.form=res.data.user
                     }
                 })
             },
-            mySure(){
+            mySure(formName){
                 // this.$refs[formName].validate((valid) => {
                 // if (valid) {
                 //     alert('submit!');
@@ -108,16 +115,24 @@
                 //     return false;
                 // }
                 // });
-                let params=this.form
-                this.form.status=3
-                this.$http.post(this.$api.firm.update,params).then(res=>{ 
-                    console.log(res)
-                    this.$message({
-                        type:'success',
-                        message:'认证成功'
-                    })
-                    this.$router.push({name:'login'})
+                this.$refs[formName].validate((valid)=>{
+                    if(valid) {
+                        let params=this.form
+                        this.form.status=3
+                        this.$http.post(this.$api.firm.update,params).then(res=>{ 
+                            console.log(res)
+                            this.$message({
+                                type:'success',
+                                message:'已提交'
+                            })
+                            this.$router.push({name:'login'})
+                        })
+                    }else{
+                        console.log('error submit!!')
+                        return false
+                    }
                 })
+                
             }
         },
         created(){
@@ -154,8 +169,8 @@
         left:20px
     }
     .avatar-uploader {
-        width:178px;
-        height:178px;
+        width:180px;
+        height:250px;
         border: 1px dashed #d9d9d9;
     }
     .avatar-uploader .el-upload {
@@ -171,14 +186,14 @@
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
-        width: 178px;
-        height: 178px;
+        width: 180px;
+        height: 250px;
         line-height: 178px;
         text-align: center;
     }
     .avatar {
-        width: 178px;
-        height: 178px;
+        width: 180px;
+        height: 250px;
         display: block;
     }
     .formBtn {

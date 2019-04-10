@@ -170,7 +170,7 @@
                 //console.log(id)
                 this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id,status:status}}).then(res =>{
                     if(res.data.code===0){
-                        //console.log(res.data.list)
+                        console.log(res.data)
                         this.tableData=res.data.list
                         this.count=res.data.count
                     }

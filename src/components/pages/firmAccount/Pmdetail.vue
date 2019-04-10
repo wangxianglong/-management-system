@@ -44,7 +44,7 @@
         </el-dialog>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="活动名" prop="activityName" align="center"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable align="center"></el-table-column>
@@ -66,8 +66,7 @@
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
-            </el-pagination>
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
         </div>
     </div>
 </template>
@@ -75,6 +74,7 @@
     export default {
         data(){
             return {
+                total:1,
                 searchList:{
                     name:''
                 },
@@ -111,7 +111,7 @@
                 createtime:'',
                 tableData:[],
                 currentPage:1,
-                pagesize:10,
+                pageSize:5,
                 ids:null,
             }
         },
@@ -119,8 +119,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getactivityList()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getactivityList()
             },
             handleFp(index,row){
                 console.log("分配")
@@ -137,6 +142,7 @@
                 let token=this.$cookieStore.getCookie('token')
                 //let status=this.$route.query.status
                 //console.log(token)
+                
                 let params={pageIndex:1,pageSize:5,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
@@ -150,10 +156,10 @@
                 })
             },
             addActivity(){
-                console.log(this.checkList.map(v=>v.id).join())
+                //console.log(this.checkList.map(v=>v.id).join())
                 let ids=this.checkList.map(v=>v.id).join()
                 let itemId=this.$route.query.id
-                console.log(itemId)
+                //console.log(itemId)
                 this.$http.post(this.$api.firm.newItem,{ids:ids,itemId:itemId}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res.data)
@@ -174,11 +180,12 @@
                 let token=this.$cookieStore.getCookie('token')
                 let id=this.$route.query.id
                 //console.log(token)
-                let params={pageIndex:1,pageSize:5,token:token,itemId:id}
+                let params={pageIndex:this.currentPage,pageSize:this.pageSize,token:token,itemId:id}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res.data)
+                        //console.log(res.data)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }else{
                         this.$message.error(res.data.message)
                     }
@@ -190,7 +197,7 @@
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                let params={pageIndex:1,pageSize:5,token:token,status:1}
+                let params={pageIndex:1,pageSize:200,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)

@@ -49,28 +49,30 @@
             register(formName) {
                 this.$refs[formName].validate((valid) =>{
                     if(valid) {
-                        let params={
-                            userName:this.ruleForm.num,
-                            passWord:this.ruleForm.password,
-                            company:this.ruleForm.firmname,
-                            phoneNum:this.ruleForm.phone
-                        }
+                        let params=this.ruleForm
                         this.$http.post(this.$api.user.register,params).then(res=>{
                             if(res.data.code===0){
+                                //console.log(res)
                                 this.$http.post(this.$api.login.login,{
                                     userName:this.ruleForm.num,
                                     passWord:this.ruleForm.password
                                 }).then((res) => {
-                                        //console.log(res)
-                                        if(res.status===200){ 
-                                            this.$store.commit('SET_TOKEN',res.data.token)
-                                            this.$store.commit("GET_USER",res.data.userName)
+                                        console.log(res)
+                                        if(res.data.status==='success'){ 
+                                            let token=this.$cookieStore.getCookie('token') 
+                                            this.$store.commit('SET_TOKEN',token)
+                                            this.$store.commit("GET_USER",this.ruleForm.num)
                                             this.$message({
                                                 type:'success',
                                                 message:'注册成功'
                                             })
                                             this.$router.push({name:'approve'})
                                             //console.log(token)
+                                        }else{
+                                            this.$message({
+                                                type:'error',
+                                                message:res.data.data.msg
+                                            })
                                         }
                                     }).catch(function(error){
                                         console.log(error)

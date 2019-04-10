@@ -41,7 +41,7 @@
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
@@ -123,7 +123,7 @@
                 dialogVisible:false,
                 value:'', 
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 options2: [{
                     value: '0',
                     label: '未分配'
@@ -144,7 +144,7 @@
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                this.$http.get(this.$api.platform.list,{params:{pageIndex:1,pageSize:5,token:token}}).then(res => {
+                this.$http.get(this.$api.platform.list,{params:{pageIndex:this.currentPage,pageSize:this.pageSize,token:token}}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list

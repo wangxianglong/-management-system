@@ -5,9 +5,9 @@
                 <div class="grid-content bg-purple oneFloor">
                     <span>项目</span>
                     <el-select class="mySelect" v-model="value" placeholder="全部" style="margin-left:30px;">
-                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        <el-option v-for="item in options" :key="item.id" :label="item.itemName" :value="item.id"></el-option>
                     </el-select>
-                    <el-radio-group v-model="radio3" style="margin-left:10px;">
+                    <!-- <el-radio-group v-model="radio3" style="margin-left:10px;">
                         <el-radio label="昨天"></el-radio>
                         <el-radio label="今日"></el-radio>
                         <el-radio label="本周"></el-radio>
@@ -22,7 +22,7 @@
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
                         </el-date-picker>
-                    </div>
+                    </div> -->
                 </div>
             </el-col>
         </el-row>
@@ -36,7 +36,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{num | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.cusNum | toString}}</span></div>
                     <!-- <div class="three-box">
                     <div class="three">
                         <span style="color:#aaa;margin-right:10px">同比</span>
@@ -59,7 +59,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>6,560</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.dialNum | toString}}</span></div>
                     <!-- <div class="four"><span class="buding">呼通率</span><span>60%</span></div> -->
                 </div>
             </el-col>
@@ -72,7 +72,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>78%</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.cusNum?statistics.successNum/statistics.cusNum:'--' | toString}}</span></div>
                     <!-- <div class="three-box">
                         <el-progress :percentage="78" :text-inside="true" :stroke-width="12" style="width:100%"></el-progress>
                     </div>
@@ -97,7 +97,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>0D 15H 24M 54S</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.duration | toString}}</span></div>
                     <!-- <div class="four"><span class="buding">累积拨打时长</span><span>1D 15H 24M 34S</span></div> -->
                 </div>
             </el-col>
@@ -138,14 +138,14 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" width="100%" show-header>
+                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header>
                         <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-                        <el-table-column label="坐席" prop="name"></el-table-column>
-                        <el-table-column label="呼叫次数" prop="num"></el-table-column>
-                        <el-table-column label="意向数" prop="using"></el-table-column>
+                        <el-table-column label="坐席" prop="user_name" width="150px"></el-table-column>
+                        <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
+                        <el-table-column label="意向数" prop="intention"></el-table-column>
                     </el-table>
                     <div class="fpage">
-                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[12,100,300,400]" :pager-count="5" :page-size="12" layout=" prev, pager, next" :total="400">
+                        <el-pagination class="pagebutton" small @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout=" prev, pager, next" :total="total">
                         </el-pagination>
                     </div>
                 </div>
@@ -178,6 +178,8 @@
     export default {
     data() {
       return {
+          statistics:{},
+          total:1,
           num:1500,
         radio3: '今日',
         value4: [new Date(), new Date()],
@@ -193,7 +195,7 @@
         }],
         value: '',
         currentPage:1,
-        pagesize:6,
+        pageSize:5,
         tableData:[{
                     name:'aa',
                     num:234,
@@ -248,7 +250,7 @@
                     orient: 'vertical',
                     x: 'right',
                     y:'center',
-                    data:['未接通',`00':01"～00':15"`,`00':16"～00':30"`,`00':31"～02':00"`,`02':01"以上`]
+                    data:['未接通','00:01～00:15','00:16～00:30','00:31～02:00','2:01以上']
                 },
                 // graphic: [{ //环形图中间添加文字
                 //     type: 'text', //通过不同top值可以设置上下显示
@@ -294,11 +296,11 @@
                             borderColor:'#fff'
                         },
                         data:[
-                            {value:36, name:'未接通'},
-                            {value:20, name:`00':01"～00':15"`},
-                            {value:36, name:`00':16"～00':30"`},
-                            {value:20, name:`00':31"～02':00"`},
-                            {value:36, name:`02':01"以上`}
+                            {value:100, name:'未接通'},
+                            {value:20, name:'00:01～00:15'},
+                            {value:36, name:'00:16～00:30'},
+                            {value:20, name:'00:31～02:00'},
+                            {value:36, name:'2:01以上'}
                         ]
                     }
                 ]
@@ -368,14 +370,47 @@
     },
     
     mounted() {
+        
         this.drawLine()
     },
     methods: {
         indexMethod(index) {
             return index+1;
         },
-        handleCurrentChange(currentPage) {
-            this.currentPage =currentPage;
+        handleCurrentChange(val) {
+            this.currentPage =val;
+            this.getDataList()
+        },
+        handleSizeChange(val){
+            this.pageSize=val;
+            this.getDataList()
+        },
+        getDataList(){
+            let token=this.$cookieStore.getCookie('token')
+            let params={token:token,pageIndex:this.currentPage,pageSize:this.pageSize}
+            this.$http.get(this.$api.platform.index,{params:params}).then(res=>{
+                if(res.data.code===0){
+                    console.log(res)
+                    this.optionbar.series[0].data=res.data.data
+                    console.log(this.optionbar.series[0])
+                    this.tableData=res.data.seatList
+                    this.statistics=res.data.statistics
+                }
+            }).catch(error=>{
+                console.log(error)
+            })
+        },
+        getItemList(){
+            let token=this.$cookieStore.getCookie('token')
+            let pageSize=200
+            let pageIndex=1
+            let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
+            this.$http.get(this.$api.platform.itemList,{params:params}).then(res=>{
+                if(res.data.code===0){
+                    console.log(res)
+                    this.options=res.data.list
+                }
+            })
         },
         drawLine() {
             let that=this
@@ -391,6 +426,10 @@
                 chartmainfunnel.resize()
             })
         },
+    },
+    created(){
+        this.getDataList()
+        this.getItemList()
     }
   }
 </script>

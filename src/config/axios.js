@@ -2,6 +2,7 @@ import Vue from 'vue';
 import axios from 'axios';
 //import { Loading } from 'element-ui';
 
+
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 1000 * 10;
@@ -23,15 +24,28 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 axios.interceptors.request.use(function (config) {
     //openLoading()
+    
     return config;
 }, function (err) {
     return Promise.reject(err);
 });
 axios.interceptors.response.use(function (response) {
     //closeLoading();
+    
     return response;
 }, function (err) {
     //closeLoading();
+    if (err.response) {
+        switch (error.response.status) {
+            case 401:
+                // 返回 401 清除token信息并跳转到登录页面
+                alert('用户验证失效!');
+                router.replace({
+                    path: 'login',
+                    query: {redirect: router.currentRoute.fullPath}
+                })
+        }
+    }
     return Promise.reject(err);
 });
 

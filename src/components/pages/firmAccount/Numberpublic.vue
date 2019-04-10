@@ -24,7 +24,7 @@
         </div> -->
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
             <!-- <el-table-column type="selection"></el-table-column> -->
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
             <el-table-column label="号码" prop="showNumber" sortable></el-table-column>
@@ -39,8 +39,8 @@
             <!-- <el-table-column label="创建时间" prop="using" sortable></el-table-column> -->
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="startUse(scope.row)">启用</el-button>
-                    <el-button type="text" @click="stopUse(scope.row)">停用</el-button>
+                    <el-button type="text" v-if="scope.row.status!=1" @click="startUse(scope.row)">启用</el-button>
+                    <el-button type="text" v-if="scope.row.status!=2&&scope.row.status!=0" @click="stopUse(scope.row)">停用</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -65,6 +65,7 @@
     export default {
         data(){
             return {
+                
                 usenum:1,
                 unuse:2,
                 using:4,
@@ -103,9 +104,9 @@
                 createtime:'',
                 tableData:[],
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 selectLis:[],
-                total:1,
+                total:11,   //后台没返回
             }
         },
         methods:{
@@ -151,7 +152,7 @@
             //获取表格列表
             getTableList(){
                 let token=this.$cookieStore.getCookie('token')
-                this.$http.get(this.$api.firm.numList,{params:{token:token}}).then(res=>{
+                this.$http.get(this.$api.firm.numList,{params:{token:token,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
                         this.tableData=res.data.list
@@ -168,6 +169,7 @@
                 })
             },
             stopUse(row){
+                
                 let id=row.id
                 let params={status:2,id:id}
                 this.$http.post(this.$api.firm.update,params).then(res=>{

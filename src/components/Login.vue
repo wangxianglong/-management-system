@@ -108,7 +108,7 @@ import register from '@/components/register'
                             userName,
                             passWord
                         }).then((res) => {
-                                //console.log(res)
+                                console.log(res)
                                 if(res.data.data.status=="success"){
                                     let token=this.$cookieStore.getCookie('token') 
                                     this.$store.commit('SET_TOKEN',token)
@@ -128,7 +128,7 @@ import register from '@/components/register'
                                     //console.log(token)
                                 }else{
                                     this.$message({
-                                        message:res.data.msg,
+                                        message:res.data.data.msg,
                                         type:'error'
                                     })
                                 }

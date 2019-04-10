@@ -16,7 +16,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table id="out-table" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
+        <el-table id="out-table" :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="70px"></el-table-column>
             <el-table-column label="项目名称" prop="itemName" width="100px"></el-table-column>
@@ -62,7 +62,7 @@
             <v-board :childData="childData" :seatList="seatList" :myRow="myRow" v-if="childData.length > 0"></v-board>
         </el-dialog>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -86,11 +86,12 @@
                 tableData:[],
                 rowData:'',
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 selectList:[],
                 childData:[],
                 seatList:[],
                 myRow:null,
+                total:1,
             }
         },
         components:{
@@ -103,17 +104,25 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTablelist()
             },
             //获取表格数据
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                this.$http.get(this.$api.callee.statistics,{params:{pageIndex:1,pageSize:5,token:token}}).then(res => {
+                let pageSize=this.pageSize
+                let pageIndex=this.currentPage
+                this.$http.get(this.$api.callee.statistics,{params:{pageIndex:pageIndex,pageSize:pageSize,token:token}}).then(res => {
                     if(res.data.code === 0){
-                        //console.log(res.data)
+                        console.log(res.data)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }else{
                         this.$message.error(res.data.message)
                     }

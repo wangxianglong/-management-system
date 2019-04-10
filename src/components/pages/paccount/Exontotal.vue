@@ -12,7 +12,7 @@
         <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="addTel">新增号码</el-button></div> -->
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px;"></el-table-column>
             <el-table-column label="企业名称" prop="company" width="200px"></el-table-column>
             <el-table-column label="外显量" prop="num" width="200px"></el-table-column>
@@ -78,7 +78,7 @@
                 createtime:'',
                 tableData:[],
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 item:null,
                 total:1
             }

@@ -38,6 +38,7 @@ const router= new Router({
       path: '/',
       name:'home',
       component: resolve => require(['../components/common/Home.vue'], resolve),
+      
       meta: { title: '平台账户',isLogin:true},
       children:[
         {
@@ -53,6 +54,7 @@ const router= new Router({
         },
         {
           path:'/whsystem',
+          
           component:resolve => require(['../components/pages/paccount/Whsystem.vue'],resolve),
           meta: {title:'外呼系统',isLogin:true}
         },
@@ -193,7 +195,7 @@ router.beforeEach((to,from,next) => {
       }else{
         next({
           path:'/login',
-          //query:{redirect:to.fullPath}
+          query:{redirect:to.fullPath}
         })
       }
   }else{

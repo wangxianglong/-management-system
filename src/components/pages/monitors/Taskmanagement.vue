@@ -21,7 +21,7 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
@@ -44,7 +44,7 @@
         </div>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -68,7 +68,7 @@
                 dialogVisible:false,
                 value:'', 
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
                 name:'',
                 num:'',
                 options2: [{
@@ -81,40 +81,8 @@
                     value:'选项3',
                     label:'项目2'
                 }],
-                
-                tableData:[{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:0
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:2
-                },{
-                    activityName:'aa',
-                    orderNum:234,
-                    orderMargin:23,
-                    createTime:333,
-                    startTime:4556,
-                    endTime:455,
-                    status:1
-                }]
+                total:1,
+                tableData:[]
             }
         },
         methods:{
@@ -125,10 +93,11 @@
             //获取表格列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
-                this.$http.get(this.$api.monitor.taskAssign,{params:{token:token,pageIndex:1,pageSize:5}}).then(res =>{
+                this.$http.get(this.$api.monitor.taskAssign,{params:{token:token,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res =>{
                     if(res.data.code===0){
-                        console.log(res.data.list)
+                        //console.log(res)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }
                 })
             },
@@ -140,8 +109,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getActivityList()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getActivityList()
             },
             taskEdit(index,row) {
                 //console.log(row);//每行的数据
@@ -152,7 +126,7 @@
                 this.num=row.num
                 let id=row.activityId
                 let status=row.status
-                console.log(status)
+                //console.log(status)
                 //console.log(id)
                 this.$router.push({name:'taskdetail',query:{id:id,status:status}})
             },

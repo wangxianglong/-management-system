@@ -44,7 +44,7 @@
             <el-table-column label="活动量" prop="num" sortable></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable>
                 <template slot-scope="scope">
-                    {{scope.row.createTime | date}}
+                    {{scope.row.createTime | date(hour)}}
                 </template>
             </el-table-column>
             <el-table-column label="状态" sortable>
@@ -72,6 +72,7 @@
     export default {
         data(){
             return {
+                hour:true,
                 itemName:"测试项目",  
                 addNewitemdialog:false,
                 count:1,
@@ -111,7 +112,7 @@
                 let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        //console.log(res)
+                        console.log(res)
                         this.tableData=res.data.list
                         this.total=res.data.count
                     }
@@ -121,7 +122,7 @@
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                let params={pageIndex:1,pageSize:5,token:token,status:1}
+                let params={pageIndex:1,pageSize:200,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)

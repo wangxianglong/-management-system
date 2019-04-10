@@ -17,7 +17,7 @@
                 </div>
                 <div class="close">
                   <div class="return"><img src="../../assets/return.png"></div> 
-                  <div><span @click="logout" style="font-size:14px">退出系统</span></div>
+                  <div style="cursor: pointer;"><span @click="logout" style="font-size:14px">退出系统</span></div>
                 </div>
               </div>
             </div>
@@ -50,6 +50,8 @@
                     //this.$store.commit('LOGOUT')
                     this.$cookieStore.delCookie('token')
                     this.$router.replace({name:'login'})
+                }).catch(()=>{
+                  
                 });
           },
         },
@@ -104,6 +106,7 @@
       .line {
         margin-right:10px;
         padding-top:5px;
+        cursor: pointer
       }
       .info {
       

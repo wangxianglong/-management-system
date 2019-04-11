@@ -1,9 +1,9 @@
 <template>
     <div>
         <el-form :inline="true" :model="searchList" class="form-inline">
-            <el-form-item label="客户电话">
+            <!-- <el-form-item label="客户电话">
                 <el-input v-model="searchList.name"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="营销情况">
                 <el-select v-model="value" placeholder="请选择" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -21,9 +21,9 @@
             <el-form-item label="坐席名称">
                 <el-input v-model="tableData.stdate"></el-input>
             </el-form-item>
-            <el-form-item label="通话时长：">
+            <!-- <el-form-item label="通话时长：">
                 <el-input v-model="tableData.stdate"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
                 <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
@@ -34,27 +34,28 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="客户电话" prop="phone_num"></el-table-column>
+            <el-table-column label="客户电话" prop="phoneNum" width="100px"></el-table-column>
             <el-table-column label="营销情况" prop="intention"></el-table-column>
             <el-table-column label="省份" prop="provide"></el-table-column>
             <el-table-column label="城市" prop="area"></el-table-column>
             <el-table-column label="姓氏/性别" prop="cName"></el-table-column>
-            <el-table-column label="外呼时间" prop="startTime"></el-table-column>
+            <el-table-column label="外呼时间" prop="startTime" width="150px"></el-table-column>
             <el-table-column label="坐席" prop="agend_id"></el-table-column>
             <el-table-column label="通话时长" prop="callDuration" sortable width="100px"></el-table-column>
             <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
             <el-table-column label="质检评级" sortable width="100px">
                 <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.level===0">优</el-button>
-                    <el-button type="text" v-if="scope.row.status===1">良</el-button>
-                    <el-button type="text" v-if="scope.row.status===2">一般</el-button>
-                    <el-button type="text" v-if="scope.row.status===3">差</el-button>
+                    <el-button type="text" style="color:red" v-if="scope.row.LEVEL===0">无</el-button>
+                    <el-button type="text" v-if="scope.row.LEVEL===1">优</el-button>
+                    <el-button type="text" v-if="scope.row.LEVEL===2">良</el-button>
+                    <el-button type="text" v-if="scope.row.LEVEL===3">一般</el-button>
+                    <el-button type="text" v-if="scope.row.LEVEL===4">差</el-button>
                 </template> 
             </el-table-column>
-            <el-table-column label="备注" prop="endTime"></el-table-column>
-            <el-table-column label="操作" width="300px">
+            <el-table-column label="备注" prop="content"></el-table-column>
+            <el-table-column label="操作" width="250px">
                 <template slot-scope="scope" style="text-align:center">
                     <div class="audioBox">
                         <el-button type="text" @click="particulars(scope.row)">详情</el-button>
@@ -79,27 +80,32 @@
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" layout="total, sizes, prev, pager, next, jumper" :total="400">
-            </el-pagination>
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
         </div>
         <!--详情-->
-        <el-dialog title="修改" :visible.sync="particularsDialog" width="600px">
+        <el-dialog title="详情" :visible.sync="particularsDialog" width="600px">
             <el-form ref="form" :model="form" label-width="80px" label-position="right">
                 <el-form-item label="营销情况">
-                    <el-select v-model="form.status" placeholder="请选择">
+                    <!-- <el-select v-model="form.status" placeholder="请选择">
                         <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
+                    </el-select> -->
+                    <span>{{form.intention}}</span>
                 </el-form-item>
-                <el-form-item label="坐席反馈">
+                <!-- <el-form-item label="坐席反馈">
                     <el-input type="textarea" v-model="form.desc"></el-input>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="质检评级">
-                    <el-select v-model="form.deji" placeholder="请选择">
+                    <!-- <el-select v-model="form.deji" placeholder="请选择">
                         <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
+                    </el-select> -->
+                    <span v-if="form.LEVEL===0">无</span>
+                    <span v-if="form.LEVEL===1">优</span>
+                    <span v-if="form.LEVEL===2">良</span>
+                    <span v-if="form.LEVEL===3">一般</span>
+                    <span v-if="form.LEVEL===4">差</span>
                 </el-form-item>
                 <el-form-item label="质检反馈">
-                    <el-input type="textarea" v-model="form.desc"></el-input>
+                    <el-input type="textarea" v-model="form.content" disabled></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -119,38 +125,38 @@
                     deji:''
                 },
                particularsDialog:false,
-                options2: [{
-                    value: '选项1',
-                    label: '成功'
-                }, {
-                    value: '选项2',
-                    label: '下次再呼'
-                },{
-                    value: '选项3',
-                    label: '拉黑'
-                },{
-                    value: '选项4',
-                    label: '其他'
-                },{
-                    value: '选项5',
-                    label: '未保存'
-                },{
-                    value: '选项6',
-                    label: '失败'
-                }],
-                options1:[{
-                    value: '选项1',
-                    label: '优'
-                }, {
-                    value: '选项2',
-                    label: '良'
-                },{
-                    value: '选项3',
-                    label: '一般'
-                },{
-                    value: '选项4',
-                    label: '差'
-                }],
+                // options2: [{
+                //     value: '选项1',
+                //     label: '成功'
+                // }, {
+                //     value: '选项2',
+                //     label: '下次再呼'
+                // },{
+                //     value: '选项3',
+                //     label: '拉黑'
+                // },{
+                //     value: '选项4',
+                //     label: '其他'
+                // },{
+                //     value: '选项5',
+                //     label: '未保存'
+                // },{
+                //     value: '选项6',
+                //     label: '失败'
+                // }],
+                // options1:[{
+                //     value: '选项1',
+                //     label: '优'
+                // }, {
+                //     value: '选项2',
+                //     label: '良'
+                // },{
+                //     value: '选项3',
+                //     label: '一般'
+                // },{
+                //     value: '选项4',
+                //     label: '差'
+                // }],
                 options: [{
                     value: '选项1',
                     label: '成功'
@@ -177,15 +183,21 @@
                 createtime:'',
                 tableData:[],
                 currentPage:1,
-                pagesize:10,
+                pageSize:10,
+                total:1
             }
         },
         methods:{
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTableList()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTableList()
             },
             search(){
                 console.log('搜索')
@@ -193,7 +205,9 @@
             //获取表格列表
             getTableList(){
                 let token=this.$cookieStore.getCookie('token')
-                let params={token:token}
+                let pageSize=this.pageSize
+                let pageIndex=this.currentPage
+                let params={token:token,pageSize:pageSize,pageIndex:pageIndex}
                 this.$http.get(this.$api.firm.recordList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
@@ -202,6 +216,7 @@
                 })
             },
             particulars(row){
+                this.form=row
                 this.particularsDialog=true
             },
             loadRecord(){

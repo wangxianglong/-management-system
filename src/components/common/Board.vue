@@ -144,7 +144,7 @@
     require('echarts/lib/component/tooltip')
     require('echarts/lib/component/title')
     export default {
-        props:['childData','seatList','myRow'],
+        props:['childData','seatList','myRow','sucList','durationList','arr'],
         data(){
             return {
                 callRatio:82,
@@ -199,7 +199,7 @@
                                 trigger:'axis'
                             },
                             yAxisIndex:0,
-                            data:[220, 182, 191, 234, 290, 330, 310,222,334,44,444,555,666,666]
+                            data:this.durationList
                         },
                         {
                             name:'成功量(次)',
@@ -208,7 +208,7 @@
                                 trigger:'axis'
                             },
                             yAxisIndex:1,
-                            data:[3, 4, 7, 9, 3, 5, 6,7,4,9,7,5,6,8,8]
+                            data:this.sucList
                         },
                     ]
                 },
@@ -216,7 +216,7 @@
                         color:['#f0657d','#f9d248','#53ca76','#40cbca','#41a2fc'],
                         tooltip: {
                             trigger: 'item',
-                            formatter: "{a} <br/>{b}: {c} ({d}%)",
+                            formatter: "{a} <br/>{b}: {c})",
                         },
                         legend: {
                             orient: 'vertical',
@@ -277,7 +277,7 @@
                     color:['#64a6e5','#80cd59','#edca67','#e19362','#df685b'],
                     tooltip: {
                         trigger: 'item',
-                        formatter: "{a} <br/>{b} : {c}%"
+                        formatter: "{a} <br/>{b} : {c}"
                     },
                     
                     legend: {
@@ -297,8 +297,8 @@
                             width: '70%',
                             // height: {totalHeight} - y - y2,
                             min: 0,
-                            max: 13000000,
-                            minSize: '20%',
+                            max: 300,
+                            minSize: '0',
                             maxSize: '100%',
                             sort: 'descending',
                             gap: 2,
@@ -322,22 +322,16 @@
                                     fontSize: 20
                                 }
                             },
-                            data: [
-                                {value: 12345678, name: '数据量'},
-                                {value: 2345678, name: '下发量'},
-                                {value: 345678, name: '拨打量'},
-                                {value: 45678, name: '呼通量'},
-                                {value: 5678, name: '成功量'}
-                            ]
+                            data: this.arr
                         }
                     ]
                 }
             }
         },
         created(){
-            // console.log(this.childData)
+            //console.log(this.childData)
             // console.log(this.seatList)
-            //console.log(this.myRow.againNum)
+            console.log(this.arr)
         },
         mounted() {
             
@@ -364,6 +358,7 @@
                     chartmainfunnel.resize()
                 })
             },
+            
         }
     }
 </script>

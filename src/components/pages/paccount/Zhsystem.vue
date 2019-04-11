@@ -21,7 +21,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header @selection-change="changeFun">
+        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="企业名称" prop="company"></el-table-column>
@@ -46,9 +46,9 @@
             <el-table-column label="操作" width='250px'>
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==2" @click="handletg(scope.row)">通过</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==3" @click="handledh(scope.row)">打回</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==4" @click="handledj(scope.row)">冻结</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===2||scope.row.status===0" @click="handletg(scope.row)">通过</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handledh(scope.row)">打回</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
                     <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button>
                     <el-button type="text" size="mini" @click="handleXq(scope.row)">详情</el-button>
                 </template>
@@ -56,7 +56,7 @@
         </el-table>
         </div>
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage"  layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -65,6 +65,7 @@
     export default {
         data(){
             return {
+                total:1,
                 searchList:{
                     name:'',
                     account:''
@@ -80,45 +81,9 @@
                     value:'选项3',
                     label:'使用中'
                 }],
-                tableData:[{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    status:0
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    status:1
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    status:2
-                },{
-                    name:'aa',
-                    num:234,
-                    xfnum:23,
-                    hcnum:333,
-                    bdnum:4556,
-                    htnum:455,
-                    cgnum:34545,
-                    status:1
-                }],
+                tableData:[],
                 currentPage:1,
-                pagesize:100,
+                pageSize:10,
                 selectList:[],
                 url:'http://47.99.37.96:88'
             }
@@ -158,8 +123,13 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
+            handleCurrentChange(val) {
+                this.currentPage =val;
+                this.getTableList()
+            },
+            handleSizeChange(val){
+                this.pageSize=val;
+                this.getTableList()
             },
             handlesy(row){
                 // console.log(row.status)
@@ -229,10 +199,11 @@
             },
             getTableList(){
                 //let token=this.$cookieStore.getCookie('token')
-                this.$http.get(this.$api.platform.userList,{params:{pageIndex:1,pageSize:5,roleId:3}}).then(res=>{
+                this.$http.get(this.$api.platform.userList,{params:{pageIndex:this.currentPage,pageSize:this.pageSize,roleId:3}}).then(res=>{
                     if(res.data.code===0){
-                        //console.log(res)
+                        console.log(res)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }
                 }).catch(err=>{
                     console.log(err)

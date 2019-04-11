@@ -36,7 +36,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.cusNum | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.expiration | toString}}</span></div>
                     <!-- <div class="three-box">
                     <div class="three">
                         <span style="color:#aaa;margin-right:10px">同比</span>
@@ -178,6 +178,9 @@
     export default {
     data() {
       return {
+          chartmainfunnel:null,
+          chartmainbar:null,
+          chartmainline:null,
           statistics:{},
           total:1,
           num:1500,
@@ -196,37 +199,13 @@
         value: '',
         currentPage:1,
         pageSize:5,
-        tableData:[{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-                },{
-                    name:'aa',
-                    num:234,
-                    using:10,
-                    unuse:4,
-                    stopped:3
-        }],
+        tableData:[],
         optionline:{
             color:['rgb(55,161,255)'],
             
             tooltip:{},
             xAxis:{
-                data:["9:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
+                data:['8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00']
             },
             yAxis: {
                 
@@ -236,21 +215,22 @@
                 type: 'bar',
                 barWidth:'40%',
                 barColor:'blue',
-                data: [250,500,750,100,220,330,450,440,555,660,760,770]
+                data: []
             }]
         },
+        barData:[],
         optionbar:{
                 color:['#f0657d','#f9d248','#53ca76','#40cbca','#41a2fc'],
                  tooltip: {
                     trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)",
+                    formatter: "{a} <br/>{b}: {c} ",
                     
                 },
                 legend: {
                     orient: 'vertical',
                     x: 'right',
                     y:'center',
-                    data:['未接通','00:01～00:15','00:16～00:30','00:31～02:00','2:01以上']
+                    data:['未接通','00:01～00:15','00:16～00:30','00:31～02:00','2:00以上']
                 },
                 // graphic: [{ //环形图中间添加文字
                 //     type: 'text', //通过不同top值可以设置上下显示
@@ -296,11 +276,7 @@
                             borderColor:'#fff'
                         },
                         data:[
-                            {value:100, name:'未接通'},
-                            {value:20, name:'00:01～00:15'},
-                            {value:36, name:'00:16～00:30'},
-                            {value:20, name:'00:31～02:00'},
-                            {value:36, name:'2:01以上'}
+                            
                         ]
                     }
                 ]
@@ -310,7 +286,7 @@
             color:['#64a6e5','#80cd59','#edca67','#e19362','#df685b'],
             tooltip: {
                 trigger: 'item',
-                formatter: "{a} <br/>{b} : {c}%"
+                formatter: "{a} <br/>{b} : {c}"
             },
             
             legend: {
@@ -330,8 +306,8 @@
                     width: '70%',
                     // height: {totalHeight} - y - y2,
                     min: 0,
-                    max: 13000000,
-                    minSize: '20%',
+                    max: 300,
+                    minSize: '0',
                     maxSize: '100%',
                     sort: 'descending',
                     gap: 2,
@@ -355,13 +331,7 @@
                             fontSize: 20
                         }
                     },
-                    data: [
-                        {value: 12345678, name: '数据量'},
-                        {value: 2345678, name: '下发量'},
-                        {value: 345678, name: '营销量'},
-                        {value: 45678, name: '呼通量'},
-                        {value: 5678, name: '成功量'}
-                    ]
+                    data: []
                 }
             ]
         }
@@ -370,7 +340,6 @@
     },
     
     mounted() {
-        
         this.drawLine()
     },
     methods: {
@@ -391,10 +360,32 @@
             this.$http.get(this.$api.platform.index,{params:params}).then(res=>{
                 if(res.data.code===0){
                     console.log(res)
-                    this.optionbar.series[0].data=res.data.data
-                    console.log(this.optionbar.series[0])
+                    this.chartmainbar.setOption({
+                        series:[{
+                            data:res.data.data
+                        }]
+                    })
+                    
                     this.tableData=res.data.seatList
+                    
                     this.statistics=res.data.statistics
+                    let arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
+                    arr[0].value=this.statistics.cusNum
+                    arr[1].value=this.statistics.assignNum
+                    arr[2].value=this.statistics.expiration
+                    arr[3].value=this.statistics.flux
+                    arr[4].value=this.statistics.successNum
+                    //console.log(arr)
+                    this.chartmainfunnel.setOption({
+                        series:[{
+                            data:arr
+                        }]
+                    })
+                    this.chartmainline.setOption({
+                        series:[{
+                            data:res.data.timeData.series[0].data
+                        }]
+                    })
                 }
             }).catch(error=>{
                 console.log(error)
@@ -407,23 +398,23 @@
             let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
             this.$http.get(this.$api.platform.itemList,{params:params}).then(res=>{
                 if(res.data.code===0){
-                    console.log(res)
+                    //console.log(res)
                     this.options=res.data.list
                 }
             })
         },
         drawLine() {
             let that=this
-            let chartmainline=this.$echarts.init(document.getElementById('chartmainline'))
-            chartmainline.setOption(this.optionline)
-            let chartmainbar=this.$echarts.init(document.getElementById('chartmainbar'))
-            chartmainbar.setOption(this.optionbar);
-            let chartmainfunnel=this.$echarts.init(document.getElementById('chartmainfunnel'))
-            chartmainfunnel.setOption(this.optionfunnel)
+            this.chartmainline=this.$echarts.init(document.getElementById('chartmainline'))
+            this.chartmainline.setOption(this.optionline)
+            this.chartmainbar=this.$echarts.init(document.getElementById('chartmainbar'))
+            this.chartmainbar.setOption(this.optionbar);
+            this.chartmainfunnel=this.$echarts.init(document.getElementById('chartmainfunnel'))
+            this.chartmainfunnel.setOption(this.optionfunnel)
             window.addEventListener('resize', function () {
-                chartmainline.resize()
-                chartmainbar.resize()
-                chartmainfunnel.resize()
+                this.chartmainline.resize()
+                this.chartmainbar.resize()
+                this.chartmainfunnel.resize()
             })
         },
     },

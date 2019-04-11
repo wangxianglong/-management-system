@@ -59,7 +59,7 @@
         </div>
 
         <el-dialog title="房产教育" :visible.sync="boardDialog" center width="90%">
-            <v-board :childData="childData" :seatList="seatList" :myRow="myRow" v-if="childData.length > 0"></v-board>
+            <v-board :childData="childData" :seatList="seatList" :myRow="myRow" :sucList="sucList" :durationList="durationList" :arr='arr' v-if="childData.length > 0"></v-board>
         </el-dialog>
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
@@ -92,6 +92,9 @@
                 seatList:[],
                 myRow:null,
                 total:1,
+                durationList:[],
+                sucList:[],
+                arr:[]
             }
         },
         components:{
@@ -133,14 +136,23 @@
             
             handleKb(index,row){
                 this.myRow=row
+                this.arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
+                this.arr[0].value=this.myRow.cusNum
+                this.arr[1].value=this.myRow.assignNum
+                this.arr[2].value=this.myRow.expiration
+                this.arr[3].value=this.myRow.flux
+                this.arr[4].value=this.myRow.successNum
+                console.log(this.arr)
                 row.againNum=row.dialNum-row.expiration
                 let token=this.$cookieStore.getCookie('token')
                 let id=row.id
                 this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id,token:token}}).then(res => {
                     if(res.data.code === 0){
-                        //console.log(res.data)
+                        console.log(res.data)
                         this.childData=res.data.data
                         this.seatList=res.data.seatList
+                        this.durationList=res.data.durationList
+                        this.sucList=res.data.sucList
                     }else{
                         this.$message.error(res.data.message)
                     }

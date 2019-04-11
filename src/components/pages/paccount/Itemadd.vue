@@ -198,7 +198,7 @@
             },
             handleSizeChange(val){
                 this.pageSize=val;
-                this.getTableList()
+                this.getTablelist()
             },
             taskEdit(index,row) {
                 //console.log(row);//每行的数据

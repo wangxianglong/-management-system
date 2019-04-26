@@ -33,9 +33,9 @@ axios.interceptors.response.use(function (response) {
     //closeLoading();
     
     return response;
-}, function (err) {
+}, function (error) {
     //closeLoading();
-    if (err.response) {
+    if (error.response) {
         switch (error.response.status) {
             case 401:
                 // 返回 401 清除token信息并跳转到登录页面
@@ -46,7 +46,7 @@ axios.interceptors.response.use(function (response) {
                 })
         }
     }
-    return Promise.reject(err);
+    return Promise.reject(error);
 });
 
 // //通用方法

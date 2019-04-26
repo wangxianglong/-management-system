@@ -10,7 +10,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="创建时间">
-                <el-date-picker v-model="myData.createTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.createTime" type="datetime" placeholder="选择日期时间" value-format="timestamp"></el-date-picker>
             </el-form-item>
             <el-form-item label="开始时间：">
                 <el-date-picker v-model="myData.startTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
@@ -41,7 +41,7 @@
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
@@ -57,12 +57,12 @@
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" size="mini" style="color:red" v-if="scope.row.status===0">未分配</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===1">已分配</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status!==0">已分配</el-button>
                 </template> 
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="mini" :disabled="scope.row.status == 1" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button>
+                    <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -104,12 +104,8 @@
                 hour:true,
                 loading:true,
                 myData:{
-                    id:null,
-                    activityName:null,
-                    createTime:null,
-                    startTime:null,
-                    endTime:null,
-                    status:null
+                    pageIndex:1,
+                    pageSize:10,
                 }, 
                 userId:null,
                 rowData:'',
@@ -122,8 +118,7 @@
                 activityList:[],//活动列表
                 dialogVisible:false,
                 value:'', 
-                currentPage:1,
-                pageSize:10,
+                
                 options2: [{
                     value: '0',
                     label: '未分配'
@@ -138,13 +133,26 @@
         methods:{
             //搜索
             goSearch(){
-                
+                let token=this.$cookieStore.getCookie('token')
+                let params=this.myData
+                params.token=token
+                this.$http.get(this.$api.platform.list,{params:params}).then(res => {
+                    if(res.data.code === 0){
+                        console.log(res.data)
+                        this.tableData=res.data.list
+                        
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
+                })
             },
             //获取表格列表
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                this.$http.get(this.$api.platform.list,{params:{pageIndex:this.currentPage,pageSize:this.pageSize,token:token}}).then(res => {
+                this.$http.get(this.$api.platform.list,{params:{pageIndex:this.myData.pageIndex,pageSize:this.myData.pageSize,token:token}}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list
@@ -181,7 +189,6 @@
                     //console.log(res)
                     if(res.data.code===0){
                         //that.tableData=res.data.param.resultList 
-                        console.log(this.tableData)
                         this.activityShow=false;
                         this.getTablelist()
                     }
@@ -193,11 +200,11 @@
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
+                this.myData.pageIndex =val;
                 this.getTablelist()
             },
             handleSizeChange(val){
-                this.pageSize=val;
+                this.myData.pageSize=val;
                 this.getTablelist()
             },
             taskEdit(index,row) {

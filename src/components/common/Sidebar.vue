@@ -31,7 +31,7 @@
         },
         mounted() {
             this.items=JSON.parse(localStorage.getItem("router"));
-            console.log(this.items)
+            //console.log(this.items)
         },
         created(){
             // 通过 Event Bus 进行组件间通信，来折叠侧边栏

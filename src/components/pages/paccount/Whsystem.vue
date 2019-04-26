@@ -2,11 +2,11 @@
     <div>
         <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="项目名称:">
-                <el-input placeholder="请输入用户名" v-model="myData.name"></el-input>
+                <el-input placeholder="请输入用户名" v-model="myData.itemName"></el-input>
             </el-form-item>
-            <el-form-item label="创建时间：">
+            <!-- <el-form-item label="创建时间：">
                 <el-date-picker class='dateInput' v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
                 <el-button type='primary' style="margin-left:50px;" @click="gosearch">搜索</el-button>
             </el-form-item>
@@ -16,7 +16,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table id="out-table" :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
+        <el-table id="out-table" :data="tableData" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="70px"></el-table-column>
             <el-table-column label="项目名称" prop="itemName" width="100px"></el-table-column>
@@ -76,17 +76,15 @@
             return {
                 boardDialog:false,
                 myData:{
-                    name:'',
-                    num:'',
-                    time:''
+                    pageIndex:1,
+                    pageSize:10,
                 },
                 win:null,
                 value:'',
                 createtime:'',
                 tableData:[],
                 rowData:'',
-                currentPage:1,
-                pageSize:10,
+                
                 selectList:[],
                 childData:[],
                 seatList:[],
@@ -103,24 +101,25 @@
         methods:{
             gosearch(){
                 //this.searchList=this.tableData
+                
             },
             indexMethod(index) {
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
+                this.myData.pageIndex =val;
                 this.getTablelist()
             },
             handleSizeChange(val){
-                this.pageSize=val;
+                this.myData.pageSize=val;
                 this.getTablelist()
             },
             //获取表格数据
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                let pageSize=this.pageSize
-                let pageIndex=this.currentPage
+                let pageSize=this.myData.pageSize
+                let pageIndex=this.myData.pageIndex
                 this.$http.get(this.$api.callee.statistics,{params:{pageIndex:pageIndex,pageSize:pageSize,token:token}}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
@@ -168,16 +167,17 @@
             //表格选中事件
             changeFun(val){
                 this.selectList=val
-                console.log(this.selectList)
+                //console.log(this.selectList)
             }, 
             //导出
             outExe() {
+                
                 this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.excelData = this.selectList //你要导出的数据list。
+                    this.excelData = this.tableData //你要导出的数据list。
                     this.export2Excel()
                 }).catch(() => {
 
@@ -186,8 +186,8 @@
             export2Excel() {
                 require.ensure([], () => {
                     const {export_json_to_excel} = require('@/vendor/Export2Excel');
-                    const tHeader = ['项目名称','数据量', '下发量','呼出量','拨打量','呼通量','成功量','失败量','失败率','再呼次数','再呼率','总时长','计费时长'];
-                    const filterVal = ['name', 'num', 'xfnum','hcnum','bdnum','htnum','cgnum','win','sbnum','failure','againnum','againx','ztotal','timetotal'];
+                    const tHeader = ['项目名称','数据量', '下发量','呼出量','拨打量','呼通量','成功量','成功率','失败量','失败率','再呼次数','再呼率','总时长','计费时长'];
+                    const filterVal = ['itemName', 'cusNum', 'assignNum','expiration','dialNum','flux','successNum','successRate','failNum','failRate','againNum','againRate','duration','charging'];
                     const list = this.excelData;
                     const data = this.formatJson(filterVal, list);
                     export_json_to_excel(tHeader, data, '外呼统计');

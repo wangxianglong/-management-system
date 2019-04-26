@@ -411,11 +411,14 @@
             this.chartmainbar.setOption(this.optionbar);
             this.chartmainfunnel=this.$echarts.init(document.getElementById('chartmainfunnel'))
             this.chartmainfunnel.setOption(this.optionfunnel)
-            window.addEventListener('resize', function () {
-                this.chartmainline.resize()
-                this.chartmainbar.resize()
-                this.chartmainfunnel.resize()
-            })
+            setTimeout(()=>{
+                window.addEventListener('resize', function () {
+                that.chartmainline.resize()
+                that.chartmainbar.resize()
+                that.chartmainfunnel.resize()
+                })
+            },10)
+            
         },
     },
     created(){

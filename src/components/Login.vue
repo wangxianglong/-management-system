@@ -118,7 +118,8 @@ import register from '@/components/register'
                                         message:'登录成功',
                                         type:'success'
                                     })
-                                    this.$router.push({name:'home'})
+                                    let name=JSON.parse(localStorage.getItem("router"))[0].path
+                                    this.$router.push({name:name})
                                     // if(res.data.data.roleId===1||res.data.data.roleId===2||res.data.data.roleId===3){
                                     //     this.$router.push({name:'index'})
                                     // }else{

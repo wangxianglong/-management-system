@@ -119,7 +119,7 @@
                     if(valid) {
                         let params=this.form
                         this.form.status=3
-                        this.$http.post(this.$api.firm.update,params).then(res=>{ 
+                        this.$http.post(this.$api.firm.userUpdate,params).then(res=>{ 
                             console.log(res)
                             this.$message({
                                 type:'success',

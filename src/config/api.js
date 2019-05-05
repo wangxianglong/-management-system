@@ -15,7 +15,7 @@ const platform={
     activityList:'api/activity/activityList',  //获取活动列表
     activity:'api/activity/getActivity', //获取活动
     company:'api/user/companyList',  //获取公司名称
-    update:'api/project/update' ,    //分配任务
+    projectUpdate:'api/project/update' ,    //分配任务
     companyList:'api/number/componyList',    //外显管理
     save:'api/number/save',         //外显管理新增
     userList:'api/user/userList',        //账户管理
@@ -34,7 +34,7 @@ const firm= {
     assignMonitor:'api/project/assignMonitor',  //分配班长任务
     upLoading:'api/upload/upload',                  //上传
     approve:'api/user/detail',                      //认证
-    update:'api/user/update' ,                       //认证修改
+    userUpdate:'api/user/update' ,                       //认证修改
     numList:'api/number/list',       //外显号码
     update:'api/number/update',        //启用
     recordList:'api/result/getRecordList'       //录音管理                 

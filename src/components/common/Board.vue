@@ -11,8 +11,8 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{myRow.flux/2}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.flux/2" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{myRow.flux/myRow.cusNum*100 | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.flux/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             </el-col>
             <el-col :span="5">
@@ -25,8 +25,8 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{myRow.dialNum/2}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.dialNum/2" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{myRow.dialNum/myRow.cusNum*100 | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.dialNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -40,8 +40,8 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{myRow.successNum}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.successNum/2" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{myRow.successNum/myRow.cusNum*100 | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.successNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -55,8 +55,8 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{myRow.failNum}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.failNum/2" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{myRow.failNum/myRow.cusNum*100 | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.failNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -70,8 +70,8 @@
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:50px;"><p style="color:#ccc;font-size:14px">再呼率</p><strong style="font-size:28px">{{myRow.againNum/2}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.againNum/2" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:50px;"><p style="color:#ccc;font-size:14px">再呼率</p><strong style="font-size:28px">{{myRow.againNum/myRow.cusNum*100 | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="myRow.againNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>

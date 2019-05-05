@@ -16,7 +16,9 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table id="out-table" :data="tableData" style="width:2000px;padding:10px;" show-header @selection-change="changeFun">
+        <el-table id="out-table" :data="tableData" show-header @selection-change="changeFun" v-loading="loading" element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="70px"></el-table-column>
             <el-table-column label="项目名称" prop="itemName" width="100px"></el-table-column>
@@ -28,13 +30,13 @@
             <el-table-column label="成功量" prop="successNum" sortable width="100px"></el-table-column>
             <el-table-column label="成功率" prop="successRate" sortable width="100px">
                 <template slot-scope="scope">
-                    {{scope.row.cusNum?scope.row.successNum/scope.row.cusNum:'-'}}
+                    {{scope.row.cusNum?scope.row.successNum/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
             <el-table-column label="失败量" prop="failNum" sortable width="100px"></el-table-column>
             <el-table-column label="失败率" prop="failRate" sortable width="100px">
                 <template slot-scope="scope">
-                    {{scope.row.cusNum?scope.row.failNum/scope.row.cusNum:'-'}}
+                    {{scope.row.cusNum?scope.row.failNum/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
             <el-table-column label="再呼次数" prop="againNum" sortable width="100px">
@@ -44,7 +46,7 @@
             </el-table-column>
             <el-table-column label="再呼率" prop="againRate" sortable width="100px">
                 <template slot-scope="scope">
-                    {{scope.row.cusNum?(scope.row.dialNum-scope.row.expiration)/scope.row.cusNum:'-'}}
+                    {{scope.row.cusNum?(scope.row.dialNum-scope.row.expiration)/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
             <el-table-column label="总时长" prop="duration" sortable width="100px"></el-table-column>
@@ -59,7 +61,7 @@
         </div>
 
         <el-dialog title="房产教育" :visible.sync="boardDialog" center width="90%">
-            <v-board :childData="childData" :seatList="seatList" :myRow="myRow" :sucList="sucList" :durationList="durationList" :arr='arr' v-if="childData.length > 0"></v-board>
+            <v-board :child-data="childData" :seat-list="seatList" :my-row="myRow" :suc-list="sucList" :duration-list="durationList" :arr='arr' v-if="childData.length > 0"></v-board>
         </el-dialog>
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
@@ -74,6 +76,7 @@
     export default {
         data(){
             return {
+                loading:false,
                 boardDialog:false,
                 myData:{
                     pageIndex:1,
@@ -116,6 +119,7 @@
             },
             //获取表格数据
             getTablelist(){
+                this.loading=true
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
                 let pageSize=this.myData.pageSize
@@ -126,8 +130,9 @@
                         this.tableData=res.data.list
                         this.total=res.data.count
                     }else{
-                        this.$message.error(res.data.message)
+                        this.$message.error(res.data.msg)
                     }
+                    this.loading=false
                 }).catch((e)=>{
                     console.log(e)
                 })

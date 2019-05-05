@@ -1,16 +1,16 @@
 <template>
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
-        <el-form-item prop="phone">
-            <el-input placeholder="手机号" v-model="ruleForm.phone"></el-input>
+        <el-form-item prop="phoneNum">
+            <el-input placeholder="手机号" v-model="ruleForm.phoneNum"></el-input>
         </el-form-item>
-        <el-form-item prop="num">
-            <el-input placeholder="账号" v-model="ruleForm.num"></el-input>
+        <el-form-item prop="userName">
+            <el-input placeholder="账号" v-model="ruleForm.userName"></el-input>
         </el-form-item>
-        <el-form-item prop="password">
-            <el-input placeholder="密码" v-model='ruleForm.password' show-password></el-input>
+        <el-form-item prop="passWord">
+            <el-input placeholder="密码" v-model='ruleForm.passWord' show-password></el-input>
         </el-form-item>
-        <el-form-item prop="firmname">
-            <el-input placeholder="公司名称" v-model='ruleForm.firmname'></el-input>
+        <el-form-item prop="company">
+            <el-input placeholder="公司名称" v-model='ruleForm.company'></el-input>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="register('ruleForm')">下一步</el-button>
@@ -23,23 +23,20 @@
         data(){
             return {
                 ruleForm: {
-                    num:'',
-                    phone:'',
-                    password:'',
-                    firmname:''
+                    
                 },
                 rules:{
-                    num:[
+                    phoneNum:[
                         {required:true,message:'请输入您的账号',trigger:'blur'},
                     ],
-                    phone:[
+                    userName:[
                         {required:true,message:'请输入您的手机号',trigger:'blur'},
                         // { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change'}
                     ],
-                    password:[
+                    passWord:[
                         {required:true,message:'请输入您的密码',trigger:'blur'}
                     ],
-                    firmname:[
+                    company:[
                         {required:true,message:'请输入您的公司名称',trigger:'blur'}
                     ]
                 }
@@ -51,22 +48,25 @@
                     if(valid) {
                         let params=this.ruleForm
                         this.$http.post(this.$api.user.register,params).then(res=>{
+                            //console.log(res)
                             if(res.data.code===0){
                                 //console.log(res)
                                 this.$http.post(this.$api.login.login,{
-                                    userName:this.ruleForm.num,
-                                    passWord:this.ruleForm.password
+                                    userName:this.ruleForm.userName,
+                                    passWord:this.ruleForm.passWord
                                 }).then((res) => {
                                         console.log(res)
-                                        if(res.data.status==='success'){ 
+                                        if(res.data.data.status=='success'){ 
                                             let token=this.$cookieStore.getCookie('token') 
                                             this.$store.commit('SET_TOKEN',token)
-                                            this.$store.commit("GET_USER",this.ruleForm.num)
+                                            this.$store.commit("GET_USER",this.ruleForm.userName)
+                                            this.$store.commit("GET_ROUTER",res.data.data.router)
                                             this.$message({
                                                 type:'success',
                                                 message:'注册成功'
                                             })
-                                            this.$router.push({name:'approve'})
+                                            let name=JSON.parse(sessionStorage.getItem("router"))[0].path
+                                            this.$router.push({name:name})
                                             //console.log(token)
                                         }else{
                                             this.$message({
@@ -78,6 +78,11 @@
                                         console.log(error)
                                     })
                                 
+                            }else{
+                                this.$message({
+                                    type:'error',
+                                    message:res.data.msg
+                                })
                             }
                         })
                         

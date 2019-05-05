@@ -35,7 +35,11 @@
             <el-table-column label="省份" prop="provide" sortable></el-table-column>
             <el-table-column label="地市" prop="area" sortable></el-table-column>
             <el-table-column label="呼叫次数" prop="callNum" sortable width="200px"></el-table-column>
-            <el-table-column label="最后拨打时间" prop="lastCallTime" sortable width="200px"></el-table-column>
+            <el-table-column label="最后拨打时间" prop="lastCallTime" sortable width="200px">
+                <template slot-scope="scope">
+                    {{scope.row.lastCallTime | date(1)}}
+                </template>
+            </el-table-column>
             <el-table-column label="通话时长" prop="callDuration" sortable width="200px"></el-table-column>
             <!-- <el-table-column label="客户有效期" sortable>
                 <el-button type="text" @click="whdialog">失效</el-button>
@@ -186,7 +190,7 @@
             //获取活动列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
-                let params={token:token,pageIndex:1,pageSize:5,status:3}
+                let params={token:token,pageIndex:1,pageSize:100,status:3}
                 this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
@@ -212,7 +216,7 @@
                 this.index=index
                 //console.log(this.index)
                 this.customerId=row.customerId
-                this.activityId=this.$route.query.activityId
+                this.activityId=row.activityId
                 let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
@@ -224,7 +228,14 @@
                         let provideId=this.form.provideId
                         let token=this.$cookieStore.getCookie('token')
                         this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                            //console.log(res)
+                            if(res.data.code===0){
+                                this.$message({
+                                    message:'电话正在转接，请稍后',
+                                    type:'success'
+                                })
+                            }else{
+                                alert(res.data.msg)
+                            }
                         })
                     }
                 }).catch(error => {
@@ -270,7 +281,20 @@
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.form=res.data.data
-                        //console.log(this.form)
+                        let activityId=this.form.activityId
+                        let customerId=this.form.customerId
+                        let provideId=this.form.provideId
+                        let token=this.$cookieStore.getCookie('token')
+                        this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                            if(res.data.code===0){
+                                this.$message({
+                                    message:'电话正在转接，请稍后',
+                                    type:'success'
+                                })
+                            }else{
+                                alert(res.data.msg)
+                            }
+                        })
                     }
                 }).catch(error => {
                     console.log("出错了")

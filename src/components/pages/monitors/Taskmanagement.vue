@@ -95,7 +95,7 @@
                 let token=this.$cookieStore.getCookie('token')
                 this.$http.get(this.$api.monitor.taskAssign,{params:{token:token,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res =>{
                     if(res.data.code===0){
-                        //console.log(res)
+                        console.log(res)
                         this.tableData=res.data.list
                         this.total=res.data.count
                     }

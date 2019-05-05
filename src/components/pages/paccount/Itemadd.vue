@@ -26,7 +26,7 @@
         <!--获取活动-->
         <div style="padding:20px"><el-button type="primary" @click='getActivity'>获取活动</el-button></div>
         <el-dialog :visible.sync="activityShow">
-            <el-table :data="activityList" style="width:100%;" show-header>
+            <el-table :data="activityList" style="width:100%;" show-header v-loading='activeloading'>
                 <el-table-column label="活动名" prop="activityName"></el-table-column>
                 <el-table-column label="活动ID" prop="activityId"></el-table-column>
                 <el-table-column label="开始时间" prop="activityBeginDate"></el-table-column>
@@ -101,6 +101,7 @@
     export default {
         data(){
             return { 
+                activeloading:false,
                 hour:true,
                 loading:true,
                 myData:{
@@ -174,13 +175,14 @@
                         //console.log(this.activityList)
                         this.activityShow=true; 
                     }else{
-                        this.$message.error(res.data.message)
+                        this.$message.error(res.data.msg)
                     }
                 }).catch((e) => {
                     console.log(e) 
                 })
             },
             addActivity(row){
+                this.activeloading=true
                 const that=this
                 this.rowData=row
                 let params={activityId:this.rowData.activityId}
@@ -228,7 +230,7 @@
             saveEdit(){
                 console.log(this.rowData.id)
                 console.log(this.userId)
-                this.$http.post(this.$api.platform.update,
+                this.$http.post(this.$api.platform.projectUpdate,
                     {
                         id:this.rowData.id,
                         userId:this.userId,
@@ -238,6 +240,10 @@
                         this.dialogVisible=false
                         if(res.data.code===0){
                             this.getTablelist()
+                            this.$message({
+                                message:'分配成功',
+                                type:'success'
+                            });
                         }
                     }
                 ).catch(err => {

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 Vue.prototype.$http = axios;
 axios.defaults.withCredentials = true;
-axios.defaults.timeout = 1000 * 10;
+// axios.defaults.timeout = 1000 * 10;
 
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
@@ -27,6 +27,9 @@ axios.interceptors.request.use(function (config) {
     
     return config;
 }, function (err) {
+    this.message.error({
+        message: '加载超时'
+    });
     return Promise.reject(err);
 });
 axios.interceptors.response.use(function (response) {
@@ -36,15 +39,16 @@ axios.interceptors.response.use(function (response) {
 }, function (error) {
     //closeLoading();
     if (error.response) {
-        switch (error.response.status) {
-            case 401:
+        // switch (error.response.status) {
+        //     case 401:
                 // 返回 401 清除token信息并跳转到登录页面
-                alert('用户验证失效!');
-                router.replace({
-                    path: 'login',
-                    query: {redirect: router.currentRoute.fullPath}
-                })
-        }
+                //alert('用户验证失效!');
+                
+                // this.$router.replace({
+                //     path: 'login',
+                //     query: {redirect: this.$router.currentRoute.fullPath}
+                // })
+        // }
     }
     return Promise.reject(error);
 });

@@ -33,7 +33,7 @@ body,
     height: 100%;
     padding: 0 0 0 0;
     overflow-y: scroll;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
 }
 .content-collapse {
     left: 65px;

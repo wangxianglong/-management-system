@@ -20,7 +20,7 @@
                     <el-input placeholder="密码" v-model='loginData.passWord' show-password></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="submitLogin('loginData')">登录</el-button>
+                    <el-button type="primary" @click="submitLogin('loginData')" @keyup.enter="submitLogin('loginData')" :loading="logining">登录</el-button>
                 </el-form-item>
                 <!-- <el-form-item>
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
@@ -60,6 +60,7 @@ import register from '@/components/register'
     export default {
         data(){
             return {
+                logining: false,
                 myBackbtn:false,
                 //showforget:false,
                 isShow:true,
@@ -109,24 +110,18 @@ import register from '@/components/register'
                             passWord
                         }).then((res) => {
                                 console.log(res)
+                                this.logining=true;
                                 if(res.data.data.status=="success"){
-                                    let token=this.$cookieStore.getCookie('token') 
-                                    this.$store.commit('SET_TOKEN',token)
+                                    //let token=this.$cookieStore.getCookie('token') 
+                                    // this.$store.commit('SET_TOKEN',token)
                                     this.$store.commit("GET_USER",userName)
                                     this.$store.commit("GET_ROUTER",res.data.data.router)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'
                                     })
-                                    let name=JSON.parse(localStorage.getItem("router"))[0].path
+                                    let name=JSON.parse(sessionStorage.getItem("router"))[0].path
                                     this.$router.push({name:name})
-                                    // if(res.data.data.roleId===1||res.data.data.roleId===2||res.data.data.roleId===3){
-                                    //     this.$router.push({name:'index'})
-                                    // }else{
-                                    //     this.$router.push({name:''})
-                                    // }
-                                    
-                                    //console.log(token)
                                 }else{
                                     this.$message({
                                         message:res.data.data.msg,
@@ -134,7 +129,11 @@ import register from '@/components/register'
                                     })
                                 }
                             }).catch(function(error){
-                                console.log(error)
+                                this.logining=false;
+                                this.$message({
+                                    message:'登录出错了',
+                                    type:'error'
+                                })
                             })
                     }else {
                         console.log('error submit');
@@ -187,8 +186,9 @@ import register from '@/components/register'
     }
     .mybtn{
         position:absolute;
-        top:35%;
-        left:35%;
+        top:50%;
+        left:50%;
+        transform: translate(-50%,-50%);
     }
     .mybtn div .el-button{
         width:350px;
@@ -197,8 +197,9 @@ import register from '@/components/register'
     }
     .login-form {
         position:absolute;
-        top:35%;
-        left:35%;
+        top:50%;
+        left:50%;
+        transform: translate(-50%,-50%);
         display:flex;
         flex-direction: column;
         align-items: center
@@ -212,8 +213,9 @@ import register from '@/components/register'
     }
     .register-form{
         position:absolute;
-        top:35%;
-        left:35%;
+        top:50%;
+        left:50%;
+        transform: translate(-50%,-50%);
         display:flex;
         flex-direction: column;
         align-items: center

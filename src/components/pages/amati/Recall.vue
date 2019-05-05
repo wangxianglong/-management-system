@@ -22,8 +22,16 @@
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="num" sortable></el-table-column>
-            <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
-            <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
+            <el-table-column label="开始时间" prop="startTime" sortable>
+                <template slot-scope="scope">
+                    {{scope.row.startTime | date(1)}}
+                </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endTime" sortable>
+                <template slot-scope="scope">
+                    {{scope.row.endTime | date(1)}}
+                </template>
+            </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" style="color:red" v-if="scope.row.status===3">进行中</el-button>

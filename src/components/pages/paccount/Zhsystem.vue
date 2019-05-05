@@ -26,8 +26,16 @@
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="企业名称" prop="company"></el-table-column>
             <el-table-column label="登陆账号" prop="userName" sortable ></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable width="150px"></el-table-column>
-            <el-table-column label="账户有效期" prop="validity" sortable width="150px"></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable width="150px">
+                <template slot-scope="scope">
+                    {{scope.row.createTime | date(1)}}
+                </template>
+            </el-table-column>
+            <el-table-column label="账户有效期" prop="validity" sortable width="150px">
+                <template slot-scope="scope">
+                    {{scope.row.validity | time()}}
+                </template>
+            </el-table-column>
             <el-table-column label="税号" prop="taxNumber" sortable></el-table-column>
             <el-table-column label="营业执照" sortable>
                 <template slot-scope="scope">
@@ -36,20 +44,20 @@
             </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
-                    <span style="color:red" v-if="scope.row.status===0">待审核</span>
+                    <span style="color:red" v-if="scope.row.status===3">待审核</span>
                     <span v-if="scope.row.status===1">使用中</span>
-                    <span v-if="scope.row.status===2">试用中</span>
-                    <span v-if="scope.row.status===3">已打回</span>
-                    <span v-if="scope.row.status===4">冻结中</span>
+                    <!-- <span v-if="scope.row.status===2">试用中</span> -->
+                    <span v-if="scope.row.status===0">待认证</span>
+                    <!-- <span v-if="scope.row.status===4">冻结中</span> -->
                 </template> 
             </el-table-column>
             <el-table-column label="操作" width='250px'>
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===2||scope.row.status===0" @click="handletg(scope.row)">通过</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handledh(scope.row)">打回</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button>
+                    <!-- <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button> -->
+                    <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handledh(scope.row)">打回</el-button>
+                    <!-- <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
+                    <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button> -->
                     <el-button type="text" size="mini" @click="handleXq(scope.row)">详情</el-button>
                 </template>
             </el-table-column>
@@ -159,7 +167,7 @@
             handledh(row){
                 //this.tableData[index].status=3
                 let id=row.id
-                let params={id:id,status:3}
+                let params={id:id,status:0}
                 this.$http.post(this.$api.platform.update,params).then(res=>{
                     if(res.data.code===0){
                         this.getTableList()

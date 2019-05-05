@@ -206,6 +206,7 @@
                 //console.log(activityId)
                 this.$http.post(this.$api.monitor.assignSeat,params).then(res=>{
                     if(res.data.code===0){
+                        console.log(res)
                         //this.tableData=res.data.list
                         this.taskDialog=false
                         this.getActivityList()

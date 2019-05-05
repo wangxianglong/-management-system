@@ -5,21 +5,21 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const state = {
   userName: window.sessionStorage.getItem('userName'),
-  token: window.sessionStorage.getItem('token'),
-  router:window.localStorage.getItem('router')
+  // token: window.sessionStorage.getItem('token'),
+  router:window.sessionStorage.getItem('router')
 }
 const mutations = {
-  SET_TOKEN: (state, data) => {
-    state.token = data
-    window.sessionStorage.setItem('token', JSON.stringify(data)) 
-  },
+  // SET_TOKEN: (state, data) => {
+  //   state.token = data
+  //   window.sessionStorage.setItem('token', JSON.stringify(data)) 
+  // },
   GET_USER: (state, data) => {
     state.userName = data
     window.sessionStorage.setItem('userName', JSON.stringify(data))
   },
   GET_ROUTER:(state,data)=>{
     state.router=data
-    window.localStorage.setItem('router',JSON.stringify(data))
+    window.sessionStorage.setItem('router',JSON.stringify(data))
   },
   //登出
   LOGOUT: (state) => {

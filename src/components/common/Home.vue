@@ -42,5 +42,6 @@
 <style scoped>
     .componentBox{
         display:flex; 
+        height:100%
     }
 </style>

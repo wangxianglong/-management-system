@@ -1,5 +1,7 @@
 <template>
-    <div class="appindex">
+    <div class="appindex" v-loading="loading" element-loading-text="数据加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-row :gutter="20">
             <el-col :span="24" >
                 <div class="grid-content bg-purple oneFloor">
@@ -178,10 +180,13 @@
     export default {
     data() {
       return {
+          loading:false,
           chartmainfunnel:null,
           chartmainbar:null,
           chartmainline:null,
-          statistics:{},
+          statistics:{
+              
+          },
           total:1,
           num:1500,
         radio3: '今日',
@@ -306,7 +311,7 @@
                     width: '70%',
                     // height: {totalHeight} - y - y2,
                     min: 0,
-                    max: 300,
+                    max: 30000,
                     minSize: '0',
                     maxSize: '100%',
                     sort: 'descending',
@@ -340,6 +345,9 @@
     },
     
     mounted() {
+        
+        this.getDataList()
+        this.getItemList()
         this.drawLine()
     },
     methods: {
@@ -355,20 +363,19 @@
             this.getDataList()
         },
         getDataList(){
+            this.loading=true
             let token=this.$cookieStore.getCookie('token')
             let params={token:token,pageIndex:this.currentPage,pageSize:this.pageSize}
             this.$http.get(this.$api.platform.index,{params:params}).then(res=>{
                 if(res.data.code===0){
-                    console.log(res)
+                    //console.log(res)
+                    this.tableData=res.data.seatList
+                    this.statistics=res.data.statistics
                     this.chartmainbar.setOption({
                         series:[{
                             data:res.data.data
                         }]
                     })
-                    
-                    this.tableData=res.data.seatList
-                    
-                    this.statistics=res.data.statistics
                     let arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
                     arr[0].value=this.statistics.cusNum
                     arr[1].value=this.statistics.assignNum
@@ -386,6 +393,7 @@
                             data:res.data.timeData.series[0].data
                         }]
                     })
+                    this.loading=false
                 }
             }).catch(error=>{
                 console.log(error)
@@ -422,9 +430,13 @@
         },
     },
     created(){
-        this.getDataList()
-        this.getItemList()
-    }
+        
+    },
+    beforeDestroy () {
+        this.chartmainline.clear()
+        this.chartmainbar.clear()
+        this.chartmainfunnel.clear()
+    },
   }
 </script>
 <style lang="scss" scoped>

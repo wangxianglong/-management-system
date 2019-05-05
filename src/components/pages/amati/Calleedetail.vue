@@ -122,7 +122,7 @@
                 dialogVisible:false,
                 value:'', 
                 currentPage:1,
-                pagesize:10,
+                pagesize:100,
                 options:[{
                     value:'选项1',
                     label:'已完成'
@@ -180,8 +180,9 @@
             },
             //获取活动列表
             getActivityList(){
+                let activityId=this.$route.query.activityId
                 let token=this.$cookieStore.getCookie('token')
-                let params={token:token,pageIndex:1,pageSize:5,status:2}
+                let params={token:token,pageIndex:1,pageSize:100,status:2,activityId:activityId}
                 this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
@@ -205,8 +206,8 @@
                 //console.log(row,index)
                 this.index=index
                 this.customerId=row.customerId
-                this.activityId=this.$route.query.activityId
-                let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
+                this.activityId=row.activityId
+                let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -217,7 +218,14 @@
                         let provideId=this.form.provideId
                         let token=this.$cookieStore.getCookie('token')
                         this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                            //console.log(res)
+                            if(res.data.code===0){
+                                this.$message({
+                                    message:'电话正在转接，请稍后',
+                                    type:'success'
+                                })
+                            }else{
+                                alert(res.data.msg)
+                            }
                         })
                     }
                 }).catch(error => {
@@ -247,7 +255,10 @@
             // },
             onSubmit(){
                 if(!this.isSave){
-                    alert("请先保存")
+                    this.$message({
+                        message:'未保存',
+                        type:'error'
+                    })
                     return
                 }
                 this.index++
@@ -257,10 +268,24 @@
                 //console.log(total)
                 
                 let customerId=this.tableData[this.index].customerId
-                let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:5}
+                let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.form=res.data.data
+                        let activityId=this.form.activityId
+                        let customerId=this.form.customerId
+                        let provideId=this.form.provideId
+                        let token=this.$cookieStore.getCookie('token')
+                        this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                            if(res.data.code===0){
+                                this.$message({
+                                    message:'电话正在转接，请稍后',
+                                    type:'success'
+                                })
+                            }else{
+                                alert(res.data.msg)
+                            }
+                        })
                         //console.log(this.form)
                     }
                 }).catch(error => {
@@ -277,7 +302,10 @@
                 this.isSave=true
                 let intention=this.form.intention
                 if(!intention){
-                    alert('请选择意向')
+                    this.$message({
+                        message:'请选择意向',
+                        type:'error'
+                    })
                     return
                 }
                 let params={customerId:this.customerId,intention:intention,status:3}

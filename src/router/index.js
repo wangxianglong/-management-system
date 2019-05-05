@@ -201,20 +201,14 @@ router.beforeEach((to,from,next) => {
   }else{
     next()
   }
-    // if(to.meta.reLogin){
-    //     let token=getCookie('token')
-    //     axios.post(api.login.seatLogin,{token:token}).then( res =>{
-    //       if(res.data.code===0){
-    //         next({
-    //           path:'/callee'
-    //         })
-    //       }
-    //     }).catch(error=>{
-    //       console.log(error)
-    //     })
-    // }else{
-    //   next()
-    // }
-
+if (to.path === '/login') {
+    sessionStorage.removeItem('userName');
+  }
+  let userName = sessionStorage.getItem('userName');
+  if (!userName && to.path !== '/login') {
+    next({path: '/login'})
+  } else {
+    next()
+}
 })
 export default router

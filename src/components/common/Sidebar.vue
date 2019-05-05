@@ -1,7 +1,7 @@
 <template>
-    <div class="sideBar" style="height:100%">
-        <div>
-        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#000"
+    <div class="sideBar">
+        <div class="sideBarBox">
+        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse"
             text-color="#fff" active-text-color="#20a0ff" unique-opened router>
             <div class="logo"><img src="../../assets/logo.png"></div>
             <template v-for="item in items">
@@ -30,7 +30,7 @@
             }
         },
         mounted() {
-            this.items=JSON.parse(localStorage.getItem("router"));
+            this.items=JSON.parse(sessionStorage.getItem("router"));
             //console.log(this.items)
         },
         created(){
@@ -49,20 +49,26 @@
         left: 0;
         top: 70px;
         bottom:0;
-        overflow-y: scroll;
-        height:100%;
+        
+        // height:100%;
     }
     .sidebar::-webkit-scrollbar{
         width: 0;
     }
+    
     .sidebar-el-menu:not(.el-menu--collapse){
-        width: 200px;
+        width: 180px;
     }
-    .sidebar>ul {
+    .sideBarBox>ul {
+        background-color:#000;
+        
+    }
+    .sideBarBox{
+        position:relative;
         height:100%;
-    }
-    .el-menu {
-        height:1000px;
+        background-color:#000;
+        overflow-y:auto;
+        z-index:100;    
     }
     .logo {
         padding:15px 10px 15px 14px;
@@ -71,4 +77,8 @@
             
         }
     }
+    .el-menu-item:hover {
+        background:#ccc
+    }
+    
 </style>

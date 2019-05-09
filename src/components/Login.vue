@@ -20,7 +20,7 @@
                     <el-input placeholder="密码" v-model='loginData.passWord' show-password></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="submitLogin('loginData')" @keyup.enter="submitLogin('loginData')" :loading="logining">登录</el-button>
+                    <el-button type="primary" @click="submitLogin('loginData')" @keyup.enter="submitLogin('loginData')">登录</el-button>
                 </el-form-item>
                 <!-- <el-form-item>
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
@@ -60,7 +60,6 @@ import register from '@/components/register'
     export default {
         data(){
             return {
-                logining: false,
                 myBackbtn:false,
                 //showforget:false,
                 isShow:true,
@@ -109,8 +108,7 @@ import register from '@/components/register'
                             userName,
                             passWord
                         }).then((res) => {
-                                console.log(res)
-                                this.logining=true;
+                                //console.log(res)
                                 if(res.data.data.status=="success"){
                                     //let token=this.$cookieStore.getCookie('token') 
                                     // this.$store.commit('SET_TOKEN',token)
@@ -129,7 +127,6 @@ import register from '@/components/register'
                                     })
                                 }
                             }).catch(function(error){
-                                this.logining=false;
                                 this.$message({
                                     message:'登录出错了',
                                     type:'error'
@@ -156,7 +153,7 @@ import register from '@/components/register'
     .login-wrap {
         position: relative;
         height:100%;
-        background-image: url(../assets/img/login-bg.jpg);
+        background-image: url(../assets/img/login-bg.png);
         background-size: 100%;
         background-repeat:no-repeat;
     }
@@ -164,7 +161,7 @@ import register from '@/components/register'
         position:fixed;
         width:100%;
         height:70px;
-        background-color:rgba(0,0,0,0.5);
+        background-color:rgba(250,250,250,0.3);
         padding:10px 0 10px 0;
         display: flex;
         justify-content: space-between;

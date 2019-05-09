@@ -1,24 +1,34 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="searchList">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="活动名">
-                <el-input v-model="searchList.activityname"></el-input>
+                <el-input v-model="myData.activityName"></el-input>
             </el-form-item>
             <el-form-item label="任务时段">
-                <el-date-picker v-model="searchList.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <template>
+                    <el-date-picker
+                            v-model="time"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
             <el-form-item label="状态">
-                <el-select v-model="value" placeholder="全部" style="margin-left:10px;">
+                <el-select v-model="myData.status2" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getActivityList">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="num" sortable></el-table-column>
@@ -34,7 +44,7 @@
             </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.status===3">进行中</el-button>
+                    <el-button type="text" style="color:red" v-if="scope.row.status===2||scope.row.status===3">进行中</el-button>
                     <el-button type="text" v-if="scope.row.status===4">已完成</el-button>
                 </template> 
             </el-table-column>
@@ -48,7 +58,7 @@
         </div>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -58,10 +68,12 @@
     export default {
         data(){
             return {
-                searchList:{
-                    taskname:'',
-                    activityname:'',
-                    time:''
+                time:null,
+                total:1,
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                    status:3
                 },  
                 count:1,
                 selectName:'',
@@ -71,19 +83,15 @@
                 activityList:[],
                 dialogVisible:false,
                 value:'', 
-                currentPage:1,
-                pagesize:10,
+                
                 name:'',
                 num:'',
                 options2: [{
-                    value: '选项1',
-                    label: '全部'
-                }, {
-                    value: '选项2',
-                    label: '已完成'
+                    value: '5',
+                    label: '进行中'
                 },{
-                    value:'选项3',
-                    label:'未完成'
+                    value:'4',
+                    label:'已完成'
                 }],
                 tableData:[]
             }
@@ -93,15 +101,31 @@
             init (){
                 
             },
-            //获取活动列表
+            handleCurrentChange(val) {
+                this.myData.pageIndex=val;
+                this.getActivityList()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getActivityList()
+            },
             //获取活动列表
             getActivityList(){
+                if (this.time!==null){
+                   this.myData.cstartTime=this.time[0];
+                   this.myData.cendTime =this.time[1];
+                }else{
+                    delete this.myData.cstartTime
+                    delete this.myData.cendTime
+                }
                 let token=this.$cookieStore.getCookie('token')
-                let params={token:token}
+                let params=this.myData
+                params.token=token
                 this.$http.get(this.$api.amati.seatActive,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
                         //console.log(this.tableData)
+                        this.total=res.data.count
                     }
                 }).catch(error => {
                     console.log("出错了")
@@ -115,9 +139,7 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
-            },
+            
             taskEdit(index,row) {
                 //console.log(row);//每行的数据
                 //console.log(row.name)//获取活动名

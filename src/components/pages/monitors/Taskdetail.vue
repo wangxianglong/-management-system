@@ -1,11 +1,11 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="searchList">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="坐席名">
-                <el-input placeholder="请输入任务名称" v-model="searchList.taskname"></el-input>
+                <el-input placeholder="请输入任务名称" v-model="myData.userName"></el-input>
             </el-form-item>
-            <el-form-item label="客户量">
-                <el-input v-model="searchList.activityname"></el-input>
+            <!-- <el-form-item label="客户量">
+                <el-input v-model="myData.activityname"></el-input>
             </el-form-item>
             <el-form-item label="状态">
                 <el-select class="mySelect" v-model="value" placeholder="全部" style="margin-left:10px;">
@@ -13,13 +13,13 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="开始时间">
-                <el-date-picker v-model="searchList.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间">
-                <el-date-picker v-model="searchList.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
-            </el-form-item>
+                <el-date-picker v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getActivityList">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -72,7 +72,7 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="坐席" prop="userName" align="center"></el-table-column>
@@ -97,7 +97,7 @@
         </div>
         <!--分页导航-->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -110,7 +110,7 @@
                 myNum:null,
                 multipleSelection:[],
                 taskDialog:false,
-                num1:12, 
+                num1:null, 
                 // returnDialog:false,
                 // num2:12,
                 // num3:123,
@@ -118,10 +118,11 @@
                 // num4:3,
                 // num5:2,
                 // amendDialog:false,
-                searchList:{
-                    taskname:'',
-                    activityname:'',
-                    time:''
+                myData:{
+                    pageIndex:1,
+                    pagesize:10,
+                    activityId:this.$route.query.id,
+                    status:this.$route.query.status
                 },  
                 count:1,
                 selectName:'',
@@ -131,8 +132,6 @@
                 activityList:[],
                 dialogVisible:false,
                 value:'', 
-                currentPage:1,
-                pagesize:10,
                 name:'',
                 num:'',
                 options2: [{
@@ -146,7 +145,8 @@
                     label:'项目2'
                 }],
                 holder:null,
-                tableData:[]
+                tableData:[],
+                total:1
             }
         },
         methods:{
@@ -162,17 +162,25 @@
                 this.multipleSelection=val
                 //console.log(this.multipleSelection)
             },
+            handleCurrentChange(val) {
+                this.myData.pageIndex =val;
+                this.getActivityList()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getActivityList()
+            },
             //获取表格列表
             getActivityList(){
                 let token=this.$cookieStore.getCookie('token')
-                let id=this.$route.query.id
-                let status=this.$route.query.status
-                //console.log(id)
-                this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id,status:status}}).then(res =>{
+                let params=this.myData
+                params.token=token
+                this.$http.get(this.$api.monitor.seatList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         console.log(res.data)
                         this.tableData=res.data.list
                         this.count=res.data.count
+                        this.total=res.data.pageCount
                     }
                 })
             },
@@ -209,7 +217,18 @@
                         console.log(res)
                         //this.tableData=res.data.list
                         this.taskDialog=false
-                        this.getActivityList()
+                        let token=this.$cookieStore.getCookie('token')
+                        let id=this.$route.query.id
+                        let status=3
+                        //console.log(id)
+                        this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id,status:status}}).then(res =>{
+                            if(res.data.code===0){
+                                console.log(res.data)
+                                this.tableData=res.data.list
+                                this.count=res.data.count
+                            }
+                        })
+                        
                     }
                 })
                 
@@ -239,21 +258,19 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
-            },
-            taskEdit(index,row) {
-                //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
-                //console.log(row.num)//获取数据量
-                this.dialogVisible=true
-                this.name=row.name
-                this.num=row.num
-            },
-            saveEdit(index){
-                this.dialogVisible=false 
+            
+            // taskEdit(index,row) {
+            //     //console.log(row);//每行的数据
+            //     //console.log(row.name)//获取活动名
+            //     //console.log(row.num)//获取数据量
+            //     this.dialogVisible=true
+            //     this.name=row.name
+            //     this.num=row.num
+            // },
+            // saveEdit(index){
+            //     this.dialogVisible=false 
                 
-            },
+            // },
         },
         created(){
             this.init(

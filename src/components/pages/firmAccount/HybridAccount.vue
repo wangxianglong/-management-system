@@ -1,23 +1,33 @@
 <template>
     <div>
-        <el-form :inline="true" class="form-inline" v-model="searchList">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="用户名称">
-                <el-input v-model="searchList.name"></el-input>
+                <el-input v-model="myData.userName"></el-input>
             </el-form-item>
             
             <el-form-item label="手机号">
-                <el-input v-model="searchList.account"></el-input>
+                <el-input v-model="myData.phoneNum"></el-input>
             </el-form-item>
             <el-form-item label="注册时间">
-                <el-date-picker v-model="searchList.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <template>
+                    <el-date-picker 
+                            v-model="time" 
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
-            <el-form-item label="状态">
-                <el-select class="mySelect" v-model="value" placeholder="请选择" style="margin-left:10px; width:150px;">
+            <el-form-item label="角色">
+                <el-select class="mySelect" v-model="myData.roleId" placeholder="请选择" style="margin-left:10px; width:150px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -61,7 +71,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="用户名称" prop="userName" sortable></el-table-column>
             <el-table-column label="姓名" prop="realName" sortable></el-table-column>
@@ -96,47 +106,64 @@
     export default {
         data(){
             return {
-                searchList:{
-                    name:'',
-                    account:''
+                time:null,
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                    roleId:3
                 },
-                dialogTitle:'',
-                isShow:true,
-                phoneList:[{
-                    value:"选项1",
-                    num :123344
-                }],
-                formList:{
-                    username:'',
-                    password:'',
-                    name:'',
-                    tel:''
-                },
-                radio:"坐席",
-                dialogbox:false,
-                value:'',
+                // dialogTitle:'',
+                // isShow:true,
+                // phoneList:[{
+                //     value:"选项1",
+                //     num :123344
+                // }],
+                // formList:{
+                //     username:'',
+                //     password:'',
+                //     name:'',
+                //     tel:''
+                // },
+                // radio:"坐席",
+                // dialogbox:false,
+                // value:'',
                 options:[{
-                    value: '选项1',
+                    value:3,
+                    label:"全部"
+                },{
+                    value: '5',
                     label: '坐席'
                 }, {
-                    value: '选项2',
+                    value: '6',
                     label: '质检'
                 },{
-                    value:'选项3',
+                    value:'4',
                     label:'班长'
                 }],
                 tableData:[],
-                currentPage:1,
-                pageSize:10,
                 total:1
             }
         },
         methods:{
+            handleCurrentChange(val) {
+                this.myData.pageIndex =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getTablelist()
+            },
             getTablelist(){
+                if(this.time!==null){
+                    this.myData.startTime=this.time[0]
+                    this.myData.endTime=this.time[1]
+                }else{
+                    delete this.myData.startTime
+                    delete this.myData.endTime
+                }
                 let token=this.$cookieStore.getCookie('token')
-                let pageSize=this.pageSize
-                let pageIndex=this.currentPage
-                let params={pageSize:pageSize,pageIndex:pageIndex,token:token,roleId:3}
+                let params=this.myData
+                params.token=token
                 this.$http.get(this.$api.firm.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -145,29 +172,21 @@
                     }
                 })
             },
-            changeHandler(value){
-                 if(value=="坐席"){
-                     this.isShow=true
-                 }else{
-                     this.isShow=false
-                 }
-            },
+            // changeHandler(value){
+            //      if(value=="坐席"){
+            //          this.isShow=true
+            //      }else{
+            //          this.isShow=false
+            //      }
+            // },
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(val) {
-                this.currentPage =val;
-                this.getTablelist()
-            },
-            handleSizeChange(val){
-                this.pageSize=val;
-                this.getTablelist()
-            },
-            handlexg(index,row){
-                console.log("修改")
-                this.dialogbox=true;
-                this.dialogTitle="修改号码"
-            },
+            // handlexg(index,row){
+            //     console.log("修改")
+            //     this.dialogbox=true;
+            //     this.dialogTitle="修改号码"
+            // },
         },
         created(){
             this.getTablelist()
@@ -178,8 +197,8 @@
     .pagebutton {
         float:right
     }
-    .radioGroup {
+    /* .radioGroup {
         text-align: center;
         padding:10px 0 5px 0
-    }
+    } */
 </style>

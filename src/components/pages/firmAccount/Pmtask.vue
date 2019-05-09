@@ -1,8 +1,8 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="searchList">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="班长名">
-                <el-input placeholder="请输入任务名称" v-model="searchList.taskname"></el-input>
+                <el-input placeholder="请输入班长名" v-model="myData.userName"></el-input>
             </el-form-item>
             <!--
             <el-form-item label="数据量">
@@ -21,7 +21,7 @@
             </el-form-item>
             -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
             </el-form-item>
             
         </el-form>
@@ -75,7 +75,7 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <!--<el-table-column type="index" label="序号" :index="indexMethod" align="center" width="300px"></el-table-column>-->
             <el-table-column label="班长" prop="userName" align="center"></el-table-column>
@@ -123,10 +123,11 @@
                 //num4:3,
                 //num5:2,
                 //amendDialog:false,
-                searchList:{
-                    taskname:'',
-                    activityname:'',
-                    time:''
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                    activityId:this.$route.query.id,
+                    status:this.$route.query.status
                 }, 
                 multipleSelection:[],
                 count:1,
@@ -137,32 +138,31 @@
                 activityList:[],
                 dialogVisible:false,
                 value:'', 
-                currentPage:1,
-                pageSize:10,
+                
                 name:'',
                 num:'',
-                options2: [{
-                    value: '选项1',
-                    label: '未分配'
-                }, {
-                    value: '选项2',
-                    label: '已分配'
-                },{
-                    value: '选项3',
-                    label: '已开始'
-                },{
-                    value: '选项4',
-                    label: '已完成'
-                },{
-                    value: '选项5',
-                    label: '已退回'
-                },{
-                    value: '选项6',
-                    label: '已暂停'
-                },{
-                    value: '选项7',
-                    label: '已过期'
-                }],
+                // options2: [{
+                //     value: '选项1',
+                //     label: '未分配'
+                // }, {
+                //     value: '选项2',
+                //     label: '已分配'
+                // },{
+                //     value: '选项3',
+                //     label: '已开始'
+                // },{
+                //     value: '选项4',
+                //     label: '已完成'
+                // },{
+                //     value: '选项5',
+                //     label: '已退回'
+                // },{
+                //     value: '选项6',
+                //     label: '已暂停'
+                // },{
+                //     value: '选项7',
+                //     label: '已过期'
+                // }],
                 
                 tableData:[],
                 //taskId:null,
@@ -182,16 +182,24 @@
                 this.multipleSelection=val
                 //console.log(this.multipleSelection)
             }, 
+            handleCurrentChange(val) {
+                this.myData.pageIndex =val;
+                this.getTablelist()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getTablelist()
+            },
             //获取表格列表
             getTablelist(){
                 let token=this.$cookieStore.getCookie('token')
-                let activityId=this.$route.query.id
-                let status=this.$route.query.status
+                let params=this.myData
+                params.token=token
                 //console.log(status+'jia')
                 //console.log(activityId)
-                this.$http.get(this.$api.firm.monitorList,{params:{token:token,activityId:activityId,status:status,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res=>{
+                this.$http.get(this.$api.firm.monitorList,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.tableData=res.data.list
                         this.total=res.data.pageCount
                         this.count=res.data.count
@@ -277,14 +285,6 @@
             // indexMethod(index) {
             //     return index+1;
             // },
-            handleCurrentChange(val) {
-                this.currentPage =val;
-                this.getTablelist()
-            },
-            handleSizeChange(val){
-                this.pageSize=val;
-                this.getTablelist()
-            },
             // taskEdit(index,row) {
             //     //console.log(row);//每行的数据
             //     //console.log(row.name)//获取活动名

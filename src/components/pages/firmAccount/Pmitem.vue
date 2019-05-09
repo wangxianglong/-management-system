@@ -1,25 +1,35 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="tableData">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="项目名">
-                <el-input placeholder="请输入项目名称" v-model="search"></el-input>
+                <el-input placeholder="请输入项目名称" v-model="myData.itemName"></el-input>
             </el-form-item>
             <el-form-item label="状态">
-                <el-select class="mySelect" v-model="value" placeholder="全部" style="margin-left:10px;">
+                <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="创建时间">
-                <el-date-picker v-model="tableData.crdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <template>
+                    <el-date-picker
+                            v-model="time"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
-            <el-form-item label="开始时间：">
+            <!-- <el-form-item label="开始时间：">
                 <el-date-picker v-model="tableData.stdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间：">
                 <el-date-picker v-model="tableData.jsdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getItemlist">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -39,7 +49,7 @@
         <div class="divider"></div>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header >
             <el-table-column label="项目名" prop="itemName"></el-table-column>
             <el-table-column label="活动量" prop="num" sortable></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable>
@@ -72,31 +82,33 @@
     export default {
         data(){
             return {
+                time:'',
                 hour:true,
-                itemName:"测试项目",  
+                itemName:"",  
                 addNewitemdialog:false,
                 count:1,
                 selectName:'',
-                search:'',
                 activityShow:false,
                 activityList:[],
                 dialogVisible:false,
                 value:'', 
-                currentPage:1,
-                pageSize:10,
                 options2: [{
-                    value: '选项1',
-                    label: '全部'
+                    value: '0',
+                    label: '未分配'
                 }, {
-                    value: '选项2',
-                    label: '项目1'
+                    value: '1',
+                    label: '进行中'
                 },{
-                    value:'选项3',
-                    label:'项目2'
+                    value:'2',
+                    label:'已完成'
                 }],
                 newItem:{},
                 tableData:[],
-                total:1
+                total:1,
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                }
             }
         },
         methods:{
@@ -104,12 +116,26 @@
             init (){
                 
             },
+            handleCurrentChange(val) {
+                this.myData.pageIndex=val;
+                this.getItemlist()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getItemlist()
+            },
             //获取项目列表
             getItemlist(){
+                if (this.time!==null){
+                   this.myData.cstartTime=this.time[0];
+                   this.myData.cendTime =this.time[1];
+                }else{
+                    delete this.myData.cstartTime
+                    delete this.myData.cendTime
+                }
                 let token=this.$cookieStore.getCookie('token')
-                let pageSize=this.pageSize
-                let pageIndex=this.currentPage
-                let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
+                let params=this.myData
+                params.token=token
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
@@ -156,21 +182,13 @@
             // indexMethod(index) {
             //     return index+1;
             // },
-            handleCurrentChange(val) {
-                this.currentPage =val;
-                this.getItemlist()
-            },
-            handleSizeChange(val){
-                this.pageSize=val;
-                this.getItemlist()
-            },
+            
             coreView(row) {
                 //console.log(row);//每行的数据
                 //console.log(row.name)//获取活动名
                 //console.log(row.num)//获取数据量
                 //console.log(row.id)
                 let id=row.id
-                
                 this.$router.push({name:'pmdetail',query:{id:id}})
             },
             delBtn(row){
@@ -198,8 +216,8 @@
             export2Excel() {
                 require.ensure([], () => {
                     const {export_json_to_excel} = require('@/vendor/Export2Excel');
-                    const tHeader = ['活动名','数据量', '剩余量','创建时间','开始时间','结束时间'];
-                    const filterVal = ['activityName', 'orderNum', 'orderMargin','createTime',' startTime','endTime'];
+                    const tHeader = ['项目名','活动量', '创建时间','状态'];
+                    const filterVal = ['itemName', 'num', 'createTime','status'];
                     const list = this.excelData;
                     const data = this.formatJson(filterVal, list);
                     export_json_to_excel(tHeader, data, '项目管理');

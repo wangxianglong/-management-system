@@ -2,18 +2,18 @@
     <div>
         <el-form :inline="true" :model="myData" class="form-inline">
             <el-form-item label="号码">
-                <el-input v-model="myData.num"></el-input>
+                <el-input v-model="myData.showNumber"></el-input>
             </el-form-item>
             <el-form-item label="状态">
                 <el-select v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="创建时间">
+            <!-- <el-form-item label="创建时间">
                 <el-date-picker v-model="myData.num" type="datetime" placeholder="选择日期时间"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
         <!-- <div class="small-divider"></div>
@@ -24,7 +24,7 @@
         </div> -->
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header>
             <!-- <el-table-column type="selection"></el-table-column> -->
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
             <el-table-column label="号码" prop="showNumber" sortable></el-table-column>
@@ -71,42 +71,28 @@
                 using:4,
                 stopuse:2,
                 options:[{
-                value: '选项1',
-                label: '未分配'
+                value: '0',
+                label: '未使用'
                 }, {
-                value: '选项2',
-                label: '已分配'
+                value: '1',
+                label: '使用中'
                 }, {
-                value: '选项3',
-                label: '已开始'
-                }, {
-                value: '选项4',
-                label: '已完成'
-                }, {
-                value: '选项5',
-                label: '已退回'
-                },{
-                value: '选项6',
-                label: '已暂停'
-                },{
-                value: '选项7',
-                label: '已过期'
+                value: '2',
+                label: '已停用'
                 }],
                 //transferDialog:false,
-                noData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
-                yesData: [1,3],
-                titles:['未关联', '已关联'],
+                // noData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
+                // yesData: [1,3],
+                // titles:['未关联', '已关联'],
                 myData:{
-                    num:'',
-                    status:''
+                    pageIndex:1,
+                    pageSize:10,
                 },
-                value:'',
-                createtime:'',
+                // value:'',
+                // createtime:'',
                 tableData:[],
-                currentPage:1,
-                pageSize:10,
-                selectLis:[],
-                total:11,   //后台没返回
+                //selectList:[],
+                total:1,   //后台没返回
             }
         },
         methods:{
@@ -129,11 +115,11 @@
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
+                this.myData.pageIndex =val;
                 this.getTableList()
             },
             handleSizeChange(val){
-                this.pageSize=val;
+                this.myData.pageSize=val;
                 this.getTableList()
             },
             // handleFp(index,row){
@@ -141,9 +127,6 @@
             //     this.titles=["待使用","使用中"]
             //     this.transferDialog=true
             // },
-            search(){
-                console.log('搜索')
-            },
             // addTel(){
             //     console.log('新增号码')
             //     this.transferDialog=true
@@ -152,10 +135,13 @@
             //获取表格列表
             getTableList(){
                 let token=this.$cookieStore.getCookie('token')
-                this.$http.get(this.$api.firm.numList,{params:{token:token,pageIndex:this.currentPage,pageSize:this.pageSize}}).then(res=>{
+                let params=this.myData
+                params.token=token
+                this.$http.get(this.$api.firm.numList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
                         this.tableData=res.data.list
+                        this.total=res.data.count
                     }
                 })
             },

@@ -2,17 +2,17 @@
     <div>
         <el-form :inline="true" :model="myData" class="form-inline">
             <el-form-item label="企业名称">
-                <el-input v-model="myData.name"></el-input>
+                <el-input v-model="myData.company"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
         <!-- <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="addTel">新增号码</el-button></div> -->
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px;"></el-table-column>
             <el-table-column label="企业名称" prop="company" width="200px"></el-table-column>
             <el-table-column label="外显量" prop="num" width="200px"></el-table-column>
@@ -72,13 +72,13 @@
                 // leftData: [{id:1,name:'测试1'},{id:2,name:'测试2'},{id:3,name:'测试3'}],
                 // rightData: [],
                 myData:{
-                    name:''
+                    pageIndex:1,
+                    pageSize:10,
                 },
                 value:'',
                 createtime:'',
                 tableData:[],
-                currentPage:1,
-                pageSize:10,
+                
                 item:null,
                 total:1
             }
@@ -111,8 +111,8 @@
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
-                this.getTablelist()
+                this.myData.pageIndex =val;
+                this.getTableList()
             },
             handleSizeChange(val){
                 this.pageSize=val;
@@ -122,18 +122,17 @@
             //     console.log("分配")
             //     this.tasktransferDialog=true
             // },
-            search(){
-                console.log('搜索')
-            },
             // addTel(){
             //     console.log('新增号码')
             //     this.transferDialog=true
             // }
             //获取表格列表
             getTableList(){
-                this.$http.get(this.$api.platform.companyList).then(res=>{
+                let params=this.myData
+                this.$http.get(this.$api.platform.companyList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
+                        this.total=res.data.count
                         //console.log(this.tableData)
                     }
                 }).catch(err=>{

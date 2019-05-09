@@ -297,7 +297,7 @@
                             width: '70%',
                             // height: {totalHeight} - y - y2,
                             min: 0,
-                            max: 300,
+                            max: 1000,
                             minSize: '0',
                             maxSize: '100%',
                             sort: 'descending',

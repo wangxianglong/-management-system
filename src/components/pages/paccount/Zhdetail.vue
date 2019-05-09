@@ -1,20 +1,20 @@
 <template>
     <div>
-        <el-form :inline="true" class="form-inline" v-model="searchList">
+        <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="用户名称">
-                <el-input v-model="searchList.name"></el-input>
+                <el-input v-model="myData.userName"></el-input>
             </el-form-item>
             
             <el-form-item label="分机号码">
-                <el-input v-model="searchList.account"></el-input>
+                <el-input v-model="myData.phoneNum"></el-input>
             </el-form-item>
             <el-form-item label="角色">
-                <el-select class="mySelect" v-model="value" placeholder="请选择" style="margin-left:10px; width:150px;">
+                <el-select class="mySelect" v-model="myData.roleId" placeholder="请选择" style="margin-left:10px; width:150px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTableList">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -62,7 +62,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="用户名称" prop="userName" sortable></el-table-column>
             <el-table-column label="姓名" prop="realName" sortable></el-table-column>
@@ -122,7 +122,7 @@
             </span>
         </el-dialog> -->
         <div class="fpage">
-            <el-pagination class="pagebutton" background @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[100]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="400">
+             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
     </div>
@@ -131,9 +131,11 @@
     export default {
         data(){
             return {
-                searchList:{
-                    name:'',
-                    account:''
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                    agentId:this.$route.query.agentId,
+                    roleId:3,
                 },
                 phoneList:[],
                 isShow:true,
@@ -158,31 +160,40 @@
                 },{
                     value:'4',
                     label:'班长'
+                },{
+                    value:3,
+                    label:'全部'
                 }],
                 tableData:[],
-                currentPage:1,
-                pagesize:100,
                 agentId:null,
-                selectId:null
+                selectId:null,
+                total:1,
             }
         },
         methods:{
-              selectGet(vId){//这个vId也就是value值
-                
+            selectGet(vId){//这个vId也就是value值
                 this.addformList.obj = this.phoneList.find((item)=>{//这里的userList就是上面遍历的数据源
                     return item.id === vId;//筛选出匹配数据
-                });
+            });
                 console.log(this.addformList.obj.id);//我这边的name就是对应label的
-                },
+            },
+            handleCurrentChange(val) {
+                this.myData.pageIndex =val;
+                this.getTableList()
+            },
+            handleSizeChange(val){
+                this.myData.pageSize=val;
+                this.getTableList()
+            },
             //获取列表
             getTableList(){
-                this.agentId=this.$route.query.agentId
-                let params={roleId:3,agentId:this.agentId,pageIndex:1,pageSize:5}
+                let params=this.myData
                 this.$http.get(this.$api.platform.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
                         if(res.data.list){
                             this.tableData=res.data.list
+                            this.total=res.data.count
                         }
                     }
                 }).catch(error=>{
@@ -240,10 +251,6 @@
             indexMethod(index) {
                 return index+1;
             },
-            handleCurrentChange(currentPage) {
-                this.currentPage =currentPage;
-            },
-            
             goBack(){
                 this.$router.push({name:'zhsystem'})
             }

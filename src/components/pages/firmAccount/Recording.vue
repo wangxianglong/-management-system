@@ -1,31 +1,41 @@
 <template>
     <div>
-        <el-form :inline="true" :model="searchList" class="form-inline">
+        <el-form :inline="true" :model="myData" class="form-inline">
             <!-- <el-form-item label="客户电话">
                 <el-input v-model="searchList.name"></el-input>
             </el-form-item> -->
-            <el-form-item label="营销情况">
-                <el-select v-model="value" placeholder="请选择" style="margin-left:10px;">
+            <!-- <el-form-item label="营销情况">
+                <el-select v-model="myData.intention" placeholder="请选择" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="省份">
-                <el-input v-model="tableData.crdate"></el-input>
+                <el-input v-model="myData.provide"></el-input>
             </el-form-item>
             <el-form-item label="城市">
-                <el-input v-model="tableData.stdate"></el-input>
+                <el-input v-model="myData.area"></el-input>
             </el-form-item>
             <el-form-item label="外呼时间">
-                <el-date-picker v-model="tableData.jsdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <template>
+                    <el-date-picker
+                            v-model="time"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
             <el-form-item label="坐席名称">
-                <el-input v-model="tableData.stdate"></el-input>
+                <el-input v-model="myData.realName"></el-input>
             </el-form-item>
             <!-- <el-form-item label="通话时长：">
                 <el-input v-model="tableData.stdate"></el-input>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -34,7 +44,9 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="客户电话" prop="phoneNum" width="100px"></el-table-column>
             <el-table-column label="营销情况" prop="intention"></el-table-column>
@@ -42,7 +54,7 @@
             <el-table-column label="城市" prop="area"></el-table-column>
             <el-table-column label="姓氏/性别" prop="cName"></el-table-column>
             <el-table-column label="外呼时间" prop="startTime" width="150px"></el-table-column>
-            <el-table-column label="坐席" prop="agend_id"></el-table-column>
+            <el-table-column label="坐席" prop="realName"></el-table-column>
             <el-table-column label="通话时长" prop="callDuration" sortable width="100px"></el-table-column>
             <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
             <el-table-column label="质检评级" sortable width="100px">
@@ -59,7 +71,7 @@
                 <template slot-scope="scope" style="text-align:center">
                     <div class="audioBox">
                         <el-button type="text" @click="particulars(scope.row)">详情</el-button>
-                        <audio src="/i/song.ogg" controls="controls" style="width:200px;height:30px">
+                        <audio :src="scope.row.record_url" @play="ready" @pause="pause" controls="controls" style="width:200px;height:30px">
                         Your browser does not support the audio element.
                         </audio>
                     </div>
@@ -119,6 +131,7 @@
     export default {
         data(){
             return {
+                loading:false,
                 form:{
                     desc:'',
                     status:'',
@@ -157,46 +170,50 @@
                 //     value: '选项4',
                 //     label: '差'
                 // }],
-                options: [{
-                    value: '选项1',
-                    label: '成功'
-                }, {
-                    value: '选项2',
-                    label: '下次再呼'
-                },{
-                    value: '选项3',
-                    label: '拉黑'
-                },{
-                    value: '选项4',
-                    label: '其他'
-                },{
-                    value: '选项5',
-                    label: '未保存'
-                },{
-                    value: '选项6',
-                    label: '失败'
-                }],
-                searchList:{
-                    name:''
-                },
-                value:'',
-                createtime:'',
+                // options: [{
+                //     value: '选项1',
+                //     label: '成功'
+                // }, {
+                //     value: '选项2',
+                //     label: '下次再呼'
+                // },{
+                //     value: '选项3',
+                //     label: '拉黑'
+                // },{
+                //     value: '选项4',
+                //     label: '其他'
+                // },{
+                //     value: '选项5',
+                //     label: '未保存'
+                // },{
+                //     value: '选项6',
+                //     label: '失败'
+                // }],
                 tableData:[],
-                currentPage:1,
-                pageSize:10,
-                total:1
+                total:1,
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
+                },
+                time:null
             }
         },
         methods:{
+            ready(){
+                console.log("play click");
+            },
+            pause(){
+                console.log("pause click");
+            },
             indexMethod(index) {
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
+                this.myData.pageIndex=val;
                 this.getTableList()
             },
             handleSizeChange(val){
-                this.pageSize=val;
+                this.myData.pageSize=val;
                 this.getTableList()
             },
             search(){
@@ -204,14 +221,24 @@
             },
             //获取表格列表
             getTableList(){
+                this.loading=true
+                if (this.time!==null){
+                    console.log(1)
+                   this.myData.startTime=this.time[0];
+                   this.myData.endTime =this.time[1];
+                }else{
+                    delete this.myData.startTime
+                    delete this.myData.endTime
+                }
                 let token=this.$cookieStore.getCookie('token')
-                let pageSize=this.pageSize
-                let pageIndex=this.currentPage
-                let params={token:token,pageSize:pageSize,pageIndex:pageIndex}
+                let params=this.myData
+                params.token=token
                 this.$http.get(this.$api.firm.recordList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
                         this.tableData=res.data.list
+                        this.total=res.data.count
+                        this.loading=false
                     }
                 })
             },

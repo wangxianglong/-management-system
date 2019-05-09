@@ -8,7 +8,7 @@
                 <el-date-picker class='dateInput' v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="gosearch">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -102,10 +102,6 @@
             vBoard
         },
         methods:{
-            gosearch(){
-                //this.searchList=this.tableData
-                
-            },
             indexMethod(index) {
                 return index+1;
             },
@@ -122,9 +118,9 @@
                 this.loading=true
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                let pageSize=this.myData.pageSize
-                let pageIndex=this.myData.pageIndex
-                this.$http.get(this.$api.callee.statistics,{params:{pageIndex:pageIndex,pageSize:pageSize,token:token}}).then(res => {
+                let params=this.myData
+                params.token=token
+                this.$http.get(this.$api.callee.statistics,{params:params}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list

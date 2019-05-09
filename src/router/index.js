@@ -73,13 +73,13 @@ const router= new Router({
           path:'/zhsystem',
           name:'zhsystem',
           component:resolve => require(['../components/pages/paccount/Zhsystem.vue'],resolve),
-          meta: {title:'账号管理',isLogin:true},
+          meta: {title:'账户管理',isLogin:true},
         },
         {
           path:'/zhdetail',
           name:'zhdetail',
           component:resolve => require(['../components/pages/paccount/Zhdetail.vue'],resolve),
-          meta: {title:'账号管理详情',isLogin:true},
+          meta: {title:'账户管理详情',isLogin:true},
         },
         {
           path:'/pmitem',

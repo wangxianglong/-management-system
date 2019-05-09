@@ -10,23 +10,33 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="创建时间">
-                <el-date-picker v-model="myData.createTime" type="datetime" placeholder="选择日期时间" value-format="timestamp"></el-date-picker>
+                <template>
+                    <el-date-picker
+                            v-model="time"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
             <el-form-item label="开始时间：">
-                <el-date-picker v-model="myData.startTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.startTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间：">
-                <el-date-picker v-model="myData.endTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.endTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="goSearch">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <!--获取活动-->
         <div style="padding:20px"><el-button type="primary" @click='getActivity'>获取活动</el-button></div>
         <el-dialog :visible.sync="activityShow">
-            <el-table :data="activityList" style="width:100%;" show-header v-loading='activeloading'>
+            <el-table :data="activityList" style="width:100%;" show-header v-loading='loading'>
                 <el-table-column label="活动名" prop="activityName"></el-table-column>
                 <el-table-column label="活动ID" prop="activityId"></el-table-column>
                 <el-table-column label="开始时间" prop="activityBeginDate"></el-table-column>
@@ -34,7 +44,7 @@
                 <el-table-column label="活动号码" prop="showNumber"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" size="mini" @click="addActivity(scope.row)" v-loading="loading">获取</el-button>
+                        <el-button type="text" size="mini" @click="addActivity(scope.row)">获取</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -101,9 +111,9 @@
     export default {
         data(){
             return { 
-                activeloading:false,
+                time:null,
                 hour:true,
-                loading:true,
+                loading:false,
                 myData:{
                     pageIndex:1,
                     pageSize:10,
@@ -124,7 +134,7 @@
                     value: '0',
                     label: '未分配'
                 }, {
-                    value: '1',
+                    value: '5',
                     label: '已分配'
                 }],
                 tableData:[],//表格数据
@@ -132,28 +142,22 @@
             }
         },
         methods:{
-            //搜索
-            goSearch(){
+            //获取表格列表
+            getTablelist(){
+                if (this.time!==null){
+                    console.log(1)
+                   this.myData.cstartTime=this.time[0];
+                   this.myData.cendTime =this.time[1];
+                }else{
+                    delete this.myData.cstartTime
+                    delete this.myData.cendTime
+                }
+                this.loading=true
                 let token=this.$cookieStore.getCookie('token')
+                //console.log(token)
                 let params=this.myData
                 params.token=token
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
-                    if(res.data.code === 0){
-                        console.log(res.data)
-                        this.tableData=res.data.list
-                        
-                    }else{
-                        this.$message.error(res.data.message)
-                    }
-                }).catch((e)=>{
-                    console.log(e)
-                })
-            },
-            //获取表格列表
-            getTablelist(){
-                let token=this.$cookieStore.getCookie('token')
-                //console.log(token)
-                this.$http.get(this.$api.platform.list,{params:{pageIndex:this.myData.pageIndex,pageSize:this.myData.pageSize,token:token}}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
                         this.tableData=res.data.list
@@ -182,7 +186,7 @@
                 })
             },
             addActivity(row){
-                this.activeloading=true
+                this.loading=true
                 const that=this
                 this.rowData=row
                 let params={activityId:this.rowData.activityId}
@@ -193,6 +197,7 @@
                         //that.tableData=res.data.param.resultList 
                         this.activityShow=false;
                         this.getTablelist()
+                        this.loading=false
                     }
                 }).catch(function (error) {
                     console.log(error)

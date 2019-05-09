@@ -1,30 +1,40 @@
 <template>
     <div>
-        <el-form :inline="true" :model="searchList" class="form-inline">
+        <el-form :inline="true" :model="myData" class="form-inline">
             <el-form-item label="活动名">
-                <el-input v-model="searchList.name" placeholder="请输入活动名"></el-input>
+                <el-input v-model="myData.activityName" placeholder="请输入活动名"></el-input>
             </el-form-item>
             <el-form-item label="状态">
-                <el-select v-model="value" placeholder="请选择" style="margin-left:10px;">
+                <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="创建时间">
-                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <template>
+                    <el-date-picker
+                            v-model="time"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
             <el-form-item label="开始时间：">
-                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.starteTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间：">
-                <el-date-picker v-model="searchList.name" type="datetime" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker v-model="myData.endTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="search"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getactivityList"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
-            <el-button type="primary" @click="addTel">导出</el-button>
+            <el-button type="primary" @click="outExe">导出</el-button>
             <el-button type="primary" @click="fpActivity">分配活动</el-button>
             <el-button type="primary" @click="goBack">返回</el-button>
             <span style="margin-left:40px">当前可分配活动：{{count}}</span>
@@ -44,11 +54,15 @@
         </el-dialog>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="活动名" prop="activityName" align="center"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable align="center"></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable align="center"></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable align="center">
+                <template slot-scope="scope">
+                    {{scope.row.createTime | date(true)}}
+                </template>
+            </el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable align="center"></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable align="center"></el-table-column>
             <el-table-column label="状态" sortable>
@@ -74,44 +88,30 @@
     export default {
         data(){
             return {
+                time:null,
                 total:1,
-                searchList:{
-                    name:''
+                myData:{
+                    pageIndex:1,
+                    pageSize:10,
                 },
                 checkList:[],
                 activity:[],
                 activityDialog:false,
                 count:1,
                 options: [{
-                    value: '选项1',
-                    label: '已提交'
+                    value: '1',
+                    label: '未开始'
                 }, {
-                    value: '选项2',
-                    label: '待审核'
+                    value: '2',
+                    label: '进行中'
                 },{
-                    value: '选项3',
-                    label: '异常'
+                    value: '3',
+                    label: '已完成'
                 },{
                     value: '选项4',
                     label: '未通过'
-                },{
-                    value: '选项5',
-                    label: '已通过'
-                },{
-                    value: '选项6',
-                    label: '代理下发'
-                },{
-                    value: '选项7',
-                    label: '已下发'
                 }],
-                searchList:{
-                    name:''
-                },
-                value:'',
-                createtime:'',
                 tableData:[],
-                currentPage:1,
-                pageSize:5,
                 ids:null,
             }
         },
@@ -120,22 +120,52 @@
                 return index+1;
             },
             handleCurrentChange(val) {
-                this.currentPage =val;
+                this.myData.pageIndex =val;
                 this.getactivityList()
             },
             handleSizeChange(val){
-                this.pageSize=val;
+                this.myData.pageSize=val;
                 this.getactivityList()
             },
-            handleFp(index,row){
-                console.log("分配")
+            //获取table列表
+            getactivityList(){
+                if (this.time!==null){
+                   this.myData.cstartTime=this.time[0];
+                   this.myData.cendTime =this.time[1];
+                }else{
+                    delete this.myData.cstartTime
+                    delete this.myData.cendTime
+                }
+                let token=this.$cookieStore.getCookie('token')
+                //console.log(token)
+                let params=this.myData
+                params.token=token
+                if(this.$route.query.id!==undefined){
+                    sessionStorage.setItem('itemId',this.$route.query.id)
+                    
+                }
+                params.itemId=sessionStorage.getItem('itemId')
+                this.$http.get(this.$api.platform.list,{params:params}).then(res => {
+                    if(res.data.code === 0){
+                        //console.log(res.data)
+                        this.tableData=res.data.list
+                        this.total=res.data.count
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                }).catch((e)=>{
+                    console.log(e)
+                })
             },
-            search(){
-                console.log('搜索')
-            },
-            addTel(){
-                console.log('新增号码')
-            },
+            // handleFp(index,row){
+            //     console.log("分配")
+            // },
+            // search(){
+            //     console.log('搜索')
+            // },
+            // addTel(){
+            //     console.log('新增号码')
+            // },
             //分配活动
             fpActivity(){
                 this.activityDialog=true
@@ -175,24 +205,6 @@
             goBack(){
                 this.$router.push({name:'pmitem'})
             },
-            //获取table列表
-            getactivityList(){
-                let token=this.$cookieStore.getCookie('token')
-                let id=this.$route.query.id
-                //console.log(token)
-                let params={pageIndex:this.currentPage,pageSize:this.pageSize,token:token,itemId:id}
-                this.$http.get(this.$api.platform.list,{params:params}).then(res => {
-                    if(res.data.code === 0){
-                        //console.log(res.data)
-                        this.tableData=res.data.list
-                        this.total=res.data.count
-                    }else{
-                        this.$message.error(res.data.message)
-                    }
-                }).catch((e)=>{
-                    console.log(e)
-                })
-            },
             //获取可分配活动
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
@@ -221,6 +233,32 @@
             //     this.itemId=routerParams
             //     //console.log(this.itemId)
             // }
+            //导出
+            outExe() {
+                this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.excelData = this.tableData //你要导出的数据list。
+                    this.export2Excel()
+                }).catch(() => {
+
+                });
+            },
+            export2Excel() {
+                require.ensure([], () => {
+                    const {export_json_to_excel} = require('@/vendor/Export2Excel');
+                    const tHeader = ['活动名','数据量', '创建时间','开始时间','结束时间'];
+                    const filterVal = ['activityName', 'orderNum', 'createTime','startTime','endTime'];
+                    const list = this.excelData;
+                    const data = this.formatJson(filterVal, list);
+                    export_json_to_excel(tHeader, data, '项目管理详情');
+                })
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]))
+            },
         },
         watch:{
             //'$route':'getId'

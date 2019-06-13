@@ -24,7 +24,9 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 axios.interceptors.request.use(function (config) {
     //openLoading()
-    
+    if(localStorage.getItem('Authorization')){
+        config.headers.Authorizations = localStorage.getItem('Authorizations')
+    }
     return config;
 }, function (err) {
     this.message.error({
@@ -54,12 +56,12 @@ axios.interceptors.response.use(function (response) {
 });
 
 // //通用方法
-export const POST = (url, params) => {
-    return axios.post(`${base}${url}`,params,
-        {
-            headers:{'contentType': 'application/json'},
-        }).then(res => res.data)
-}
+// export const POST = (url, params) => {
+//     return axios.post(`${base}${url}`,params,
+//         {
+//             headers:{'contentType': 'application/json'},
+//         }).then(res => res.data)
+// }
 
 // export const GET = (url, params) => {
 //     return axios.get(`${base}${url}`, {

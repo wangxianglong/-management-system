@@ -39,17 +39,17 @@
                     <el-input v-model="addformList.userName"></el-input>
                  </el-form-item>
                  <el-form-item label="密码" prop="passWord">
-                     <el-input v-model="addformList.passWord"></el-input>
+                     <el-input type="passWord" v-model="addformList.passWord"></el-input>
                  </el-form-item>
-                 <el-form-item label="坐席姓名" prop="realName">
+                 <el-form-item label="姓名" prop="realName">
                      <el-input v-model="addformList.realName" placeholder="请输入姓名"></el-input>
                  </el-form-item>
                  <el-form-item label="手机号码" prop="phoneNum">
                      <el-input v-model="addformList.phoneNum" placeholder="请输入手机号码"></el-input>
                  </el-form-item>
-                 <el-form-item label="关联班长" v-if="isShow" prop="obj">
-                     <el-select v-model="addformList.obj" placeholder="请选择"  @change="selectGet">
-                         <el-option v-for="item in phoneList" :key="item.id" :label="item.realName" :value="item.id"></el-option>
+                 <el-form-item label="关联班长" v-if="isShow" prop="agentId">
+                     <el-select v-model="addformList.agentId" placeholder="请选择"  @change="selectGet">
+                         <el-option v-for="item in phoneList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
                      </el-select>
                  </el-form-item>
              </el-form>
@@ -74,7 +74,11 @@
                 </template>
             </el-table-column>
             <el-table-column label="分机号码" prop="phoneNum" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" sortable>
+                <template slot-scope="scope">
+                    <span>{{scope.row.createTime | date(true)}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="最近登录时间" prop="lastLoginTime" sortable></el-table-column>
             <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
             <!-- <el-table-column label="操作">
@@ -165,8 +169,6 @@
                     label:'全部'
                 }],
                 tableData:[],
-                agentId:null,
-                selectId:null,
                 total:1,
             }
         },
@@ -201,31 +203,31 @@
                 })
             },
             //新增号码
-            add(){
-                let id=this.agentId
+            add(addformList){
+                let id=this.myData.agentId
                 let roleId=this.radio
                 let userName=this.addformList.userName
                 let passWord=this.addformList.passWord
                 let realName=this.addformList.realName
                 let phoneNum=this.addformList.phoneNum
                 if(this.isShow){
-                    this.selectId=this.addformList.obj.id
-                    console.log(this.selectId)
+                    this.addformList.agentId=this.addformList.obj.id
+                    //console.log(this.selectId)
                 }
-                let params={roleId:roleId,userName:userName,passWord:passWord,realName:realName,phoneNum:phoneNum,agentId:this.selectId,id:id}
+                let params={roleId:roleId,userName:userName,passWord:passWord,realName:realName,phoneNum:phoneNum,agentId:this.addformList.agentId,id:id}
                 this.$http.post(this.$api.platform.addUser,params).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
                         this.getTableList()
-                        this.$refs['addformList'].resetFields();
                     }
                 }).catch(error=>{
                     console.log(error)
                 })
+                this.$refs['addformList'].resetFields();
                 this.addDialog = false
             }, 
             addPhone(){
-                let params={pageIndex:0,pageSize:10000,agentId:this.agentId}
+                let params={pageIndex:0,pageSize:10000,agentId:this.myData.agentId}
                 this.$http.get(this.$api.platform.agendList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)

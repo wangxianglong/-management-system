@@ -24,22 +24,30 @@
         <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="企业名称" prop="company"></el-table-column>
+            <el-table-column label="名称" prop="company"></el-table-column>
+            <el-table-column label="类型" prop="type">
+                <template slot-scope="scope">
+                    <span v-if='scope.row.type===1'>个人</span>
+                    <span v-if='scope.row.type===2'>企业</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="电话" prop="phoneNum"></el-table-column>
+            <el-table-column label="邮箱" prop="email"></el-table-column>
             <el-table-column label="登陆账号" prop="userName" sortable ></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable width="150px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(1)}}
                 </template>
             </el-table-column>
-            <el-table-column label="账户有效期" prop="validity" sortable width="120px">
+            <!-- <el-table-column label="账户有效期" prop="validity" sortable width="120px">
                 <template slot-scope="scope">
                     {{scope.row.validity | time()}}
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column label="税号" prop="taxNumber" sortable></el-table-column>
             <el-table-column label="营业执照" sortable>
                 <template slot-scope="scope">
-                    <img :src="url+scope.row.businessLicense" style="widht:30px;height:50px" preview preview-text="描述">
+                    <img :src="url+scope.row.businessLicense" style="widht:30px;height:50px">
                 </template>
             </el-table-column>
             <el-table-column label="状态" sortable>
@@ -51,7 +59,7 @@
                     <!-- <span v-if="scope.row.status===4">冻结中</span> -->
                 </template> 
             </el-table-column>
-            <el-table-column label="操作" width='250px'>
+            <el-table-column label="操作">
                 <template slot-scope="scope">
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button> -->
                     <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>

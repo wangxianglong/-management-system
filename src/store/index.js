@@ -4,15 +4,23 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 const state = {
+  Authorization:localStorage.getItem('Authorization') ? localStorage.getItem('Authorizations') : "",
+
   userName: window.sessionStorage.getItem('userName'),
   // token: window.sessionStorage.getItem('token'),
-  router:window.sessionStorage.getItem('router')
+  router:window.sessionStorage.getItem('router'),
+  agentId:window.sessionStorage.getItem('agentId')
 }
 const mutations = {
-  // SET_TOKEN: (state, data) => {
-  //   state.token = data
-  //   window.sessionStorage.setItem('token', JSON.stringify(data)) 
-  // },
+  changeLogin(state,user) {
+    state.Authorization = user.Authorization;
+    localStorage.setItem('Authorizations',user.Authorization)
+  },
+
+  GET_ID: (state, data) => {
+    state.agentId = data
+    window.sessionStorage.setItem('agentId', JSON.stringify(data))
+  },
   GET_USER: (state, data) => {
     state.userName = data
     window.sessionStorage.setItem('userName', JSON.stringify(data))

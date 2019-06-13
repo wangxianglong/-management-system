@@ -40,13 +40,14 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
-            <el-button type="primary" @click="loadRecord">下载录音</el-button>
+            <el-button type="primary" @click="outExe">导出</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
+            <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="客户电话" prop="phoneNum" width="100px"></el-table-column>
             <el-table-column label="营销情况" prop="intention"></el-table-column>
@@ -67,14 +68,23 @@
                 </template> 
             </el-table-column>
             <el-table-column label="备注" prop="content"></el-table-column>
-            <el-table-column label="操作" width="250px">
-                <template slot-scope="scope" style="text-align:center">
-                    <div class="audioBox">
-                        <el-button type="text" @click="particulars(scope.row)">详情</el-button>
-                        <audio :src="scope.row.record_url" @play="ready" @pause="pause" controls="controls" style="width:200px;height:30px">
-                        Your browser does not support the audio element.
+            <!-- <el-table-column label='录音' width="250px" align="center">
+                <template slot-scope="scope">
+                    <div>
+                        <audio ref="audio" class="audioBox"
+                             
+                             controls="controls"
+                             autoplay="autoplay"
+                             loop="loop"
+                        >
+                            <source :src="scope.row.record_url" type="audio/wav" />
                         </audio>
                     </div>
+                </template>
+            </el-table-column> -->
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="text" @click="particulars(scope.row)">详情</el-button>
                     
                     <!--
                     <div class="in-audio">
@@ -131,6 +141,7 @@
     export default {
         data(){
             return {
+                selectList:[],
                 loading:false,
                 form:{
                     desc:'',
@@ -138,72 +149,33 @@
                     deji:''
                 },
                particularsDialog:false,
-                // options2: [{
-                //     value: '选项1',
-                //     label: '成功'
-                // }, {
-                //     value: '选项2',
-                //     label: '下次再呼'
-                // },{
-                //     value: '选项3',
-                //     label: '拉黑'
-                // },{
-                //     value: '选项4',
-                //     label: '其他'
-                // },{
-                //     value: '选项5',
-                //     label: '未保存'
-                // },{
-                //     value: '选项6',
-                //     label: '失败'
-                // }],
-                // options1:[{
-                //     value: '选项1',
-                //     label: '优'
-                // }, {
-                //     value: '选项2',
-                //     label: '良'
-                // },{
-                //     value: '选项3',
-                //     label: '一般'
-                // },{
-                //     value: '选项4',
-                //     label: '差'
-                // }],
-                // options: [{
-                //     value: '选项1',
-                //     label: '成功'
-                // }, {
-                //     value: '选项2',
-                //     label: '下次再呼'
-                // },{
-                //     value: '选项3',
-                //     label: '拉黑'
-                // },{
-                //     value: '选项4',
-                //     label: '其他'
-                // },{
-                //     value: '选项5',
-                //     label: '未保存'
-                // },{
-                //     value: '选项6',
-                //     label: '失败'
-                // }],
                 tableData:[],
                 total:1,
                 myData:{
                     pageIndex:1,
                     pageSize:10,
                 },
-                time:null
+                time:null,
+                audio:{
+                    playing:false,
+                }
             }
         },
         methods:{
-            ready(){
-                console.log("play click");
+            startPlayOrPause () {
+                return this.audio.playing ? this.pause() : this.play()
+            },
+            play(){
+                this.$refs.audio.play()
             },
             pause(){
-                console.log("pause click");
+                this.$refs.audio.pause()
+            },
+            onPlay () {
+                this.audio.playing = true
+            },
+            onPause () {
+                this.audio.playing = false
             },
             indexMethod(index) {
                 return index+1;
@@ -215,9 +187,6 @@
             handleSizeChange(val){
                 this.myData.pageSize=val;
                 this.getTableList()
-            },
-            search(){
-                console.log('搜索')
             },
             //获取表格列表
             getTableList(){
@@ -242,12 +211,49 @@
                     }
                 })
             },
+            //表格选中事件
+            changeFun(val){
+                this.selectList=val
+                //console.log(this.selectList)
+            }, 
             particulars(row){
                 this.form=row
                 this.particularsDialog=true
             },
+            //导出
+            outExe() {
+                this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.excelData = this.selectList //你要导出的数据list。
+                    this.export2Excel()
+                }).catch(() => {
+
+                });
+            },
+            export2Excel() {
+                require.ensure([], () => {
+                    const {export_json_to_excel} = require('@/vendor/Export2Excel');
+                    const tHeader = ['客户电话','省份', '城市','姓氏/性别','坐席','录音'];
+                    const filterVal = ['phoneNum', 'provide', 'area','cName','realName','record_url'];
+                    const list = this.excelData;
+                    const data = this.formatJson(filterVal, list);
+                    export_json_to_excel(tHeader, data, '下载录音');
+                })
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]))
+            },
             loadRecord(){
 
+            }
+        },
+        filters: {
+            // 使用组件过滤器来动态改变按钮的显示
+            transPlayPause(value) {
+            return value ? '暂停' : '播放'
             }
         },
         created(){
@@ -265,7 +271,9 @@
     }
     .audioBox{
         display:flex;
-        align-items: center
+        align-items: center;
+        width:200px;
+        height:30px
     }
 </style>
 

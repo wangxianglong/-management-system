@@ -38,7 +38,7 @@
             </el-table-column> -->
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">外呼</el-button>
+                    <el-button type="text" @click="makeCall(scope.$index,scope.row)" :disabled="isDisabled"><i class="el-icon-phone"></i>外呼</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -48,7 +48,10 @@
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
         </div>
+        <video id="preview" :style="{display:'none'}"></video>
+        <video id="remote" :style="{display:'none'}"></video>
         <el-dialog title="呼叫主席" :visible.sync="showcalleeDialog" width="600px" :before-close="beforClose">
+            
             <el-form ref="form" :model="form" label-width="60px">
             <span style="color:red;margin:0 20px">电话正在拨打中......{{form.time}}</span>
             <el-form-item label="姓名">
@@ -84,19 +87,22 @@
                 <el-input type="textarea" v-model="form.content"></el-input>
             </el-form-item>
             <el-form-item>
-                <!-- <el-button type="primary" @click="afterload">加载上一个</el-button> -->
                 <el-button type="primary" @click="saveEdit">保存</el-button>
-                <el-button type="primary" @click="onSubmit" v-if="showBtn">拨打下一个</el-button>
+                <el-button type="danger" @click="hangup"><i class="el-icon-phone-outline"></i>挂断</el-button>
+                <el-button type="primary" @click="nextMakeCall" v-if="showBtn">拨打下一个</el-button>
             </el-form-item>
             </el-form>
         </el-dialog>
     </div>
 </template>
 <script>
+    require('@/api/hxwpapi-v3.2.2.min');
 
+    import store from '../../../store.js'
     export default {
         data(){
             return {
+                isDisabled:false,
                 showcalleeDialog:false,
                 showBtn:true,
                 form:{
@@ -157,7 +163,48 @@
                 customerId:null,
                 row:null,
                 index:null,
-                activityId:null
+                activityId:null,
+            }
+        },
+        destroyed(){
+            window.theWebPhone.logout()
+        },
+        mounted(){
+            window.theWebPhone=new HxWebPhone('preview', 'remote', (e)=>{
+                console.log("phone evt: " + JSON.stringify(e));
+                switch (e.Evt) {
+                case theWebPhone.EvtTypes.UpdateState:
+                    window.wpState = e.state;
+                    
+                    switch (e.state) {
+                        case theWebPhone.States.Offline:
+                            console.log('offLine')
+                            break;
+                        case theWebPhone.States.Login:
+                            console.log('login')
+                            break;
+                        case theWebPhone.States.Idle:
+                            console.log('IDle')
+                            break;
+                        case theWebPhone.States.Init:
+                            console.log('Init')
+                            break;
+                        case theWebPhone.States.Alert:
+                            console.log('Alert')
+                            break;
+                        case theWebPhone.States.Connected:
+                            console.log('Connected')
+                            break;
+                    }
+                    break;
+                }
+            })
+            console.log("11111111",window.theWebPhone)
+            //console.log(theWebPhone.login);
+            window.theWebPhone .login ("outcall.chinawjhs.com", "2005", "1234", "cs")
+            console.log("登陆了")
+            if(theWebPhone.States.Idle === window.wpState){
+                this.isDisabled=true      
             }
         },
         methods:{
@@ -168,16 +215,16 @@
             goback(){
                 this.$router.push({name:'callee'})
             },
-            user(){
-                let token=this.$cookieStore.getCookie('token')
-                this.$http.post(this.$api.login.seatLogin,{token:token}).then( res =>{
-                if(res.data.code===0){
-                    console.log(res)
-                }
-                }).catch(error=>{
-                console.log(error)
-                })
-            },
+            // user(){
+            //     let token=this.$cookieStore.getCookie('token')
+            //     this.$http.post(this.$api.login.seatLogin,{token:token}).then( res =>{
+            //     if(res.data.code===0){
+            //         console.log(res)
+            //     }
+            //     }).catch(error=>{
+            //     console.log(error)
+            //     })
+            // },
             handleCurrentChange(val) {
                 this.myData.pageIndex=val;
                 this.getActivityList()
@@ -200,15 +247,15 @@
                     console.log("出错了")
                 })
             },
-            
+            //挂断
+            hangup(){
+                window.theWebPhone.hangup()
+            },
             indexMethod(index) {
                 return index+1;
             },
             
-            taskEdit(index,row) {
-                //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
-                //console.log(row.num)//获取数据量
+            makeCall(index,row) {
                 this.dialogVisible=true
                 //console.log(row,index)
                 this.index=index
@@ -216,36 +263,47 @@
                 this.activityId=row.activityId
                 let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
+                    //console.log('cs',res)
                     if(res.data.code===0){
-                        //console.log(res)
+                        //console.log('1',res)
                         this.form=res.data.data
                         this.showcalleeDialog=true
-                        let activityId=this.form.activityId
-                        let customerId=this.form.customerId
-                        let provideId=this.form.provideId
-                        let token=this.$cookieStore.getCookie('token')
-                        this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                            if(res.data.code===0){
-                                this.$message({
-                                    message:'电话正在转接，请稍后',
-                                    type:'success'
-                                })
+                        // let activityId=this.form.activityId
+                        // let customerId=this.form.customerId
+                        // let provideId=this.form.provideId
+                        // let token=this.$cookieStore.getCookie('token')
+                        // this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                        //     if(res.data.code===0){
+                        //         this.$message({
+                        //             message:'电话正在转接，请稍后',
+                        //             type:'success'
+                        //         })
                                 
-                            }else{
-                                alert(res.data.msg)
+                        //     }else{
+                        //         alert(res.data.msg)
+                        //     }
+                        // })
+                        window.theWebPhone .dial(this.form.phoneNum)
+                        let customerId=this.form.customerId
+                        this.$http.post(this.$api.amati.callCustomer,{customerId:customerId}).then(res => {
+                            if(res.data.code===0){
+                                this.$message.success('正在拨打中...')
                             }
                         })
                     }
                 }).catch(error => {
-                    console.log("出错了")
-                })  
+                    console.log("出错了",error)
+                })
+
+                  
+
                 let total=this.tableData.length-1
                 if(this.index===total){
                     this.showBtn=false 
                 }else{
                     this.showBtn=true 
                 }
-                this.isSave=false
+                this.isSave=false 
             },
             beforClose(){
                 if(!this.isSave){
@@ -261,7 +319,7 @@
             // afterload(){
 
             // },
-            onSubmit(){
+            nextMakeCall(){
                 if(!this.isSave){
                     this.$message({
                         message:'未保存',
@@ -280,25 +338,35 @@
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.form=res.data.data
-                        let activityId=this.form.activityId
+                        // let activityId=this.form.activityId
+                        // let customerId=this.form.customerId
+                        // let provideId=this.form.provideId
+                        // let token=this.$cookieStore.getCookie('token')
+                        // this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                        //     if(res.data.code===0){
+                        //         this.$message({
+                        //             message:'电话正在转接，请稍后',
+                        //             type:'success'
+                        //         })
+                        //     }else{
+                        //         alert(res.data.msg)
+                        //     }
+                        // })
+                        //console.log(this.form)
+                        
+                        window.theWebPhone .dial(this.form.phoneNum)
                         let customerId=this.form.customerId
-                        let provideId=this.form.provideId
-                        let token=this.$cookieStore.getCookie('token')
-                        this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                        this.$http.post(this.$api.amati.callCustomer,{customerId:customerId}).then(res => {
                             if(res.data.code===0){
-                                this.$message({
-                                    message:'电话正在转接，请稍后',
-                                    type:'success'
-                                })
-                            }else{
-                                alert(res.data.msg)
+                                this.$message.success('正在拨打中...')
                             }
                         })
-                        //console.log(this.form)
                     }
                 }).catch(error => {
                     console.log("出错了")
                 })
+                
+
                 this.isSave=false
                  if(this.index==total){
                     this.showBtn=false
@@ -320,7 +388,16 @@
                 this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)
+                        this.$message({
+                            message:res.data.msg,
+                            type:'success'
+                        })
                         this.getActivityList()
+                    }else{
+                        this.$message({
+                            message:res.data.msg,
+                            type:'error'
+                        })
                     }
                 }).catch(error => {
                     console.log("出错了")
@@ -330,10 +407,12 @@
         created(){
             this.init(
                 this.getActivityList(),
-                this.user()
+                // this.user()
             )
         },
-        
+        computed : {
+            
+        }
     }
 </script>
 <style scoped>

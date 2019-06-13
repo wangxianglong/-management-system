@@ -1,5 +1,11 @@
 <template>
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
+        <el-form-item label="请选择类型" prop="type">
+            <el-radio-group v-model="ruleForm.type">
+                <el-radio :label="1" style="color:#fff">个人</el-radio>
+                <el-radio :label="2" style="color:#fff">企业</el-radio>
+            </el-radio-group>
+        </el-form-item>
         <el-form-item prop="phoneNum">
             <el-input placeholder="手机号" v-model="ruleForm.phoneNum"></el-input>
         </el-form-item>
@@ -11,6 +17,9 @@
         </el-form-item>
         <el-form-item prop="company">
             <el-input placeholder="公司名称" v-model='ruleForm.company'></el-input>
+        </el-form-item>
+        <el-form-item prop="email">
+            <el-input placeholder="邮箱" v-model="ruleForm.email"></el-input>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="register('ruleForm')">下一步</el-button>
@@ -27,14 +36,21 @@
                 },
                 rules:{
                     phoneNum:[
-                        {required:true,message:'请输入您的账号',trigger:'blur'},
+                        {required:true,message:'请输入您的手机号',trigger:'blur'},
                     ],
                     userName:[
-                        {required:true,message:'请输入您的手机号',trigger:'blur'},
+                        {required:true,message:'请输入您的账号',trigger:'blur'},
                         // { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change'}
+                    ],
+                    email:[
+                         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
                     ],
                     passWord:[
                         {required:true,message:'请输入您的密码',trigger:'blur'}
+                    ],
+                    type: [
+                        { required: true, message: '请选择类型', trigger: 'change' }
                     ],
                     company:[
                         {required:true,message:'请输入您的公司名称',trigger:'blur'}
@@ -57,8 +73,9 @@
                                 }).then((res) => {
                                         console.log(res)
                                         if(res.data.data.status=='success'){ 
-                                            let token=this.$cookieStore.getCookie('token') 
-                                            this.$store.commit('SET_TOKEN',token)
+                                            // let token=this.$cookieStore.getCookie('token') 
+                                            // this.$store.commit('SET_TOKEN',token)
+                                            this.$store.commit("GET_ID",res.data.data.id)
                                             this.$store.commit("GET_USER",this.ruleForm.userName)
                                             this.$store.commit("GET_ROUTER",res.data.data.router)
                                             this.$message({
@@ -100,4 +117,5 @@
         width:400px;
         margin-top:10px; 
     }
+    
 </style>

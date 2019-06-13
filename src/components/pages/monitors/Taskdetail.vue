@@ -199,6 +199,10 @@
                 }
             },
             assignedTasks(){
+                if(this.myNum*this.num1>this.count){
+                    this.$message.warning('分配数量不足')
+                    return false
+                }
                 let token=this.$cookieStore.getCookie('token')
                 var arr=this.multipleSelection
                 let multis=[]
@@ -227,8 +231,9 @@
                                 this.tableData=res.data.list
                                 this.count=res.data.count
                             }
-                        })
-                        
+                        }) 
+                    }else{
+                        this.$message.error(res.data.msg)
                     }
                 })
                 

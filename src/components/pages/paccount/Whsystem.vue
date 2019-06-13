@@ -2,7 +2,7 @@
     <div>
         <el-form :inline="true" class="form-inline" v-model="myData">
             <el-form-item label="项目名称:">
-                <el-input placeholder="请输入用户名" v-model="myData.itemName"></el-input>
+                <el-input placeholder="请输入项目名称" v-model="myData.itemName"></el-input>
             </el-form-item>
             <!-- <el-form-item label="创建时间：">
                 <el-date-picker class='dateInput' v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
@@ -178,7 +178,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.excelData = this.tableData //你要导出的数据list。
+                    this.excelData = this.selectList //你要导出的数据list。
                     this.export2Excel()
                 }).catch(() => {
 

@@ -6,7 +6,6 @@ import login from '@/components/Login.vue'
 import roleList from '@/components/pages/user/角色管理.vue'
 import addRole from '@/components/pages/user/新增角色.vue'
 import updateRole from '@/components/pages/user/修改角色.vue'
-
 import {getCookie} from '@/config/cookie'
 
 
@@ -49,6 +48,7 @@ const router= new Router({
         },
         {
           path:'/itemadd',
+          name:'itemadd',
           component:resolve => require(['../components/pages/paccount/Itemadd.vue'],resolve),
           meta: {title:'项目管理',isLogin:true}
         },
@@ -175,6 +175,12 @@ const router= new Router({
         { path: '/addRole', component: addRole, name: 'addRole',  meta:{title:'新增角色',isLogin:true }},
         { path: '/updateRole', component: updateRole, name: 'updateRole',  meta:{title:'修改角色',isLogin:true }},
         
+        {
+          path:'/numberPool',
+          name:'numberPool',
+          component:resolve => require(['../components/pages/paccount/NumberPool.vue'],resolve),
+          meta: {title:'号码池管理',isLogin:true},
+        },
       ]
     },
     {
@@ -210,5 +216,15 @@ if (to.path === '/login') {
   } else {
     next()
 }
+    // if(to.path === '/login') {
+    //   next();
+    // }else{
+    //   let token = localStorage.getItem('Authorizations');
+    //   if(token === 'null' || token === ''){
+    //     next({path: '/login'})
+    //   } else {
+    //     next()
+    //   }
+    // }
 })
 export default router

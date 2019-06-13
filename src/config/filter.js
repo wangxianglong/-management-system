@@ -123,6 +123,10 @@ export default {
         let realVal = Number(value).toFixed(2)
         return Number(realVal)
     },
+    //隐藏号码中间四位
+    placePhone(num){
+	    return num.toString().replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+    }
     // numFormat(value){
     //     if(!value) return '0.00';
 	// 		/*原来用的是Number(value).toFixed(0)，这样取整时有问题，例如0.51取整之后为1，感谢Nils指正*/

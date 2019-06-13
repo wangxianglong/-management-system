@@ -36,7 +36,7 @@
         <div class="divider"></div>
         <!--弹框-->
         <el-dialog title="批量分配" :visible.sync="taskDialog" width="30%">
-            <span>当前勾选坐席 {{num1}} 人</span>
+            <span>当前勾选班长 {{num1}} 人</span>
             <span>平均每人分配</span>
             <input type="text" :placeholder="holder" v-model="myNum" class="dialogInput">
             <span>条数据</span>
@@ -65,7 +65,7 @@
         </el-dialog>
         
         <el-dialog title="修改" :visible.sync="amendDialog" width="30%">
-            <span>当前坐席 可修改数据量 范围</span>
+            <span>当前坐席 可修改数据量 范围</span> 
             <input type="text" placeholder="1005~29067" class="dialogInput">
             <span>确认修改？</span>
         <span slot="footer" class="dialog-footer">
@@ -79,7 +79,7 @@
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <!--<el-table-column type="index" label="序号" :index="indexMethod" align="center" width="300px"></el-table-column>-->
             <el-table-column label="班长" prop="userName" align="center"></el-table-column>
-            <el-table-column label="未分配" prop="num" sortable align="center"></el-table-column>
+            <el-table-column label="客户量" prop="num" sortable align="center"></el-table-column>
             <!--
             <el-table-column label="状态" sortable align="center"> 
                 <template  slot-scope="scope">
@@ -230,6 +230,10 @@
                 }
             },
             assignedTasks(){
+                if(this.myNum*this.num1>this.count){
+                    this.$message.warning('分配数量不足')
+                    return false
+                }
                 var arr=this.multipleSelection
                 let multis=[]
                 for(var i=0;i<arr.length;i++){

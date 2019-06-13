@@ -22,6 +22,9 @@ const platform={
     update:'api/user/update',            //账户管理按钮接口
     addUser:'api/user/addUser',         //账户管理新增
     agendList:'api/user/agentList',         //关联班长
+    createActivity:'api/activity/createActivity',        //新增活动
+    getDataList:'api/call/getDataList',                 //活动客户量详情页
+    copyActivity:'api/activity/copyActivity',           //复制活动
 }
 //企业账户
 const firm= {
@@ -51,12 +54,13 @@ const amati={
     getDataList:'api/call/getDataList',         //坐席外呼详情
     getDataDetail:'api/call/getDataDetail',     //外呼
     updateCustomer:'api/call/updateCustomer',    //保存
-    call:'api/call/seatMakeCallEx'
+    call:'api/call/seatMakeCallEx',
+    callCustomer:'api/call/callCustomer'
 }
 //外呼统计
 const callee={
     statistics:'api/item/statistics',           //外呼统计
-    statisticsDetail:'api/item/statisticsDetail'        //看板
+    statisticsDetail:'api/item/statisticsDetail',        //看板
 }
 //关联账号
 const cucc={

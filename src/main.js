@@ -11,6 +11,7 @@ import store from './store/index'
 import axios from './config/axios'
 import api from './config/api';
 import preview from 'vue-photo-preview'
+
 import {setCookie,getCookie,delCookie} from '@/config/cookie'
 import filters from './config/filter';
 // import Blob from './excel/Blob'
@@ -21,6 +22,7 @@ Vue.prototype.$cookieStore = {
   getCookie,
   delCookie
 }
+
 
 //图片查看器
 Vue.use(preview)
@@ -41,6 +43,7 @@ Vue.prototype.$api = api;
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key]);
 });
+
 
 Vue.config.productionTip = false
 

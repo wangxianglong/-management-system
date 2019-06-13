@@ -168,6 +168,10 @@
             // },
             //分配活动
             fpActivity(){
+                if(this.count===0){
+                    this.$message.error('当前没有可分配活动')
+                    return
+                }
                 this.activityDialog=true
                 let token=this.$cookieStore.getCookie('token')
                 //let status=this.$route.query.status

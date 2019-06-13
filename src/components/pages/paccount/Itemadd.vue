@@ -34,7 +34,42 @@
         </el-form>
         <div class="small-divider"></div>
         <!--获取活动-->
-        <div style="padding:20px"><el-button type="primary" @click='getActivity'>获取活动</el-button></div>
+        <div style="padding:20px">
+            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取活动</el-button>
+            <el-button type="primary" @click='addActivity'>新增活动</el-button>
+            <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制活动</el-button>
+        </div>
+        <!--弹框-->
+        <el-dialog title="新建活动" :visible.sync="addNewitemdialog" width="30%">
+            <el-form :model="form" label-width="100px" class="formPage" label-position='left' ref="form">
+                <el-form-item label="活动名称">
+                    <el-input v-model="form.activityName" placeholder="请输入活动名称"></el-input>
+                </el-form-item>
+                <el-form-item label="话术">
+                    <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="form.content">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="上传文件">
+                    <el-upload action="api/uploadExcel" :before-upload="beforeUpload" :on-preview="handlePreview" :on-remove="handleRemove" :on-success="handleSuccess" :before-remove="beforeRemove">
+                        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                        <span style="margin-left:5px"><a href="/template.xls">文件模板</a></span>
+                        <div slot="tip" class="el-upload__tip">只能上传excel文件，且不超过5MB</div>
+                        <!-- <div slot="tip" class="el-upload-list__item-name">{{form.excelFileName}}</div> -->
+                    </el-upload>
+                </el-form-item>
+                <el-form-item size="medium" class="formBtn">
+                    <el-button type="primary" @click="add('form')">确认</el-button>
+                </el-form-item>
+            </el-form> 
+        </el-dialog>
+        <el-dialog title="复制活动" :visible.sync="copyDialog" width="30%">
+            <span>活动名称：</span>
+            <el-input label="活动名称" v-model="copyActivityName" style="width:300px" clearable></el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click = "copyDialog =false">取消</el-button>
+                <el-button type="primary" @click = "showCopyActivity">确认</el-button>
+            </span>
+        </el-dialog>
         <el-dialog :visible.sync="activityShow">
             <el-table :data="activityList" style="width:100%;" show-header v-loading='loading'>
                 <el-table-column label="活动名" prop="activityName"></el-table-column>
@@ -53,10 +88,28 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" @current-change="clickChange">
+            <el-table-column label="" align="center" width="50" v-if="roleId==1">
+                <template slot-scope="scope">
+                    <el-radio :label="scope.row" v-model="selected">&nbsp;</el-radio>
+                </template>
+            </el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="活动名" prop="activityName"></el-table-column>
-            <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
+            <el-table-column label="来源" prop="type">
+                <template slot-scope="scope">
+                    <span v-if="scope.row.type===1">移动</span>
+                    <span v-if="scope.row.type===2">联通</span>
+                    <span v-if="scope.row.type===3">电信</span>
+                    <span v-if="scope.row.type===4">公海</span>
+                    <span v-if="scope.row.type===5">私海</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="数据量" prop="orderNum">
+                <template slot-scope="scope">
+                    <el-button type="text" @click="numDetail(scope.row)">{{scope.row.orderNum}}</el-button>
+                </template>
+            </el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable>
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(hour)}}
@@ -64,13 +117,13 @@
             </el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
-            <el-table-column label="状态" sortable>
+            <el-table-column label="状态" v-if="roleId==1">
                 <template  slot-scope="scope">
-                    <el-button type="text" size="mini" style="color:red" v-if="scope.row.status===0">未分配</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status!==0">已分配</el-button>
+                    <span style="color:red" v-if="scope.row.status===0">未分配</span>
+                    <span v-if="scope.row.status!==0">已分配</span>
                 </template> 
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" v-if="roleId==1">
                 <template slot-scope="scope">
                     <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button>
                 </template>
@@ -110,7 +163,18 @@
     
     export default {
         data(){
-            return { 
+            return {
+                copyActivityName:'',
+                copyDialog:false,
+                selected:'', 
+                fileList:[],
+                files:'',
+                form:{
+                    activityName:'',
+                    content:'',
+                    excelFileName:''
+                },
+                addNewitemdialog:false,
                 time:null,
                 hour:true,
                 loading:false,
@@ -139,13 +203,20 @@
                 }],
                 tableData:[],//表格数据
                 total:1,
+                roleId:sessionStorage.getItem('roleId')
             }
         },
         methods:{
+            numDetail(row){
+                let activityId=row.activityId
+                this.$router.push({name:'numberPool',query:{activityId:activityId}})
+            },
+            clickChange(val){
+                this.selected = val
+            },
             //获取表格列表
             getTablelist(){
                 if (this.time!==null){
-                    console.log(1)
                    this.myData.cstartTime=this.time[0];
                    this.myData.cendTime =this.time[1];
                 }else{
@@ -215,16 +286,12 @@
                 this.getTablelist()
             },
             taskEdit(index,row) {
-                //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
-                //console.log(row.num)//获取数据量
                 this.dialogVisible=true
                 this.rowData=row
                 this.activityName=row.activityName
                 this.orderNum=row.orderNum
                 this.$http.get(this.$api.platform.company).then(
                     res => {
-                        console.log(res)
                         this.firmName=res.data.list
                     }
                 ).catch(err => {
@@ -233,8 +300,6 @@
                 
             },
             saveEdit(){
-                console.log(this.rowData.id)
-                console.log(this.userId)
                 this.$http.post(this.$api.platform.projectUpdate,
                     {
                         id:this.rowData.id,
@@ -256,12 +321,103 @@
                 })
                 
                 //this.rowData.status=1
+            },
+            // 复制活动
+            copyActivity(){
+                if(this.selected===''){
+                    this.$message.warning('请选择活动')
+                    return
+                }
+                if(this.selected.type===2){
+                    this.$message.error('数据来源联通，无法复制')
+                    return
+                }
+                this.copyDialog=true
+            },
+            showCopyActivity(){
+                console.log("aaaaaaaa",this.selected)
+                let id=this.selected.id
+                let activityName=this.copyActivityName
+                let token=this.$cookieStore.getCookie('token')
+                if(activityName ===''){
+                    this.$message.warning('请输入活动名')
+                    return
+                }
+                let params={id:id,activityName:activityName,token:token}
+                this.$http.post(this.$api.platform.copyActivity,params).then(res => {
+                    if(res.data.code === 0){
+                        this.getTablelist()
+                        this.$message.success(res.data.msg)
+                        this.selected = ''
+                        this.copyDialog=false
+                    }else{
+                        this.$message.error(res.data.msg)
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                })
+                
+            },
+            // 新增活动
+            addActivity(){
+                this.addNewitemdialog = true
+            },
+            add(form){
+                console.log('上传'+this.form.excelFileName)
+                if(this.form.excelFileName == ""){
+                    this.$message.warning('请选择要上传的文件！')
+                    return false
+                }
+                if(this.form.activityName == "" || this.form.content == ""){
+                    this.$message.warning('请输入活动名称和话术')
+                    return false
+                }
+                this.addNewitemdialog = false
+                this.loading=true
+                this.form.token=this.$cookieStore.getCookie('token')
+                let params=this.form
+                this.$http.post(this.$api.platform.createActivity,params).then(res =>{
+                    if(res.data.code===0){
+                        //console.log(res)
+                        this.getTablelist()
+                        this.loading=false
+                        this.$message.success('新建活动成功')
+                    }
+                }) 
+            },
+            handleSuccess(res,file){
+                this.form.excelFileName = res.fileName;
+            },
+            beforeUpload(file){
+                //console.log(file,'文件');
+                const extension = file.name.split('.')[1] === 'xls'
+                const extension2 = file.name.split('.')[1] === 'xlsx'
+                const isLt2M = file.size / 1024 / 1024 < 5
+                if (!extension && !extension2) {
+                    this.$message.warning('上传模板只能是 xls、xlsx格式!')
+                    return
+                }
+                if (!isLt2M) {
+                    this.$message.warning('上传模板大小不能超过 5MB!')
+                    return
+                }
+                
+                // return false // 返回false不会自动上传
+            },
+            handleRemove(file) {
+                //console.log(file, fileList);
+            },
+            handlePreview(file) {
+                //console.log(file);
+            },
+            beforeRemove(file) {
+                return this.$confirm(`确定移除 ${ file.name }？`);
             }
-            
         },
         created(){
            this.getTablelist()
            //console.log(this.myData.status)
+           
         },
         computed:{
             
@@ -273,5 +429,8 @@
     .pagebutton {
         float:right
     }
-    
+    .formBtn {
+        text-align: center;
+        margin:10px 0 0 -50px
+    }
 </style>

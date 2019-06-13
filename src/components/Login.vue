@@ -7,11 +7,11 @@
         <div>
             
         </div>
-        <div class="mybtn"  v-show="isShow">
+        <!-- <div class="mybtn"  v-show="isShow">
             <div><el-button type="primary" @click="registerBtn">注册</el-button></div>
             <div><el-button @click="loginBtn">登录</el-button></div>
-        </div>
-        <div class="login-form" v-if="showlogin">
+        </div> -->
+        <div class="login-form">
             <el-form :model="loginData" :rules="rules" ref="loginData">
                 <el-form-item prop="userName"> 
                     <el-input placeholder="账号" v-model='loginData.userName'></el-input>
@@ -26,9 +26,9 @@
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
                 </el-form-item> -->
             </el-form>
-            <div>
+            <!-- <div>
             <el-button @click="goBack" v-if="myBackbtn">返回</el-button>
-            </div>
+            </div> -->
         </div>
         
         
@@ -46,17 +46,18 @@
                 </el-form>
             </div>
         </div> -->
-        <div v-if="showregister" class="register-form">
+        <!-- <div v-if="showregister" class="register-form">
             <register></register>
             <div>
             <el-button @click="goBack" v-if="myBackbtn">返回</el-button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
 // import forgetpassword from '@/components/forgetpassword'
-import register from '@/components/register'
+import register from '@/components/register';
+import { mapMutations } from 'vuex'
     export default {
         data(){
             return {
@@ -80,6 +81,7 @@ import register from '@/components/register'
             }
         },
         methods:{
+            ...mapMutations(['changeLogin']),
             goBack(){
                 this.myBackbtn=false
                 this.isShow=true;
@@ -98,6 +100,7 @@ import register from '@/components/register'
                 this.showregister=true
             },
             submitLogin(loginData){
+                let _this=this
                 this.$refs[loginData].validate((valid) =>{
                     if(valid) {
                         let userName=this.loginData.userName
@@ -110,10 +113,13 @@ import register from '@/components/register'
                         }).then((res) => {
                                 //console.log(res)
                                 if(res.data.data.status=="success"){
-                                    //let token=this.$cookieStore.getCookie('token') 
+                                    let token=this.$cookieStore.getCookie('token')
+                                    _this.changeLogin({Authorization:token}) 
                                     // this.$store.commit('SET_TOKEN',token)
+                                    this.$store.commit("GET_ID",res.data.data.id)
                                     this.$store.commit("GET_USER",userName)
                                     this.$store.commit("GET_ROUTER",res.data.data.router)
+                                    sessionStorage.setItem('roleId',res.data.data.roleId)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'
@@ -122,15 +128,12 @@ import register from '@/components/register'
                                     this.$router.push({name:name})
                                 }else{
                                     this.$message({
-                                        message:res.data.data.msg,
+                                        message:res.data.msg,
                                         type:'error'
                                     })
                                 }
                             }).catch(function(error){
-                                this.$message({
-                                    message:'登录出错了',
-                                    type:'error'
-                                })
+                                console.log(error)
                             })
                     }else {
                         console.log('error submit');
@@ -202,7 +205,7 @@ import register from '@/components/register'
         align-items: center
     }
     .login-form .el-button{
-        width:400px;
+        width:300px;
         
     }
     .login-form .footer {

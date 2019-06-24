@@ -1,7 +1,7 @@
 <template>
     <div class="itemadd">
         <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="活动名">
+            <el-form-item label="行销名单">
                 <el-input v-model="myData.activityName"></el-input>
             </el-form-item>
             <el-form-item label="任务时段">
@@ -30,7 +30,7 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header >
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
+            <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="num" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable>
                 <template slot-scope="scope">
@@ -50,7 +50,9 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">进入外呼</el-button>
+                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">呼叫成功</el-button>
+                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">拒接</el-button>
+                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">忙音/关机</el-button>
                     <!-- <el-button type="text">回退剩余数据</el-button> -->
                 </template>
             </el-table-column>
@@ -142,7 +144,7 @@
             
             taskEdit(index,row) {
                 //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
+                //console.log(row.name)//获取行销名单
                 //console.log(row.num)//获取数据量
                 this.dialogVisible=true
                 this.name=row.name

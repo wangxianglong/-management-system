@@ -16,6 +16,7 @@
 			</el-form>
 
 			<div class="footer">
+				<el-button type="danger" @click="goBack">返回</el-button>
 				<el-button type="primary" @click="addRole">提交</el-button>
 			</div>
 		</el-col>
@@ -54,6 +55,9 @@
 			})
 		},
 		methods: {
+			goBack(){
+				this.$router.push({path:'/roleList'})
+			},
             addRole(){
                 var checked  = this.$refs.tree.getCheckedKeys();
                 this.$refs.addForm.validate((valid) => {

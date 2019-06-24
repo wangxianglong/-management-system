@@ -12,7 +12,9 @@
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
-        <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="outExe">导出</el-button></div>
+        <div style="padding:17px 0 17px 20px">
+            <el-button type="primary" @click="outExe">导出</el-button>
+        </div>
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">

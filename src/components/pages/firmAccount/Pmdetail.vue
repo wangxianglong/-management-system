@@ -1,8 +1,8 @@
 <template>
     <div>
         <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="活动名">
-                <el-input v-model="myData.activityName" placeholder="请输入活动名"></el-input>
+            <el-form-item label="行销名单名">
+                <el-input v-model="myData.activityName" placeholder="请输入行销名单名"></el-input>
             </el-form-item>
             <el-form-item label="状态">
                 <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
@@ -35,16 +35,16 @@
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
             <el-button type="primary" @click="outExe">导出</el-button>
-            <el-button type="primary" @click="fpActivity">分配活动</el-button>
+            <el-button type="primary" @click="fpActivity">分配行销名单</el-button>
             <el-button type="primary" @click="goBack">返回</el-button>
-            <span style="margin-left:40px">当前可分配活动：{{count}}</span>
+            <span style="margin-left:40px">当前可分配行销名单：{{count}}</span>
         </div>
         <div class="divider"></div>
         <!--弹框-->
-        <el-dialog title="分配活动" :visible.sync="activityDialog" width="40%">
+        <el-dialog title="分配行销名单" :visible.sync="activityDialog" width="40%">
             <span>
                 <el-checkbox-group v-model="checkList">
-                    <el-checkbox v-for="activityitem in activity" :label="activityitem" :key="activityitem.id">{{activityitem.activityName}}</el-checkbox>
+                    <el-checkbox style="width:25%" v-for="activityitem in activity" :label="activityitem" :key="activityitem.id">{{activityitem.activityName}}({{activityitem.orderNum}})</el-checkbox>
                 </el-checkbox-group>
             </span>
             <span slot="footer" class="dialog-footer">
@@ -56,7 +56,7 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="活动名" prop="activityName" align="center"></el-table-column>
+            <el-table-column label="行销名单" prop="activityName" align="center"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable align="center"></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable align="center">
                 <template slot-scope="scope">
@@ -115,6 +115,9 @@
                 ids:null,
             }
         },
+        mounted(){
+            
+        },
         methods:{
             indexMethod(index) {
                 return index+1;
@@ -166,10 +169,10 @@
             // addTel(){
             //     console.log('新增号码')
             // },
-            //分配活动
+            //分配行销名单
             fpActivity(){
                 if(this.count===0){
-                    this.$message.error('当前没有可分配活动')
+                    this.$message.error('当前没有可分配行销名单')
                     return
                 }
                 this.activityDialog=true
@@ -177,7 +180,7 @@
                 //let status=this.$route.query.status
                 //console.log(token)
                 
-                let params={pageIndex:1,pageSize:5,token:token,status:1}
+                let params={pageIndex:1,pageSize:100,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
@@ -192,15 +195,21 @@
             addActivity(){
                 //console.log(this.checkList.map(v=>v.id).join())
                 let ids=this.checkList.map(v=>v.id).join()
-                let itemId=this.$route.query.id
+                let params = {ids:ids}
+                if(this.$route.query.id!==undefined){
+                    sessionStorage.setItem('itemId',this.$route.query.id)
+                    
+                }
+                params.itemId=sessionStorage.getItem('itemId')
                 //console.log(itemId)
-                this.$http.post(this.$api.firm.newItem,{ids:ids,itemId:itemId}).then(res => {
+                this.$http.post(this.$api.firm.newItem,params).then(res => {
                     if(res.data.code === 0){
                         //console.log(res.data)
                         this.activityDialog = false
                         this.getactivityList()
+                        this.getuserActivity()
                     }else{
-                        this.$message.error(res.data.message)
+                        this.$message.error(res.data.msg)
                     }
                 }).catch((e)=>{
                     console.log(e)
@@ -209,7 +218,7 @@
             goBack(){
                 this.$router.push({name:'pmitem'})
             },
-            //获取可分配活动
+            //获取可分配行销名单
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
@@ -253,7 +262,7 @@
             export2Excel() {
                 require.ensure([], () => {
                     const {export_json_to_excel} = require('@/vendor/Export2Excel');
-                    const tHeader = ['活动名','数据量', '创建时间','开始时间','结束时间'];
+                    const tHeader = ['行销名单名','数据量', '创建时间','开始时间','结束时间'];
                     const filterVal = ['activityName', 'orderNum', 'createTime','startTime','endTime'];
                     const list = this.excelData;
                     const data = this.formatJson(filterVal, list);

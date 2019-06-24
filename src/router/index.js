@@ -73,13 +73,31 @@ const router= new Router({
           path:'/zhsystem',
           name:'zhsystem',
           component:resolve => require(['../components/pages/paccount/Zhsystem.vue'],resolve),
-          meta: {title:'账户管理',isLogin:true},
+          meta: {title:'客户管理',isLogin:true},
         },
         {
           path:'/zhdetail',
           name:'zhdetail',
           component:resolve => require(['../components/pages/paccount/Zhdetail.vue'],resolve),
-          meta: {title:'账户管理详情',isLogin:true},
+          meta: {title:'坐席管理',isLogin:true},
+        },
+        {
+          path:'/rechargeManagement',
+          name:'rechargeManagement',
+          component:resolve => require(['../components/pages/paccount/RechargeManagement.vue'],resolve),
+          meta: {title:'充值管理',isLogin:true},
+        },
+        {
+          path:'/rechargeDetail',
+          name:'rechargeDetail',
+          component:resolve => require(['../components/pages/paccount/RechargeDetail.vue'],resolve),
+          meta: {title:'充值详情',isLogin:true},
+        },
+        {
+          path:'/financialManagement',
+          name:'financialManagement',
+          component:resolve => require(['../components/pages/paccount/FinancialManagement.vue'],resolve),
+          meta: {title:'财务管理',isLogin:true},
         },
         {
           path:'/pmitem',
@@ -103,7 +121,25 @@ const router= new Router({
           path:'/recording',
           name:'recording',
           component:resolve => require(['../components/pages/firmAccount/Recording.vue'],resolve),
-          meta: {title:'录音管理',isLogin:true},
+          meta: {title:'联通话单管理',isLogin:true},
+        },
+        {
+          path:'/telephoneTraffic',
+          name:'telephoneTraffic',
+          component:resolve => require(['../components/pages/firmAccount/TelephoneTraffic.vue'],resolve),
+          meta: {title:'话单详情',isLogin:true},
+        },
+        {
+          path:'/telephoneManagement',
+          name:'telephoneManagement',
+          component:resolve => require(['../components/pages/firmAccount/TelephoneManagement.vue'],resolve),
+          meta: {title:'话单管理',isLogin:true},
+        },
+        {
+          path:'/accountManagement',
+          name:'accountManagement',
+          component:resolve => require(['../components/pages/paccount/AccountManagement.vue'],resolve),
+          meta: {title:'账号管理',isLogin:true},
         },
         {
           path:'/approve',
@@ -117,6 +153,7 @@ const router= new Router({
           component:resolve => require(['../components/pages/monitors/Taskmanagement.vue'],resolve),
           meta: {title:'任务管理',isLogin:true},
         },
+
         {
           path:'/taskdetail',
           name:'taskdetail',
@@ -133,7 +170,7 @@ const router= new Router({
           path:'/hybridAccount',
           name:'hybridAccount',
           component:resolve => require(['../components/pages/firmAccount/HybridAccount.vue'],resolve),
-          meta: {title:'账号管理',isLogin:true},
+          meta: {title:'配置管理',isLogin:true},
         },
         {
           path:'/callee',
@@ -181,6 +218,18 @@ const router= new Router({
           component:resolve => require(['../components/pages/paccount/NumberPool.vue'],resolve),
           meta: {title:'号码池管理',isLogin:true},
         },
+        {
+          path:'/consumption',
+          name:'consumption',
+          component:resolve => require(['../components/pages/paccount/Consumption.vue'],resolve),
+          meta: {title:'消费统计',isLogin:true},
+        },
+        {
+          path:'/hybridDetail',
+          name:'hybridDetail',
+          component:resolve => require(['../components/pages/firmAccount/HybridDetail.vue'],resolve),
+          meta: {title:'消费统计',isLogin:true},
+        },
       ]
     },
     {
@@ -208,7 +257,7 @@ router.beforeEach((to,from,next) => {
     next()
   }
 if (to.path === '/login') {
-    sessionStorage.removeItem('userName');
+    sessionStorage.clear();
   }
   let userName = sessionStorage.getItem('userName');
   if (!userName && to.path !== '/login') {

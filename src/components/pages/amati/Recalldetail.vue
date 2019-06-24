@@ -42,7 +42,9 @@
             <el-table-column label="电话" prop="phoneNum" sortable width="150px"></el-table-column>
             <el-table-column label="省份" prop="provide" sortable></el-table-column>
             <el-table-column label="地市" prop="area" sortable></el-table-column>
-            <el-table-column label="呼叫次数" prop="callNum" sortable width="200px"></el-table-column>
+            <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
+            <el-table-column label="意向" prop="lastCallTime"></el-table-column>
+            <el-table-column label="录音" prop="lastCallTime"></el-table-column>
             <el-table-column label="最后拨打时间" prop="lastCallTime" sortable width="200px">
                 <template slot-scope="scope">
                     {{scope.row.lastCallTime | date(1)}}
@@ -83,8 +85,13 @@
                     <el-radio :label="2">B</el-radio>
                     <el-radio :label="3">C</el-radio>
                     <el-radio :label="4">D</el-radio>
-                    <el-radio :label="5">未接通</el-radio>
-                    <el-radio :label="6">其他</el-radio>
+                    <div>
+                        <el-radio :label="5">呼叫成功</el-radio>
+                        <el-radio :label="6">拒接</el-radio>
+                        <el-radio :label="7">忙音/关机</el-radio>
+                        <el-radio :label="8">其他</el-radio>
+                    </div>
+                    
                 </el-radio-group>
                 <!-- <el-checkbox-group v-model="intention">
                     <el-checkbox label="1">A</el-checkbox>
@@ -272,8 +279,9 @@
                 window.theWebPhone.hangup()
             },
             makeCall(index,row) {
+                
                 //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
+                //console.log(row.name)//获取行销名单
                 //console.log(row.num)//获取数据量
                 this.dialogVisible=true
                 // this.name=row.name

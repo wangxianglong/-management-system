@@ -1,18 +1,36 @@
 <template>
     <div class="approve">
-        <el-form :model="form" label-width="100px" class="formPage" label-position='left' :rules="rules" ref="form">
-            <div class="title">公司认证</div>
+        <el-form :model="form" label-width="100px" class="formPage" label-position='right' :rules="rules" ref="form">
+            <div class="title">新增客户</div>
             <div class="boxSize">
-                <el-form-item label="公司名称">
+                <!-- <el-form-item label="公司名称">
                     <span>{{form.company}}</span>
                 </el-form-item>
                 <el-form-item label="状态">
                     <span v-if="form.status===0">未审核</span>
                     <span v-if="form.status===3">已提交</span>
-                </el-form-item>
+                </el-form-item> -->
                 <!-- <el-form-item label="账号时限">
                     <span>3</span>
                 </el-form-item> -->
+                <el-form-item prop="company" label="公司名称：">
+                    <el-input placeholder="公司名称" v-model='form.company'></el-input>
+                </el-form-item>
+                <el-form-item prop="contacts" label="联系人">
+                    <el-input placeholder="账号" v-model="form.contacts"></el-input>
+                </el-form-item>
+                <el-form-item prop="phoneNum" label="手机号：">
+                    <el-input placeholder="手机号" v-model="form.phoneNum"></el-input>
+                </el-form-item>
+                <!-- <el-form-item prop="passWord" label="密码：">
+                    <el-input placeholder="密码" v-model='form.passWord' show-password></el-input>
+                </el-form-item> -->
+                <el-form-item prop="email" label="邮箱：">
+                    <el-input placeholder="邮箱" v-model="form.email"></el-input>
+                </el-form-item>
+                <el-form-item prop="bankAccount" label="银行账户：">
+                    <el-input placeholder="银行账户" v-model='form.bankAccount'></el-input>
+                </el-form-item>
                 <el-form-item label="公司税号：" prop="taxNumber">
                     <el-input v-model="form.taxNumber"></el-input>
                 </el-form-item>
@@ -67,6 +85,26 @@
                 },
                 imageUrl:null,
                 rules:{
+                    phoneNum:[
+                        {required:true,message:'请输入您的手机号',trigger:'blur'},
+                    ],
+                    contacts:[
+                        {required:true,message:'请输入联系人',trigger:'blur'},
+                        // { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change'}
+                    ],
+                    email:[
+                         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                    ],
+                    bankAccount:[
+                        {required:true,message:'请输入您的银行账户',trigger:'blur'}
+                    ],
+                    type: [
+                        { required: true, message: '请选择类型', trigger: 'change' }
+                    ],
+                    company:[
+                        {required:true,message:'请输入您的公司名称',trigger:'blur'}
+                    ],
                     taxNumber: [
                         { required: true, message: '请填写公司税号', trigger: 'blur' },
                         { min: 15, max: 20, message: '请填写正确公司税号', trigger: 'blur' }
@@ -96,16 +134,16 @@
             handleRemove(){
                 
             },
-            getDetail(){
-                let token=this.$cookieStore.getCookie('token')
-                let params={token:token}
-                this.$http.get(this.$api.firm.approve,{params:params}).then(res=>{
-                    if(res.data.code===0){
-                        console.log(res)
-                        this.form=res.data.user
-                    }
-                })
-            },
+            // getDetail(){
+            //     let token=this.$cookieStore.getCookie('token')
+            //     let params={token:token}
+            //     this.$http.get(this.$api.firm.approve,{params:params}).then(res=>{
+            //         if(res.data.code===0){
+            //             console.log(res)
+            //             this.form=res.data.user
+            //         }
+            //     })
+            // },
             mySure(formName){
                 // this.$refs[formName].validate((valid) => {
                 // if (valid) {
@@ -118,15 +156,12 @@
                 this.$refs[formName].validate((valid)=>{
                     if(valid) {
                         let params=this.form
-                        this.form.status=3
-                        this.$http.post(this.$api.firm.userUpdate,params).then(res=>{ 
-                            console.log(res)
-                            this.$message({
-                                type:'success',
-                                message:'已提交'
-                            })
-                            this.$router.push({name:'login'})
-                        })
+                         this.$http.post(this.$api.user.register,params).then(res=>{
+                             if(res.data.code === 0) {
+                                 this.$message.success(res.data.msg)
+                                 this.$router.push({path:'/zhsystem'})
+                             }
+                         })
                     }else{
                         console.log('error submit!!')
                         return false
@@ -136,7 +171,7 @@
             }
         },
         created(){
-            this.getDetail()
+            // this.getDetail()
         }
     }
 </script>
@@ -199,5 +234,8 @@
     .formBtn {
         text-align: center;
         margin:10px 0 0 -50px
+    }
+    .el-input{
+        margin-top:10px
     }
 </style>

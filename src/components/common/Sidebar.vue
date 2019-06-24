@@ -61,7 +61,7 @@
     }
     .sideBarBox>ul {
         background-color:#000;
-        
+        border:1px solid #000
     }
     .sideBarBox{
         position:relative;

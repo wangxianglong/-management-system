@@ -16,19 +16,22 @@
                 <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
             </el-form-item>
         </el-form>
-        <!-- <div class="small-divider"></div>
+        <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px">
-            <el-button type="primary" @click="addTel">分配</el-button>
-            <el-button type="primary" @click="addTel">释放</el-button>
-            <span style="margin:0 10px 0 40px">当前外显号码使用量{{usenum}}</span><span style="margin:0 10px">未使用过外显号码{{unuse}}</span><span style="margin:0 10px">使用中外显号码{{using}}</span><span style="margin:0 10px">已停用外显号码{{stopuse}}</span>
-        </div> -->
+            <el-button type="primary" @click="goBack" v-if='roleId == 1'>返回</el-button>
+        </div>
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header>
             <!-- <el-table-column type="selection"></el-table-column> -->
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
-            <el-table-column label="号码" prop="showNumber" sortable></el-table-column>
-            <el-table-column label="使用次数" prop="useNum" sortable></el-table-column>
+            <el-table-column label="号码" prop="showNumber"></el-table-column>
+            <el-table-column label="使用次数" prop="useNum"></el-table-column>
+            <el-table-column label="显示方式" prop="unDo">
+                <template>
+                    <el-button type="text">轮播</el-button>
+                </template>
+            </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" style="color:red" v-if="scope.row.status===0">未使用</el-button>
@@ -41,6 +44,7 @@
                 <template slot-scope="scope">
                     <el-button type="text" v-if="scope.row.status!=1" @click="startUse(scope.row)">启用</el-button>
                     <el-button type="text" v-if="scope.row.status!=2&&scope.row.status!=0" @click="stopUse(scope.row)">停用</el-button>
+                    <el-button style='color:red' type="text"  v-if='roleId == 1' @click="delNum(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -65,7 +69,7 @@
     export default {
         data(){
             return {
-                
+                roleId:sessionStorage.getItem('roleId'),
                 usenum:1,
                 unuse:2,
                 using:4,
@@ -92,7 +96,8 @@
                 // createtime:'',
                 tableData:[],
                 //selectList:[],
-                total:1,   //后台没返回
+                total:1,   
+                userId:''
             }
         },
         methods:{
@@ -134,8 +139,14 @@
             // }
             //获取表格列表
             getTableList(){
+                if(window.location.href.split('?').length!==1){
+                    this.userId=this.$route.query.userId
+                }else{
+                    this.userId=sessionStorage.getItem('agentId')
+                }
                 let token=this.$cookieStore.getCookie('token')
                 let params=this.myData
+                params.userId = this.userId
                 params.token=token
                 this.$http.get(this.$api.firm.numList,{params:params}).then(res=>{
                     if(res.data.code===0){
@@ -155,7 +166,6 @@
                 })
             },
             stopUse(row){
-                
                 let id=row.id
                 let params={status:2,id:id}
                 this.$http.post(this.$api.firm.update,params).then(res=>{
@@ -163,8 +173,34 @@
                         this.getTableList()
                     }
                 })
+            },
+            delNum(row){
+                this.$confirm('此操作将永久删除'+row.showNumber, '是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let id = row.id
+                    let params = {id:id}
+                    this.$http.get(this.$api.platform.numberDelete,{params:params}).then( res=> {
+                        if(res.data.code ===0){
+                            this.$message({
+                                message:res.data.msg,
+                                type:'success'
+                            })
+                            this.getTableList()
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });          
+                })
+            },
+            goBack(){
+                this.$router.push({path:'/exontotal'})
             }
-            
         },
         created(){
             this.getTableList()

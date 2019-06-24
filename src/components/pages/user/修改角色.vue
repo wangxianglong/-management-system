@@ -16,6 +16,7 @@
 
 			</el-form>
 			<div class="footer">
+				<el-button type="danger" @click="goBack">返回</el-button>
 				<el-button type="primary" @click="updateRole">提交</el-button>
 			</div>
 		</el-col>
@@ -54,6 +55,9 @@
             this.searchTree()
 		},
 		methods: {
+			goBack(){
+				this.$router.push({path:'/roleList'})
+			},
 		    searchTree(){
 				this.addForm.name=this.$route.query.name;
 				this.$http.get(this.$api.role.treeList).then(res=>{

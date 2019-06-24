@@ -17,23 +17,23 @@
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
-        <div style="padding:17px 40px 20px 17px"><el-button type="primary" @click="outExe">导出</el-button></div>
+        <div style="padding:17px 40px 20px 17px">
+            <el-button type="primary" @click="addClient">新增客户</el-button>
+            <el-button type="primary" @click="outExe">导出</el-button>
+        </div>
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="名称" prop="company"></el-table-column>
-            <el-table-column label="类型" prop="type">
-                <template slot-scope="scope">
-                    <span v-if='scope.row.type===1'>个人</span>
-                    <span v-if='scope.row.type===2'>企业</span>
-                </template>
+            <el-table-column label="企业ID" prop="entId"></el-table-column>
+            <el-table-column label="企业名称" prop="company"></el-table-column>
+            <el-table-column label="登陆账号" prop="userName" ></el-table-column>
+            <el-table-column label="登陆密码" prop="passWord"></el-table-column>
+            <el-table-column label="联系人" prop="contacts">
             </el-table-column>
             <el-table-column label="电话" prop="phoneNum"></el-table-column>
             <el-table-column label="邮箱" prop="email"></el-table-column>
-            <el-table-column label="登陆账号" prop="userName" sortable ></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable width="150px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(1)}}
@@ -54,8 +54,9 @@
                 <template  slot-scope="scope">
                     <span style="color:red" v-if="scope.row.status===3">待审核</span>
                     <span v-if="scope.row.status===1">使用中</span>
+                    <span style="color:red" v-if="scope.row.status===2">停用中</span>
                     <!-- <span v-if="scope.row.status===2">试用中</span> -->
-                    <span v-if="scope.row.status===0">待认证</span>
+                    <!-- <span v-if="scope.row.status===0">待认证</span> -->
                     <!-- <span v-if="scope.row.status===4">冻结中</span> -->
                 </template> 
             </el-table-column>
@@ -63,7 +64,7 @@
                 <template slot-scope="scope">
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button> -->
                     <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>
-                    <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handledh(scope.row)">打回</el-button>
+                    <!-- <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handledh(scope.row)">打回</el-button> -->
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
                     <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button> -->
                     <el-button type="text" size="mini" @click="handleXq(scope.row)">详情</el-button>
@@ -105,6 +106,9 @@
             }
         },
         methods:{
+            addClient(){
+                this.$router.push({path:'/approve'})
+            },
             //表格选中事件
             changeFun(val){
                 this.selectList=val
@@ -136,9 +140,9 @@
             formatJson(filterVal, jsonData) {
                 return jsonData.map(v => filterVal.map(j => v[j]))
             },
-            indexMethod(index) {
-                return index+1;
-            },
+            // indexMethod(index) {
+            //     return index+1;
+            // },
             handleCurrentChange(val) {
                 this.myData.pageIndex =val;
                 this.getTableList()
@@ -185,18 +189,18 @@
                     console.log(error)
                 })
             },
-            handledh(row){
-                //this.tableData[index].status=3
-                let id=row.id
-                let params={id:id,status:0}
-                this.$http.post(this.$api.platform.update,params).then(res=>{
-                    if(res.data.code===0){
-                        this.getTableList()
-                    }
-                }).catch(error=>{
-                    console.log(error)
-                })
-            },
+            // handledh(row){
+            //     //this.tableData[index].status=3
+            //     let id=row.id
+            //     let params={id:id,status:0}
+            //     this.$http.post(this.$api.platform.update,params).then(res=>{
+            //         if(res.data.code===0){
+            //             this.getTableList()
+            //         }
+            //     }).catch(error=>{
+            //         console.log(error)
+            //     })
+            // },
             // handledj(row){
             //     //this.tableData[index].status=4
             //     let id=row.id

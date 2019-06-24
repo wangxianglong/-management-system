@@ -4,7 +4,7 @@
             <!-- <el-form-item label="任务名">
                 <el-input placeholder="请输入任务名称" v-model="myData.taskname"></el-input>
             </el-form-item> -->
-            <el-form-item label="活动名">
+            <el-form-item label="行销名单">
                 <el-input v-model="myData.activityName"></el-input>
             </el-form-item>
             <el-form-item label="任务时段">
@@ -35,7 +35,7 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="活动名" prop="activityName" sortable></el-table-column>
+            <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
@@ -129,7 +129,7 @@
                     }
                 })
             },
-            //获取活动
+            //获取行销名单
             getActivity(){
                 
             },
@@ -140,7 +140,7 @@
             
             taskEdit(index,row) {
                 //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
+                //console.log(row.name)//获取行销名单
                 //console.log(row.num)//获取数据量
                 this.dialogVisible=true
                 this.name=row.name

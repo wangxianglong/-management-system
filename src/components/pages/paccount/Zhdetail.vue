@@ -19,8 +19,8 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px">
-            <el-button type="primary" @click="goBack">返回</el-button>
-            <el-button type="primary" @click="addPhone">新增</el-button>
+            <el-button type="primary" v-if = "roleId == 1" @click="goBack">返回</el-button>
+            <!-- <el-button type="primary" @click="addPhone">新增</el-button> -->
         </div>
         <!--弹框-->
         <el-dialog title="新增号码" :visible.sync="addDialog" width="500px">
@@ -64,28 +64,38 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="用户名称" prop="userName" sortable></el-table-column>
-            <el-table-column label="姓名" prop="realName" sortable></el-table-column>
+            <el-table-column label="用户名称" prop="userName" ></el-table-column>
+            <el-table-column label="用户密码" prop="passWord" ></el-table-column>
+            <el-table-column label="姓名" prop="realName" ></el-table-column>
             <el-table-column label="角色">
                 <template slot-scope="scope">
                     <span v-if="scope.row.roleId===4">班长</span>
-                    <span v-if="scope.row.roleId===5">坐席</span>
+                    <span v-if="scope.row.roleId===5">座席</span>
                     <span v-if="scope.row.roleId===6">质检</span>
                 </template>
             </el-table-column>
-            <el-table-column label="分机号码" prop="phoneNum" sortable></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable>
+            <el-table-column label="端口号" prop="phoneNum" ></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" >
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="最近登录时间" prop="lastLoginTime" sortable></el-table-column>
-            <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
-            <!-- <el-table-column label="操作">
+            <el-table-column label="最近登录时间" prop="lastLoginTime" ></el-table-column>
+            <el-table-column label="状态">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="handleAmend(scope.$index,scope.row)">修改</el-button>
+                    <span v-if='scope.row.status===1'>启用</span>
+                    <span style='color:red' v-if='scope.row.status===2'>停用</span>
                 </template>
-            </el-table-column> -->
+            </el-table-column>
+            <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="primary" size="mini" v-if='scope.row.status===2' @click="startUsing(scope.row)">启用</el-button>
+                    <el-button type="danger" size="mini" v-if='scope.row.status===1' @click="stopUsing(scope.row)">停用</el-button>
+                    <!-- <el-button type="text" size="mini" @click="loginUsing(scope.row)">登录</el-button> -->
+                    <el-button type="text" size="mini" v-if = "roleId == 1" @click="deleteUsing(scope.row)">注销</el-button>
+                </template>
+            </el-table-column>
         </el-table>
         </div>
         <!--修改弹框-->
@@ -138,7 +148,6 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
-                    agentId:this.$route.query.agentId,
                     roleId:3,
                 },
                 phoneList:[],
@@ -170,6 +179,8 @@
                 }],
                 tableData:[],
                 total:1,
+                agentId:'',
+                roleId:sessionStorage.getItem('roleId')
             }
         },
         methods:{
@@ -189,7 +200,13 @@
             },
             //获取列表
             getTableList(){
+                if(window.location.href.split('?').length!==1){
+                    this.agentId=this.$route.query.agentId
+                }else{
+                    this.agentId=sessionStorage.getItem('agentId')
+                }
                 let params=this.myData
+                params.agentId = this.agentId
                 this.$http.get(this.$api.platform.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -236,13 +253,86 @@
                     }
                 })  
             },
-            //修改号码
-            // amend(){
-            //     this.amendDialog = false
-            // },
-            // handleAmend(index,row){
-            //     this.amendDialog=true;
-            // },
+            //操作
+            startUsing(row){
+                let userId = row.id
+                let enable = true
+                let params = {userId:userId,enable:enable}
+                this.$http.get(this.$api.platform.userEnable,{params:params}).then( res=> {
+                    if(res.data.code ===0){
+                        this.$message({
+                            message:res.data.msg,
+                            type:'success'
+                        })
+                        this.getTableList()
+                    }
+                })
+            },
+            stopUsing(row){
+                let userId = row.id
+                let enable = false
+                let params = {userId:userId,enable:enable}
+                this.$http.get(this.$api.platform.userEnable,{params:params}).then( res=> {
+                    if(res.data.code ===0){
+                        this.$message({
+                            message:res.data.msg,
+                            type:'success'
+                        })
+                        this.getTableList()
+                    }
+                })
+            },
+            loginUsing(row){
+                // let userName=row.userName
+                // let passWord=row.passWord
+                // this.$http.post(this.$api.login.login,{
+                //     userName,
+                //     passWord
+                // }).then( res => {
+                //     if(res.data.data.status=="success"){
+                //         this.$store.commit("GET_ID",res.data.data.id)
+                //         this.$store.commit("GET_USER",userName)
+                //         this.$store.commit("GET_ROUTER",res.data.data.router)
+                //         sessionStorage.setItem('roleId',res.data.data.roleId)
+                //         sessionStorage.setItem('phoneNum',res.data.data.phoneNum)
+                //         this.$message({
+                //             message:'登录成功',
+                //             type:'success'
+                //         })
+                //         let name=JSON.parse(sessionStorage.getItem("router"))[0].path
+                //         this.$router.push({name:name})
+                //     }else{
+                //         this.$message({
+                //             message:res.data.data.msg,
+                //             type:'error'
+                //         })  
+                //     }
+                // })
+            },
+            deleteUsing(row){
+                this.$confirm('此操作将永久注销'+row.userName+'坐席和对应'+row.phoneNum+'端口号', '是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let userId = row.id
+                    let params = {userId:userId}
+                    this.$http.get(this.$api.platform.delete,{params:params}).then( res=> {
+                        if(res.data.code ===0){
+                            this.$message({
+                                message:res.data.msg,
+                                type:'success'
+                            })
+                            this.getTableList()
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消注销'
+                    });          
+                })
+            },
             changeHandler(value){
                  if(value=="5"){
                      this.isShow=true

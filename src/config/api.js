@@ -5,7 +5,11 @@ const login={
 }
 //注册
 const user={
-    register:'api/user/register'      //注册
+    register:'api/user/register',      //注册
+    getExtNumber:'api/user/getExtNumber',    //坐席号码
+    entEnable:'api/user/entEnable',         
+    userSave:'api/user/save',                //新增管理账户
+    userList:'api/user/userList'             //管理账户列表
 }
 //平台账户
 const platform={
@@ -13,6 +17,7 @@ const platform={
     itemList:'api/item/list',       //项目列表
     list:'api/project/projectList', //获取列表
     activityList:'api/activity/activityList',  //获取活动列表
+    deleteActivity:'api/activity/delete',       //删除行销名单
     activity:'api/activity/getActivity', //获取活动
     company:'api/user/companyList',  //获取公司名称
     projectUpdate:'api/project/update' ,    //分配任务
@@ -25,6 +30,17 @@ const platform={
     createActivity:'api/activity/createActivity',        //新增活动
     getDataList:'api/call/getDataList',                 //活动客户量详情页
     copyActivity:'api/activity/copyActivity',           //复制活动
+    getTelList:'api/result/getTelList',                 //话单管理
+    getTelDetail:'api/result/getTelDetail',             //话单管理详情
+    delete:'api/user/delete',                           //删除坐席
+    userEnable:'api/user/userEnable',                   //坐席状态
+    insertSingle:'api/price/insertSingle',              //价格配置
+    consumeStat:'api/price/consumeStat',                //消费统计
+    recharge:'api/recharge/insert',                     //充值功能
+    rechargeDetail:'api/recharge/list',                  //充值功能详情
+    rechargeUpdate:'api/recharge/update',                //财务管理审核
+    numberDelete:'api/number/delete',                   //外显管理编辑删除
+    userDetail:'api/user/userDetail'                    //配置管理详情
 }
 //企业账户
 const firm= {

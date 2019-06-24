@@ -36,7 +36,7 @@
         <div style="padding:20px">
             <el-button type="primary" @click='outExe'>导出</el-button>
             <el-button type="primary" @click='addItem'>新建项目</el-button>
-            <span style="margin-left:40px">当前未分配活动：{{count}}</span>
+            <span style="margin-left:40px">当前未分配行销名单：{{count}}</span>
         </div>
         <!--弹框-->
         <el-dialog title="新建项目" :visible.sync="addNewitemdialog" width="30%">
@@ -51,7 +51,7 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header >
             <el-table-column label="项目名" prop="itemName"></el-table-column>
-            <el-table-column label="活动量" prop="num" sortable></el-table-column>
+            <el-table-column label="行销名单" prop="num" sortable></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable>
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(hour)}}
@@ -144,11 +144,11 @@
                     }
                 })
             },
-            //获取可分配活动
+            //获取可分配行销名单
             getuserActivity(){
                 let token=this.$cookieStore.getCookie('token')
                 //console.log(token)
-                let params={pageIndex:1,pageSize:200,token:token,status:1}
+                let params={pageIndex:1,pageSize:1000,token:token,status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
@@ -185,7 +185,7 @@
             
             coreView(row) {
                 //console.log(row);//每行的数据
-                //console.log(row.name)//获取活动名
+                //console.log(row.name)//获取行销名单名
                 //console.log(row.num)//获取数据量
                 //console.log(row.id)
                 let id=row.id
@@ -216,7 +216,7 @@
             export2Excel() {
                 require.ensure([], () => {
                     const {export_json_to_excel} = require('@/vendor/Export2Excel');
-                    const tHeader = ['项目名','活动量', '创建时间','状态'];
+                    const tHeader = ['项目名','行销名单量', '创建时间','状态'];
                     const filterVal = ['itemName', 'num', 'createTime','status'];
                     const list = this.excelData;
                     const data = this.formatJson(filterVal, list);

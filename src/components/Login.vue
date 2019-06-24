@@ -120,6 +120,8 @@ import { mapMutations } from 'vuex'
                                     this.$store.commit("GET_USER",userName)
                                     this.$store.commit("GET_ROUTER",res.data.data.router)
                                     sessionStorage.setItem('roleId',res.data.data.roleId)
+                                    sessionStorage.setItem('phoneNum',res.data.data.phoneNum)
+                                    sessionStorage.setItem('entId',res.data.data.entId)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'
@@ -128,7 +130,7 @@ import { mapMutations } from 'vuex'
                                     this.$router.push({name:name})
                                 }else{
                                     this.$message({
-                                        message:res.data.msg,
+                                        message:res.data.data.msg,
                                         type:'error'
                                     })
                                 }

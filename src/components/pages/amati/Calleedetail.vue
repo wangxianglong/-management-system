@@ -68,8 +68,12 @@
                     <el-radio :label="2">B</el-radio>
                     <el-radio :label="3">C</el-radio>
                     <el-radio :label="4">D</el-radio>
-                    <el-radio :label="5">未接通</el-radio>
-                    <el-radio :label="6">其他</el-radio>
+                    <div>
+                        <el-radio :label="5">呼叫成功</el-radio>
+                        <el-radio :label="6">拒接</el-radio>
+                        <el-radio :label="7">忙音/关机</el-radio>
+                        <el-radio :label="8">其他</el-radio>
+                    </div>
                 </el-radio-group>
                 <!-- <el-checkbox-group v-model="intention">
                     <el-checkbox label="1">A</el-checkbox>
@@ -164,6 +168,7 @@
                 row:null,
                 index:null,
                 activityId:null,
+                phoneNum:sessionStorage.getItem('phoneNum')
             }
         },
         destroyed(){
@@ -201,7 +206,8 @@
             })
             console.log("11111111",window.theWebPhone)
             //console.log(theWebPhone.login);
-            window.theWebPhone .login ("outcall.chinawjhs.com", "2005", "1234", "cs")
+            console.log('外呼号码',this.phoneNum)
+            window.theWebPhone .login ("outcall.chinawjhs.com", this.phoneNum, "1234", "cs")
             console.log("登陆了")
             if(theWebPhone.States.Idle === window.wpState){
                 this.isDisabled=true      

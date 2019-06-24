@@ -1,8 +1,8 @@
 <template>
     <div class="itemadd">
         <el-form :inline="true" class="form-inline" :model="myData">
-            <el-form-item label="活动名">
-                <el-input placeholder="请输入活动名" v-model="myData.activityName"></el-input>
+            <el-form-item label="行销名单">
+                <el-input placeholder="请输入行销名单" v-model="myData.activityName"></el-input>
             </el-form-item>
             <el-form-item label="状态">
                 <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
@@ -33,17 +33,17 @@
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
-        <!--获取活动-->
+        <!--获取行销名单-->
         <div style="padding:20px">
-            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取活动</el-button>
-            <el-button type="primary" @click='addActivity'>新增活动</el-button>
-            <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制活动</el-button>
+            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button>
+            <el-button type="primary" @click='addActivity'>新增行销名单</el-button>
+            <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制行销名单</el-button>
         </div>
         <!--弹框-->
-        <el-dialog title="新建活动" :visible.sync="addNewitemdialog" width="30%">
+        <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="30%">
             <el-form :model="form" label-width="100px" class="formPage" label-position='left' ref="form">
-                <el-form-item label="活动名称">
-                    <el-input v-model="form.activityName" placeholder="请输入活动名称"></el-input>
+                <el-form-item label="行销名单名称">
+                    <el-input v-model="form.activityName" placeholder="请输入行销名单名称"></el-input>
                 </el-form-item>
                 <el-form-item label="话术">
                     <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="form.content">
@@ -52,19 +52,27 @@
                 <el-form-item label="上传文件">
                     <el-upload action="api/uploadExcel" :before-upload="beforeUpload" :on-preview="handlePreview" :on-remove="handleRemove" :on-success="handleSuccess" :before-remove="beforeRemove">
                         <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                        <span style="margin-left:5px"><a href="/template.xls">文件模板</a></span>
-                        <div slot="tip" class="el-upload__tip">只能上传excel文件，且不超过5MB</div>
+                        <span style="margin-left:5px"><a href="/template.xls">导入请先下载最新模板</a></span>
+                        <div slot="tip" class="el-upload__tip">只能上传xls文件，且不超过2MB</div>
                         <!-- <div slot="tip" class="el-upload-list__item-name">{{form.excelFileName}}</div> -->
                     </el-upload>
+                </el-form-item>
+                <el-form-item class='ruleBox' label="*注意事项*" style='border:1px solid red;color:red'>
+                    <span>
+                        1. 为保证导入成功，导入前请下载最新模版；<br>
+                        2. 单次导入名单数据不可超过2MB；<br>
+                        3. 联系号码为阿拉伯数字，同一行只能有一个号码；<br>
+                        4. 联系号码不可超过12位，超过12位视为无效号码，自动过滤；<br>
+                    </span>
                 </el-form-item>
                 <el-form-item size="medium" class="formBtn">
                     <el-button type="primary" @click="add('form')">确认</el-button>
                 </el-form-item>
             </el-form> 
         </el-dialog>
-        <el-dialog title="复制活动" :visible.sync="copyDialog" width="30%">
-            <span>活动名称：</span>
-            <el-input label="活动名称" v-model="copyActivityName" style="width:300px" clearable></el-input>
+        <el-dialog title="复制行销名单" :visible.sync="copyDialog" width="30%">
+            <span>行销名单名称：</span>
+            <el-input label="行销名单名称" v-model="copyActivityName" style="width:300px" clearable></el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click = "copyDialog =false">取消</el-button>
                 <el-button type="primary" @click = "showCopyActivity">确认</el-button>
@@ -72,11 +80,11 @@
         </el-dialog>
         <el-dialog :visible.sync="activityShow">
             <el-table :data="activityList" style="width:100%;" show-header v-loading='loading'>
-                <el-table-column label="活动名" prop="activityName"></el-table-column>
-                <el-table-column label="活动ID" prop="activityId"></el-table-column>
+                <el-table-column label="行销名单名" prop="activityName"></el-table-column>
+                <el-table-column label="行销名单ID" prop="activityId"></el-table-column>
                 <el-table-column label="开始时间" prop="activityBeginDate"></el-table-column>
                 <el-table-column label="结束时间" prop="activityEndDate"></el-table-column>
-                <el-table-column label="活动号码" prop="showNumber"></el-table-column>
+                <el-table-column label="行销名单号码" prop="showNumber"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
                         <el-button type="text" size="mini" @click="addActivity(scope.row)">获取</el-button>
@@ -95,14 +103,14 @@
                 </template>
             </el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="活动名" prop="activityName"></el-table-column>
+            <el-table-column label="行销名单" prop="activityName"></el-table-column>
             <el-table-column label="来源" prop="type">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type===1">移动</span>
                     <span v-if="scope.row.type===2">联通</span>
                     <span v-if="scope.row.type===3">电信</span>
-                    <span v-if="scope.row.type===4">公海</span>
-                    <span v-if="scope.row.type===5">私海</span>
+                    <span v-if="scope.row.type===4">内部名单</span>
+                    <span v-if="scope.row.type===5">外部名单</span>
                 </template>
             </el-table-column>
             <el-table-column label="数据量" prop="orderNum">
@@ -123,17 +131,18 @@
                     <span v-if="scope.row.status!==0">已分配</span>
                 </template> 
             </el-table-column>
-            <el-table-column label="操作" v-if="roleId==1">
+            <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button>
+                    <!-- <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button> -->
+                    <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="deleteActivity(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
         </div>
         <!--编辑弹框-->
-        <el-dialog title="分配任务" :visible.sync="dialogVisible" width="30%">
+        <!-- <el-dialog title="分配任务" :visible.sync="dialogVisible" width="30%">
             <div style="border-top:1px solid #ccc;border-bottom:1px solid #ccc;height:100px;padding:20px 0 20px 40px">
-                <p style="margin-bottom:20px"><span style="margin-right:40px">活动名称</span>{{activityName}}<span></span></p>
+                <p style="margin-bottom:20px"><span style="margin-right:40px">行销名单名称</span>{{activityName}}<span></span></p>
                 <p style="margin-bottom:20px"><span style="margin-right:55px">数据量</span>{{orderNum}}<span></span></p>
                 <p>
                     <span style="margin-right:20px">公司名</span>
@@ -151,7 +160,7 @@
                 <el-button @click="dialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="saveEdit">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
         <!--分页导航-->
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
@@ -184,14 +193,14 @@
                 }, 
                 userId:null,
                 rowData:'',
-                activityName:'',
-                orderNum:'',
+                //activityName:'',
+                //orderNum:'',
                 selectName:'',
-                firmName:[],//公司名，账户
+                //firmName:[],//公司名，账户
                 search:'',
                 activityShow:false,
-                activityList:[],//活动列表
-                dialogVisible:false,
+                activityList:[],//行销名单列表
+                //dialogVisible:false,
                 value:'', 
                 
                 options2: [{
@@ -230,7 +239,7 @@
                 params.token=token
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res.data)
+                        //console.log(res.data)
                         this.tableData=res.data.list
                         this.total=res.data.count
                         this.loading=false
@@ -241,7 +250,7 @@
                     console.log(e)
                 })
             },
-            //获取活动列表
+            //获取行销名单列表
             getActivity(){
                 this.$http.post(this.$api.platform.activityList).then(res=>{
                     if(res.data.code === 0){
@@ -322,10 +331,10 @@
                 
                 //this.rowData.status=1
             },
-            // 复制活动
+            // 复制行销名单
             copyActivity(){
                 if(this.selected===''){
-                    this.$message.warning('请选择活动')
+                    this.$message.warning('请选择行销名单')
                     return
                 }
                 if(this.selected.type===2){
@@ -335,12 +344,12 @@
                 this.copyDialog=true
             },
             showCopyActivity(){
-                console.log("aaaaaaaa",this.selected)
+                //console.log("aaaaaaaa",this.selected)
                 let id=this.selected.id
                 let activityName=this.copyActivityName
                 let token=this.$cookieStore.getCookie('token')
                 if(activityName ===''){
-                    this.$message.warning('请输入活动名')
+                    this.$message.warning('请输入行销名单名')
                     return
                 }
                 let params={id:id,activityName:activityName,token:token}
@@ -358,18 +367,18 @@
                 })
                 
             },
-            // 新增活动
+            // 新增行销名单
             addActivity(){
                 this.addNewitemdialog = true
             },
             add(form){
-                console.log('上传'+this.form.excelFileName)
+                //console.log('上传'+this.form.excelFileName)
                 if(this.form.excelFileName == ""){
                     this.$message.warning('请选择要上传的文件！')
                     return false
                 }
                 if(this.form.activityName == "" || this.form.content == ""){
-                    this.$message.warning('请输入活动名称和话术')
+                    this.$message.warning('请输入行销名单名称和话术')
                     return false
                 }
                 this.addNewitemdialog = false
@@ -381,7 +390,7 @@
                         //console.log(res)
                         this.getTablelist()
                         this.loading=false
-                        this.$message.success('新建活动成功')
+                        this.$message.success('新建行销名单成功')
                     }
                 }) 
             },
@@ -392,13 +401,13 @@
                 //console.log(file,'文件');
                 const extension = file.name.split('.')[1] === 'xls'
                 const extension2 = file.name.split('.')[1] === 'xlsx'
-                const isLt2M = file.size / 1024 / 1024 < 5
+                const isLt2M = file.size / 1024 / 1024 < 2
                 if (!extension && !extension2) {
                     this.$message.warning('上传模板只能是 xls、xlsx格式!')
                     return
                 }
                 if (!isLt2M) {
-                    this.$message.warning('上传模板大小不能超过 5MB!')
+                    this.$message.warning('上传模板大小不能超过 2MB!')
                     return
                 }
                 
@@ -412,6 +421,31 @@
             },
             beforeRemove(file) {
                 return this.$confirm(`确定移除 ${ file.name }？`);
+            },
+            //删除行销名单
+            deleteActivity(row){
+                this.$confirm('此操作将永久删除'+row.activityName, '是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let id = row.id
+                    let params = {id:id}
+                    this.$http.get(this.$api.platform.deleteActivity,{params:params}).then( res=> {
+                        if(res.data.code ===0){
+                            this.$message({
+                                message:res.data.msg,
+                                type:'success'
+                            })
+                            this.getTablelist()
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });          
+                })
             }
         },
         created(){
@@ -433,4 +467,7 @@
         text-align: center;
         margin:10px 0 0 -50px
     }
+    .ruleBox {
+        color:red !important
+    }   
 </style>

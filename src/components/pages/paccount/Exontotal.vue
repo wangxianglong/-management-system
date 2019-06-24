@@ -19,9 +19,19 @@
             <!-- <el-table-column label="使用中" prop="using" width="200px"></el-table-column>
             <el-table-column label="未使用" prop="unuse" width="200px"></el-table-column>
             <el-table-column label="已停用" prop="stopped" width="200px"></el-table-column> -->
-            <el-table-column label="操作">
+            <el-table-column label="外显新增">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="addBtn(scope.$index,scope.row)">新增</el-button>
+                </template>
+            </el-table-column>
+            <el-table-column label="显示方式">
+                <template>
+                    <el-button type="text" size="mini">轮播</el-button>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button type="text" size="mini" @click="detail(scope.row)">编辑</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -51,7 +61,10 @@
             </span>
         </el-dialog> -->
         <el-dialog title="新增" :visible.sync="addDialog" width="550px">
-            <span>外显号码：</span><el-input type="num" v-model="addNum" style="width:300px"></el-input>
+            <span style="vertical-align:top;">外显号码：</span><el-input type="textarea" :rows="5" placeholder="请输入外显号码" v-model="addNum" style="width:300px"></el-input>
+            <p style='color:red;margin-left:205px'>
+                多个号码之间请用逗号隔开
+            </p>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addDialog = false">取 消</el-button>
                 <el-button type="primary" @click="addItem">确 定</el-button>
@@ -145,23 +158,30 @@
             },
             addItem(){
                 let userId=this.item.id
-                let showNum=this.addNum
-                let params={userId:userId,showNum:showNum}
-                if(showNum!==null){
+                let showNumber=this.addNum
+                let params={userId:userId,showNumber:showNumber}
+                if(showNumber!==null){
                     this.$http.post(this.$api.platform.save,params).then(res=>{
                         if(res.data.code===0){
                             //console.log(res)
                             this.addDialog=false
                             this.getTableList()
+                            this.$message.success(res.data.msg)
+                        }else{
+                            this.$message.error('操作失败')
                         }
                     })
                 }else{
                     this.$message({
                         type:'error',
-                        message:'请输入外显号码'
+                        message:'请按要求输入外显号码'
                     })
                     return
                 }
+            },
+            detail(row){
+                let userId = row.id 
+                this.$router.push({path:'/numberpublic',query:{userId:userId}})
             }
         },
         created(){

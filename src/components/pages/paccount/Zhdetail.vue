@@ -1,16 +1,21 @@
 <template>
     <div>
         <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="用户名称">
+            <el-form-item label="账户">
                 <el-input v-model="myData.userName"></el-input>
             </el-form-item>
             
-            <el-form-item label="分机号码">
-                <el-input v-model="myData.phoneNum"></el-input>
+            <el-form-item label="使用人">
+                <el-input v-model="myData.realName"></el-input>
             </el-form-item>
             <el-form-item label="角色">
-                <el-select class="mySelect" v-model="myData.roleId" placeholder="请选择" style="margin-left:10px; width:150px;">
+                <el-select class="mySelect" v-model="myData.roleId" placeholder="请选择" >
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-select class="mySelect" v-model="myData.status" placeholder="请选择">
+                    <el-option v-for="item in statusType" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
@@ -23,7 +28,7 @@
             <!-- <el-button type="primary" @click="addPhone">新增</el-button> -->
         </div>
         <!--弹框-->
-        <el-dialog title="新增号码" :visible.sync="addDialog" width="500px">
+        <!-- <el-dialog title="新增号码" :visible.sync="addDialog" width="500px">
             <div class="small-divider"></div>
             <div class="radioGroup">
                 <span style="margin-right:30px">账号类型</span>
@@ -58,17 +63,18 @@
                 <el-button @click="addDialog = false">取 消</el-button>
                 <el-button type="primary" @click="add('addformList')">确 定</el-button>
             </span>
-        </el-dialog>
+        </el-dialog> -->
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="用户名称" prop="userName" ></el-table-column>
+            <el-table-column label="账户" prop="userName" ></el-table-column>
             <el-table-column label="用户密码" prop="passWord" ></el-table-column>
-            <el-table-column label="姓名" prop="realName" ></el-table-column>
+            <el-table-column label="使用人" prop="realName" ></el-table-column>
             <el-table-column label="角色">
                 <template slot-scope="scope">
+                    <span v-if="scope.row.roleId===3">企业管理员</span>
                     <span v-if="scope.row.roleId===4">班长</span>
                     <span v-if="scope.row.roleId===5">座席</span>
                     <span v-if="scope.row.roleId===6">质检</span>
@@ -80,7 +86,7 @@
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="最近登录时间" prop="lastLoginTime" ></el-table-column>
+            <!-- <el-table-column label="最近登录时间" prop="lastLoginTime" ></el-table-column> -->
             <el-table-column label="状态">
                 <template slot-scope="scope">
                     <span v-if='scope.row.status===1'>启用</span>
@@ -88,7 +94,7 @@
                 </template>
             </el-table-column>
             <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="120px">
                 <template slot-scope="scope">
                     <el-button type="primary" size="mini" v-if='scope.row.status===2' @click="startUsing(scope.row)">启用</el-button>
                     <el-button type="danger" size="mini" v-if='scope.row.status===1' @click="stopUsing(scope.row)">停用</el-button>
@@ -145,6 +151,16 @@
     export default {
         data(){
             return {
+                statusType:[{
+                    value: '',
+                    label: '全部'
+                }, {
+                    value: '1',
+                    label: '启用'
+                },{
+                    value:'2',
+                    label:'停用'
+                }],
                 myData:{
                     pageIndex:1,
                     pageSize:10,
@@ -220,39 +236,39 @@
                 })
             },
             //新增号码
-            add(addformList){
-                let id=this.myData.agentId
-                let roleId=this.radio
-                let userName=this.addformList.userName
-                let passWord=this.addformList.passWord
-                let realName=this.addformList.realName
-                let phoneNum=this.addformList.phoneNum
-                if(this.isShow){
-                    this.addformList.agentId=this.addformList.obj.id
-                    //console.log(this.selectId)
-                }
-                let params={roleId:roleId,userName:userName,passWord:passWord,realName:realName,phoneNum:phoneNum,agentId:this.addformList.agentId,id:id}
-                this.$http.post(this.$api.platform.addUser,params).then(res=>{
-                    if(res.data.code===0){
-                        //console.log(res)
-                        this.getTableList()
-                    }
-                }).catch(error=>{
-                    console.log(error)
-                })
-                this.$refs['addformList'].resetFields();
-                this.addDialog = false
-            }, 
-            addPhone(){
-                let params={pageIndex:0,pageSize:10000,agentId:this.myData.agentId}
-                this.$http.get(this.$api.platform.agendList,{params:params}).then(res=>{
-                    if(res.data.code===0){
-                        //console.log(res)
-                        this.phoneList=res.data.list
-                        this.addDialog = true
-                    }
-                })  
-            },
+            // add(addformList){
+            //     let id=this.myData.agentId
+            //     let roleId=this.radio
+            //     let userName=this.addformList.userName
+            //     let passWord=this.addformList.passWord
+            //     let realName=this.addformList.realName
+            //     let phoneNum=this.addformList.phoneNum
+            //     if(this.isShow){
+            //         this.addformList.agentId=this.addformList.obj.id
+            //         //console.log(this.selectId)
+            //     }
+            //     let params={roleId:roleId,userName:userName,passWord:passWord,realName:realName,phoneNum:phoneNum,agentId:this.addformList.agentId,id:id}
+            //     this.$http.post(this.$api.platform.addUser,params).then(res=>{
+            //         if(res.data.code===0){
+            //             //console.log(res)
+            //             this.getTableList()
+            //         }
+            //     }).catch(error=>{
+            //         console.log(error)
+            //     })
+            //     this.$refs['addformList'].resetFields();
+            //     this.addDialog = false
+            // }, 
+            // addPhone(){
+            //     let params={pageIndex:0,pageSize:10000,agentId:this.myData.agentId}
+            //     this.$http.get(this.$api.platform.agendList,{params:params}).then(res=>{
+            //         if(res.data.code===0){
+            //             //console.log(res)
+            //             this.phoneList=res.data.list
+            //             this.addDialog = true
+            //         }
+            //     })  
+            // },
             //操作
             startUsing(row){
                 let userId = row.id

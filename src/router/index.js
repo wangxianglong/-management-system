@@ -230,6 +230,12 @@ const router= new Router({
           component:resolve => require(['../components/pages/firmAccount/HybridDetail.vue'],resolve),
           meta: {title:'消费统计',isLogin:true},
         },
+        {
+          path:'/checkPrice',
+          name:'checkPrice',
+          component:resolve => require(['../components/pages/firmAccount/CheckPrice.vue'],resolve),
+          meta:{title:'价格审核',isLogin:true}
+        }
       ]
     },
     {

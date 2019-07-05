@@ -44,7 +44,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="selection"></el-table-column>

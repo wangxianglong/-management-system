@@ -12,7 +12,7 @@
         <div style="padding:17px 0 17px 20px"><el-button type="primary" @click="addTel">新增号码</el-button></div> -->
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px;"></el-table-column>
             <el-table-column label="企业名称" prop="company" width="200px"></el-table-column>
             <el-table-column label="外显量" prop="num" width="200px"></el-table-column>
@@ -62,8 +62,8 @@
         </el-dialog> -->
         <el-dialog title="新增" :visible.sync="addDialog" width="550px">
             <span style="vertical-align:top;">外显号码：</span><el-input type="textarea" :rows="5" placeholder="请输入外显号码" v-model="addNum" style="width:300px"></el-input>
-            <p style='color:red;margin-left:205px'>
-                多个号码之间请用逗号隔开
+            <p style='color:red;margin-left:110px'>
+                多个号码之间请用逗号隔开,请勿重复号码
             </p>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addDialog = false">取 消</el-button>

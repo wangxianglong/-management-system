@@ -54,7 +54,7 @@
         </el-dialog>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" align="center"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable align="center"></el-table-column>
@@ -63,8 +63,22 @@
                     {{scope.row.createTime | date(true)}}
                 </template>
             </el-table-column>
-            <el-table-column label="开始时间" prop="startTime" sortable align="center"></el-table-column>
-            <el-table-column label="结束时间" prop="endTime" sortable align="center"></el-table-column>
+            <el-table-column label="开始时间" prop="startTime" sortable align="center">
+                <template slot-scope="scope">
+                    <span>{{scope.row.startTime*1000 | date()}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endTime" sortable align="center">
+                <template slot-scope="scope">
+                    <span>{{scope.row.endTime*1000 | date()}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="有效期" prop="validity">
+                <template slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.validity<0">无效</span>
+                    <span v-else>{{scope.row.validity}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" style="color:red" v-if="scope.row.status===1">未开始</el-button>
@@ -74,7 +88,7 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.row)">分配任务</el-button>
+                    <el-button type="text" @click="taskEdit(scope.row)" :disabled="scope.row.validity<0?true:false">分配任务</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -198,7 +212,6 @@
                 let params = {ids:ids}
                 if(this.$route.query.id!==undefined){
                     sessionStorage.setItem('itemId',this.$route.query.id)
-                    
                 }
                 params.itemId=sessionStorage.getItem('itemId')
                 //console.log(itemId)

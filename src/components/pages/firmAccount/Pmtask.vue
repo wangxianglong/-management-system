@@ -75,7 +75,7 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="handleSelectionChange" ref="multipleTable">
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <!--<el-table-column type="index" label="序号" :index="indexMethod" align="center" width="300px"></el-table-column>-->
             <el-table-column label="班长" prop="userName" align="center"></el-table-column>

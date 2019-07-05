@@ -14,13 +14,13 @@
         <div class="login-form">
             <el-form :model="loginData" :rules="rules" ref="loginData">
                 <el-form-item prop="userName"> 
-                    <el-input placeholder="账号" v-model='loginData.userName'></el-input>
+                    <el-input placeholder="账号" v-model='loginData.userName' @keyup.enter.native="submitLogin('loginData')"></el-input>
                 </el-form-item>
                 <el-form-item prop="passWord">
-                    <el-input placeholder="密码" v-model='loginData.passWord' show-password></el-input>
+                    <el-input placeholder="密码" v-model='loginData.passWord' show-password @keyup.enter.native="submitLogin('loginData')"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="submitLogin('loginData')" @keyup.enter="submitLogin('loginData')">登录</el-button>
+                    <el-button type="primary" @click="submitLogin('loginData')">登录</el-button>
                 </el-form-item>
                 <!-- <el-form-item>
                     <el-button type="text" class="footer" @click='forgetpassword'>忘记密码？</el-button>
@@ -80,6 +80,9 @@ import { mapMutations } from 'vuex'
                 }
             }
         },
+        created(){
+            
+        },
         methods:{
             ...mapMutations(['changeLogin']),
             goBack(){
@@ -105,6 +108,7 @@ import { mapMutations } from 'vuex'
                     if(valid) {
                         let userName=this.loginData.userName
                         let passWord=this.loginData.passWord
+                        
                         // this.$cookieStore.setCookie( userName ,'',1800);
                         // this.$cookieStore.getCookie(userName)
                         this.$http.post(this.$api.login.login,{
@@ -114,14 +118,15 @@ import { mapMutations } from 'vuex'
                                 //console.log(res)
                                 if(res.data.data.status=="success"){
                                     let token=this.$cookieStore.getCookie('token')
-                                    _this.changeLogin({Authorization:token}) 
+                                    // _this.changeLogin({Authorization:token}) 
                                     // this.$store.commit('SET_TOKEN',token)
                                     this.$store.commit("GET_ID",res.data.data.id)
-                                    this.$store.commit("GET_USER",userName)
+                                    // this.$store.commit("GET_USER",userName)
                                     this.$store.commit("GET_ROUTER",res.data.data.router)
                                     sessionStorage.setItem('roleId',res.data.data.roleId)
                                     sessionStorage.setItem('phoneNum',res.data.data.phoneNum)
                                     sessionStorage.setItem('entId',res.data.data.entId)
+                                    sessionStorage.setItem('userName',userName)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'
@@ -149,9 +154,9 @@ import { mapMutations } from 'vuex'
             //     this.showforget=!this.showforget
             // },
         },
-        components: {
-            register
-        }
+        // components: {
+        //     register
+        // }
     }
 </script>
 <style scoped>

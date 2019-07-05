@@ -28,18 +28,24 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="num" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable>
                 <template slot-scope="scope">
-                    {{scope.row.startTime | date(1)}}
+                    {{scope.row.startTime | date()}}
                 </template>
             </el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable>
                 <template slot-scope="scope">
-                    {{scope.row.endTime | date(1)}}
+                    {{scope.row.endTime | date()}}
+                </template>
+            </el-table-column>
+            <el-table-column label="有效期" prop="validity">
+                <template slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.validity<0">无效</span>
+                    <span v-else>{{scope.row.validity}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" sortable>
@@ -50,7 +56,7 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">进入外呼</el-button>
+                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)" :disabled="scope.row.validity<0?true:false">进入外呼</el-button>
                     <!-- <el-button type="text">回退剩余数据</el-button> -->
                 </template>
             </el-table-column>

@@ -27,7 +27,7 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column label="企业ID" prop="entId" width="100px"></el-table-column>
@@ -37,11 +37,20 @@
                     <span>{{scope.row.rechargeTotal | toString()}}</span>
                 </template>
             </el-table-column>
+            <el-table-column label="待审核金额" prop="auditingRecharge">
+                <template slot-scope="scope">
+                    <span style="color:red">{{scope.row.auditingRecharge === null?0:scope.row.auditingRecharge}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="充值次数" prop="rechargeCount"></el-table-column>
-            <el-table-column label="消费金额" prop="consumeTotal"></el-table-column>
+            <el-table-column label="消费金额" prop="consumeTotal">
+                <template slot-scope="scope">
+                    <span>{{scope.row.consumeTotal | toString()}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="余额" prop="balance">
                 <template slot-scope="scope">
-                    <span>{{scope.row.balance | toString()}}</span>
+                    <span :class="scope.row.balance<0?'myColor':''">{{scope.row.balance | toString()}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="操作">
@@ -213,6 +222,9 @@
         align-items: center;
         width:200px;
         height:30px
+    }
+    .myColor {
+        color:red
     }
 </style>
 

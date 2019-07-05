@@ -33,7 +33,7 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
@@ -54,14 +54,11 @@
             </el-table-column> -->
             <el-table-column label="话单条数" prop="call_count"></el-table-column>
             <!-- <el-table-column label="通话时长(秒)" prop="timeLong"></el-table-column> -->
-            <el-table-column label="通话时长(分)">
-                <template slot-scope="scope">
-                    <span>{{scope.row.time_long/60 | numFilter()}}</span>
-                </template>
+            <el-table-column label="通话时长(分)" prop="time_min">
             </el-table-column>
             <el-table-column label="通话费用">
                 <template slot-scope="scope">
-                    <span>{{scope.row.voice_amount2 !== null?scope.row.voice_amount2:scope.row.voice_amount}}</span>
+                    <span>{{scope.row.voice_amount2 === 0?scope.row.voice_amount:scope.row.voice_amount2}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="操作">

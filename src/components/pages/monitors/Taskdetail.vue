@@ -72,27 +72,18 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="handleSelectionChange" ref="multipleTable">
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="坐席" prop="userName" align="center"></el-table-column>
             <el-table-column label="客户量" prop="num" align="center"></el-table-column>
-            <!--
-            <el-table-column label="任务开始时间" prop="startTime" sortable></el-table-column>
-            <el-table-column label="任务结束时间" prop="endTime" sortable></el-table-column>
-            <el-table-column label="状态" sortable>
-                <template  slot-scope="scope">
-                    <el-button type="text" style="color:red" v-if="scope.row.status===0">已完成</el-button>
-                    <el-button type="text" v-if="scope.row.status===1">拨打中</el-button>
-                    <el-button type="text" style="color:#000" v-if="scope.row.status===2">未完成</el-button>
-                </template> 
-            </el-table-column>
-            <el-table-column label="修改时间">
+            <el-table-column label="已呼量" prop="num2" align="center"></el-table-column>
+            
+            <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">2019-2-12</el-button>
+                    <el-button type="danger" size="mini" :disabled="scope.row.num == scope.row.num2?true:false" @click="recover(scope.row)">回收</el-button>
                 </template>
             </el-table-column>
-            -->
         </el-table>
         </div>
         <!--分页导航-->
@@ -238,6 +229,18 @@
                 })
                 
                 this.$refs.multipleTable.clearSelection()
+            },
+            recover(row){
+                let activityId = this.$route.query.id
+                let userId = row.id
+                let params = {activityId:activityId,userId:userId}
+                this.$http.post(this.$api.monitor.recoverySeat,params).then( res => {
+                    
+                    if(res.data.code === 0){
+                        this.$message.success('退回成功')
+                        this.getActivityList()
+                    }
+                })
             },
             // //退回
             // returnBtn(){

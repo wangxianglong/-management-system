@@ -24,7 +24,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column label="企业ID" prop="entId"></el-table-column>
             <el-table-column label="企业名称" prop="company"></el-table-column>
@@ -180,7 +180,7 @@
             handletg(row){
                 //this.tableData[index].status=2
                 let id=row.id
-                let params={id:id,status:1}
+                let params={id:id,status:2}
                 this.$http.post(this.$api.platform.update,params).then(res=>{
                     if(res.data.code===0){
                         this.getTableList()

@@ -28,18 +28,24 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="num" sortable></el-table-column>
             <el-table-column label="开始时间" prop="startTime" sortable>
                 <template slot-scope="scope">
-                    {{scope.row.startTime | date(1)}}
+                    {{scope.row.startTime | date()}}
                 </template>
             </el-table-column>
             <el-table-column label="结束时间" prop="endTime" sortable>
                 <template slot-scope="scope">
-                    {{scope.row.endTime | date(1)}}
+                    {{scope.row.endTime | date()}}
+                </template>
+            </el-table-column>
+            <el-table-column label="有效期" prop="validity">
+                <template slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.validity<0">无效</span>
+                    <span v-else>{{scope.row.validity}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" sortable>
@@ -48,11 +54,12 @@
                     <el-button type="text" v-if="scope.row.status===4">已完成</el-button>
                 </template> 
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="350px" align="center">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">呼叫成功</el-button>
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">拒接</el-button>
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">忙音/关机</el-button>
+                    <el-button type="primary" size="mini" @click="callSuccess(scope.$index,scope.row)" :disabled="scope.row.validity<0?true:false">呼叫成功</el-button>
+                    <el-button type="primary" size="mini" @click="callBarring(scope.row)" :disabled="scope.row.validity<0?true:false">拒接</el-button>
+                    <el-button type="primary" size="mini" @click="busyTone(scope.row)" :disabled="scope.row.validity<0?true:false">忙音/关机</el-button>
+                    <el-button type="primary" size="mini" @click="otherPhone(scope.row)" :disabled="scope.row.validity<0?true:false">其他</el-button>
                     <!-- <el-button type="text">回退剩余数据</el-button> -->
                 </template>
             </el-table-column>
@@ -83,11 +90,8 @@
                 search:'',
                 activityShow:false,
                 activityList:[],
-                dialogVisible:false,
-                value:'', 
                 
-                name:'',
-                num:'',
+                value:'', 
                 options2: [{
                     value: '5',
                     label: '进行中'
@@ -142,15 +146,21 @@
                 return index+1;
             },
             
-            taskEdit(index,row) {
-                //console.log(row);//每行的数据
-                //console.log(row.name)//获取行销名单
-                //console.log(row.num)//获取数据量
-                this.dialogVisible=true
-                this.name=row.name
-                this.num=row.num
+            callSuccess(index,row) {
                 let activityId=row.activityId
-                this.$router.push({name:'recalldetail',query:{activityId:activityId}})
+                this.$router.push({name:'recalldetail',query:{activityId:activityId,intention:5}})
+            },
+            callBarring(row){
+                let activityId=row.activityId
+                this.$router.push({name:'recalldetail',query:{activityId:activityId,intention:6}})
+            },
+            busyTone(row){
+                let activityId=row.activityId
+                this.$router.push({name:'recalldetail',query:{activityId:activityId,intention:7}})
+            },
+            otherPhone(row){
+                let activityId=row.activityId
+                this.$router.push({name:'recalldetail',query:{activityId:activityId,intention:8}})
             },
             saveEdit(index){
                 this.dialogVisible=false 

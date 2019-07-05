@@ -24,7 +24,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="姓氏/性别" prop="cName" sortable width="150px"></el-table-column>
             <el-table-column label="电话" prop="phoneNum" sortable width="150px"></el-table-column>
@@ -50,10 +50,11 @@
         </div>
         <video id="preview" :style="{display:'none'}"></video>
         <video id="remote" :style="{display:'none'}"></video>
-        <el-dialog title="呼叫主席" :visible.sync="showcalleeDialog" width="600px" :before-close="beforClose">
+        <!-- <audio ref='player' autoplay='autoplay' loop style="display: none"></audio> -->
+        <el-dialog title="呼叫号码" :visible.sync="showcalleeDialog" width="600px" :before-close="beforClose">
             
             <el-form ref="form" :model="form" label-width="60px">
-            <span style="color:red;margin:0 20px">电话正在拨打中......{{form.time}}</span>
+            <span style="color:red;margin:0 20px">{{promptMessage}}</span>
             <el-form-item label="姓名">
                 <template>
                     <span>{{form.cName}}</span>
@@ -69,7 +70,7 @@
                     <el-radio :label="3">C</el-radio>
                     <el-radio :label="4">D</el-radio>
                     <div>
-                        <el-radio :label="5">呼叫成功</el-radio>
+                        <!-- <el-radio :label="5">呼叫成功</el-radio> -->
                         <el-radio :label="6">拒接</el-radio>
                         <el-radio :label="7">忙音/关机</el-radio>
                         <el-radio :label="8">其他</el-radio>
@@ -100,8 +101,7 @@
     </div>
 </template>
 <script>
-    require('@/api/hxwpapi-v3.2.2.min');
-
+    require('@/api/hxwpapi-v3.2.4.min');
     import store from '../../../store.js'
     export default {
         data(){
@@ -115,8 +115,10 @@
                     phone:"",
                     desc:'',
                     type:["其他"],
-                    intention:''
+                    intention:'',
+                    
                 },
+                promptMessage:'',
                 showcalleeDialog:false,
                 myData:{
                     pageIndex:1,
@@ -168,7 +170,9 @@
                 row:null,
                 index:null,
                 activityId:null,
-                phoneNum:sessionStorage.getItem('phoneNum')
+                phoneNum:sessionStorage.getItem('phoneNum'),
+                states:'',
+                sessionId:''
             }
         },
         destroyed(){
@@ -180,7 +184,6 @@
                 switch (e.Evt) {
                 case theWebPhone.EvtTypes.UpdateState:
                     window.wpState = e.state;
-                    
                     switch (e.state) {
                         case theWebPhone.States.Offline:
                             console.log('offLine')
@@ -189,29 +192,113 @@
                             console.log('login')
                             break;
                         case theWebPhone.States.Idle:
+                            this.states = theWebPhone.States.Idle
+                            
                             console.log('IDle')
+                            if(e.msg == 'Normal release'){
+                                let params = {sessionId:this.sessionId}
+                                this.$http.get(this.$api.amati.updateTelDetail,{params:params}).then( res=>{
+                                    if(res.data.code !== 0){
+                                        alert('复制话单错误')
+                                    }
+                                })
+                            }
                             break;
                         case theWebPhone.States.Init:
+                            this.states = theWebPhone.States.Init
                             console.log('Init')
+                            if(e.cid != null){
+                                let params = {}
+                                params.customerId = this.form.cId
+                                params.itemId = this.form.itemId
+                                params.remoteUrl = this.form.phoneNum
+                                params.callIdx = e.cid
+                                params.entId = sessionStorage.getItem('entId')
+                                params.localUrl = sessionStorage.getItem('phoneNum')
+                                params.agentId = sessionStorage.getItem('userName')
+                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
+                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
+                                    console.log(res)
+                                    if(res.data.code === 0 ){
+                                        this.sessionId = res.data.sessionId
+                                    }
+                                })
+                            }
                             break;
                         case theWebPhone.States.Alert:
+                            this.states = theWebPhone.States.Alert
                             console.log('Alert')
+                            
+                            if(e.cid != null){
+                                let params = {}
+                                params.customerId = this.form.cId
+                                params.itemId = this.form.itemId
+                                params.remoteUrl = this.form.phoneNum
+                                params.callIdx = e.cid
+                                params.entId = sessionStorage.getItem('entId')
+                                params.localUrl = sessionStorage.getItem('phoneNum')
+                                params.agentId = sessionStorage.getItem('userName')
+                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
+                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
+                                    console.log(res)
+                                    if(res.data.code === 0 ){
+                                        this.sessionId = res.data.sessionId
+                                    }
+                                })
+                            }
+                            
                             break;
                         case theWebPhone.States.Connected:
+                            this.states = theWebPhone.States.Connected
                             console.log('Connected')
+                            
+                            if(e.cid != null){
+                                let params = {}
+                                params.customerId = this.form.cId
+                                params.itemId = this.form.itemId
+                                params.remoteUrl = this.form.phoneNum
+                                params.callIdx = e.cid
+                                params.entId = sessionStorage.getItem('entId')
+                                params.localUrl = sessionStorage.getItem('phoneNum')
+                                params.agentId = sessionStorage.getItem('userName')
+                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
+                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
+                                    console.log(res)
+                                    if(res.data.code === 0 ){
+                                        this.sessionId = res.data.sessionId
+                                    }
+                                })
+                            }
                             break;
                     }
                     break;
                 }
             })
-            console.log("11111111",window.theWebPhone)
+            //console.log("11111111",window.theWebPhone)
             //console.log(theWebPhone.login);
-            console.log('外呼号码',this.phoneNum)
+            //console.log('外呼号码',this.phoneNum)
             window.theWebPhone .login ("outcall.chinawjhs.com", this.phoneNum, "1234", "cs")
-            console.log("登陆了")
-            if(theWebPhone.States.Idle === window.wpState){
+            
+            //console.log("登陆了")
+            if(window.theWebPhone.States.Idle === window.wpState){
                 this.isDisabled=true      
             }
+        },
+        watch: {
+            states(newState, oldState) {
+                    if (newState == theWebPhone.States.Init) {
+                        this.promptMessage = '请稍等，正在为您接通电话'
+                    }
+                    if (newState == theWebPhone.States.Alert) {
+                        this.promptMessage = '正在拨打电话，请稍等'
+                    }
+                    if (newState == theWebPhone.States.Connected) {
+                        this.promptMessage = '电话已接通'
+                    }  
+                    if (newState == theWebPhone.States.Idle) {
+                        this.promptMessage = '电话空闲中'
+                    }  
+            } 
         },
         methods:{
             //初始化
@@ -262,12 +349,13 @@
             },
             
             makeCall(index,row) {
+                window.theWebPhone.hangup()
                 this.dialogVisible=true
                 //console.log(row,index)
                 this.index=index
-                this.customerId=row.customerId
+                let customerId=row.customerId
                 this.activityId=row.activityId
-                let params={customerId:this.customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
+                let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     //console.log('cs',res)
                     if(res.data.code===0){
@@ -290,6 +378,7 @@
                         //     }
                         // })
                         window.theWebPhone .dial(this.form.phoneNum)
+                        // this.states = window.theWebPhone.States
                         let customerId=this.form.customerId
                         this.$http.post(this.$api.amati.callCustomer,{customerId:customerId}).then(res => {
                             if(res.data.code===0){
@@ -304,7 +393,7 @@
                   
 
                 let total=this.tableData.length-1
-                if(this.index===total){
+                if(this.index == this.total-1){
                     this.showBtn=false 
                 }else{
                     this.showBtn=true 
@@ -313,11 +402,12 @@
             },
             beforClose(){
                 if(!this.isSave){
-                    alert("未保存")
+                    this.$message.warning('未保存')
                     return
                 }
                 this.showcalleeDialog=false
                 this.index=null
+                this.getActivityList()
             },
             // whdialog(){
             //     this.showcalleeDialog=true
@@ -326,6 +416,7 @@
 
             // },
             nextMakeCall(){
+                console.log(this.index)
                 if(!this.isSave){
                     this.$message({
                         message:'未保存',
@@ -333,12 +424,13 @@
                     })
                     return
                 }
-                this.index++
+                window.theWebPhone.hangup()
+                
                 //console.log(index+"a")
                 let total=this.tableData.length-1
                 //console.log(index+"b")
                 //console.log(total)
-                
+                this.index++
                 let customerId=this.tableData[this.index].customerId
                 let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
@@ -369,19 +461,18 @@
                         })
                     }
                 }).catch(error => {
-                    console.log("出错了")
+                    console.log(error)
                 })
                 
 
                 this.isSave=false
-                 if(this.index==total){
+                 if(this.index == this.total-1){
                     this.showBtn=false
                     return
                 } 
                 
             },
             saveEdit(){
-                this.isSave=true
                 let intention=this.form.intention
                 if(!intention){
                     this.$message({
@@ -390,7 +481,9 @@
                     })
                     return
                 }
-                let params={customerId:this.customerId,intention:intention,status:3}
+                this.isSave=true
+                let customerId=this.tableData[this.index].customerId
+                let params={customerId:customerId,intention:intention,status:3}
                 this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -398,7 +491,7 @@
                             message:res.data.msg,
                             type:'success'
                         })
-                        this.getActivityList()
+                        // this.getActivityList()
                     }else{
                         this.$message({
                             message:res.data.msg,

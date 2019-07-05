@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 const state = {
-  Authorization:localStorage.getItem('Authorization') ? localStorage.getItem('Authorizations') : "",
+  //Authorization:localStorage.getItem('Authorization') ? localStorage.getItem('Authorizations') : "",
 
   userName: window.sessionStorage.getItem('userName'),
   // token: window.sessionStorage.getItem('token'),
@@ -12,10 +12,10 @@ const state = {
   agentId:window.sessionStorage.getItem('agentId')
 }
 const mutations = {
-  changeLogin(state,user) {
-    state.Authorization = user.Authorization;
-    localStorage.setItem('Authorizations',user.Authorization)
-  },
+  // changeLogin(state,user) {
+  //   state.Authorization = user.Authorization;
+  //   localStorage.setItem('Authorizations',user.Authorization)
+  // },
 
   GET_ID: (state, data) => {
     state.agentId = data

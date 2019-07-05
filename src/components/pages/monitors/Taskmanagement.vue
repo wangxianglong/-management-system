@@ -31,24 +31,37 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>
-            <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
-            <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
+            <el-table-column label="开始时间" prop="startTime">
+                <template slot-scope="scope">
+                    <span>{{scope.row.startTime | date()}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endTime">
+                <template slot-scope="scope">
+                    <span>{{scope.row.endTime | date()}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="有效期" prop="validity">
+                <template slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.validity<0">无效</span>
+                    <span v-else>{{scope.row.validity}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
-                    
                     <el-button type="text" v-if="scope.row.status===2||scope.row.status===3">进行中</el-button>
                     <el-button type="text" style="color:#000" v-if="scope.row.status===4">已完成</el-button>
                 </template> 
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)">进入外呼</el-button>
+                    <el-button type="text" @click="taskEdit(scope.$index,scope.row)" :disabled="scope.row.validity<0?true:false">分配任务</el-button>
                     <!--<el-button type="text" @click="taskEdit(scope.$index,scope.row)">回退剩余数据</el-button>-->
                 </template>
             </el-table-column>

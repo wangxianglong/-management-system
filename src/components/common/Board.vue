@@ -5,28 +5,28 @@
                 <div class="callnum">
                     <span style="margin-right:30px">呼通量</span>
                     <span>
-                        <strong>{{myRow.flux}}</strong>
+                        <strong>{{childData.myRow.flux}}</strong>
                         /
-                        <span style="font-size:14px">{{myRow.cusNum}}</span>
+                        <span style="font-size:14px">{{childData.myRow.expiration}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{myRow.flux/myRow.cusNum*100 | numFilter}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.flux/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">呼通率</p><strong style="font-size:28px">{{childData.myRow.flux/childData.myRow.expiration ? childData.myRow.flux/childData.myRow.expiration*100 :'0' | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="childData.myRow.flux/childData.myRow.expiration?childData.myRow.flux/childData.myRow.expiration*100:'0' | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             </el-col>
             <el-col :span="5">
                 <div class="callnum">
                     <span style="margin-right:30px">拨打量</span>
                     <span>
-                        <strong>{{myRow.dialNum}}</strong>
+                        <strong>{{childData.myRow.expiration}}</strong>
                         /
-                        <span style="font-size:14px">{{myRow.cusNum}}</span>
+                        <span style="font-size:14px">{{childData.myRow.cusNum}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{myRow.dialNum/myRow.cusNum*100 | numFilter}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.dialNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">拨打率</p><strong style="font-size:28px">{{childData.myRow.expiration/childData.myRow.cusNum?childData.myRow.expiration/childData.myRow.cusNum*100:'0' | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="childData.myRow.expiration/childData.myRow.cusNum?childData.myRow.expiration/childData.myRow.cusNum*100:'0' | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -34,14 +34,14 @@
                 <div class="callnum">
                     <span style="margin-right:30px">成功量</span>
                     <span>
-                        <strong>{{myRow.successNum}}</strong>
+                        <strong>{{childData.myRow.successNum}}</strong>
                         /
-                        <span style="font-size:14px">{{myRow.cusNum}}</span>
+                        <span style="font-size:14px">{{childData.myRow.expiration}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{myRow.successNum/myRow.cusNum*100 | numFilter}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.successNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">成功率</p><strong style="font-size:28px">{{childData.myRow.successNum/childData.myRow.expiration?childData.myRow.successNum/childData.myRow.expiration*100:'0' | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="childData.myRow.successNum/childData.myRow.expiration?childData.myRow.successNum/childData.myRow.expiration*100:'0' | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
@@ -49,18 +49,18 @@
                 <div class="callnum">
                     <span style="margin-right:30px">失败量</span>
                     <span>
-                        <strong>{{myRow.failNum}}</strong>
+                        <strong>{{childData.myRow.failNum}}</strong>
                         /
-                        <span style="font-size:14px">{{myRow.cusNum}}</span>
+                        <span style="font-size:14px">{{childData.myRow.expiration}}</span>
                     </span>
                 </div>
                 <div class="callratio">
-                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{myRow.failNum/myRow.cusNum*100 | numFilter}}%</strong></div>
-                    <div><el-progress type="circle" :percentage="myRow.failNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
+                    <div style="margin-right:30px;"><p style="color:#ccc;font-size:14px">失败率</p><strong style="font-size:28px">{{childData.myRow.failNum/childData.myRow.expiration?childData.myRow.failNum/childData.myRow.expiration*100:'0' | numFilter}}%</strong></div>
+                    <div><el-progress type="circle" :percentage="childData.myRow.failNum/childData.myRow.expiration?childData.myRow.failNum/childData.myRow.expiration*100:'0' | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
             </el-col>
-            <el-col :span="5">
+            <!-- <el-col :span="5">
                 <div class="callnum">
                     <span style="margin-right:30px">再呼次数</span>
                     <span>
@@ -74,7 +74,7 @@
                     <div><el-progress type="circle" :percentage="myRow.againNum/myRow.cusNum*100 | numFilter" :width="80" :stroke-width="13"></el-progress></div>
                 </div>
             
-            </el-col>
+            </el-col> -->
         </el-row>
         <el-row :gutter="20">
             <el-col :span="9">
@@ -112,7 +112,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" width="100%" show-header>
+                    <el-table :data="childData.seatList" width="100%" show-header>
                         <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="user_name"></el-table-column>
                         <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
@@ -144,13 +144,14 @@
     require('echarts/lib/component/tooltip')
     require('echarts/lib/component/title')
     export default {
-        props:['childData','seatList','myRow','sucList','durationList','arr'],
+        props:{
+                childData:{},
+            },
         data(){
             return {
                 callRatio:82,
                 currentPage:1,
                 pagesize:6,
-                tableData:this.seatList,
                 optionline:{
                     color:['#f0657d','#41a2fc'],
                     title: {
@@ -199,7 +200,7 @@
                                 trigger:'axis'
                             },
                             yAxisIndex:0,
-                            data:this.durationList
+                            data:this.childData.durationList
                         },
                         {
                             name:'成功量(次)',
@@ -208,7 +209,7 @@
                                 trigger:'axis'
                             },
                             yAxisIndex:1,
-                            data:this.sucList
+                            data:this.childData.sucList
                         },
                     ]
                 },
@@ -268,7 +269,7 @@
                                     borderWidth:5,
                                     borderColor:'#fff'
                                 },
-                                data:this.childData
+                                data:this.childData.optionbarData
                             }
                         ]
                     
@@ -297,7 +298,7 @@
                             width: '70%',
                             // height: {totalHeight} - y - y2,
                             min: 0,
-                            max: 1000,
+                            max: this.childData.myRow.cusNum,
                             minSize: '0',
                             maxSize: '100%',
                             sort: 'descending',
@@ -322,22 +323,31 @@
                                     fontSize: 20
                                 }
                             },
-                            data: this.arr
+                            data: this.childData.arr
                         }
                     ]
                 }
             }
         },
         created(){
-            //console.log(this.childData)
-            // console.log(this.seatList)
-            console.log(this.arr)
+            console.log('子组件',this.childData)
         },
         mounted() {
-            
             this.drawLine()
         },
+        watch: {
+            childData:{
+                handler(newValue, oldValue) {
+                    console.log('子组件打印的新childData',newValue)        //父组件param对象改变会触发此函数
+                    console.log('子组件打印的旧childData',oldValue)
+        　　　　},
+        　　　　deep: true
+            }
+            
+        },
+        
         methods: {
+            
             indexMethod(index) {
                 return index+1;
             },

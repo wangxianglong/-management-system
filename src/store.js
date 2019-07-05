@@ -1,7 +1,7 @@
 /**
  * Created by djj on 2019/4/19.
  */
-require('./api/hxwpapi-v3.2.2.min');
+require('./api/hxwpapi-v3.2.4.min');
 import extAPI from './api/hxucsext';
 import router from './router/index.js'
 

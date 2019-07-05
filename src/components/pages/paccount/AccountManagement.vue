@@ -63,16 +63,16 @@
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="账号" prop="userName"></el-table-column>
             <el-table-column label="密码" prop="passWord"></el-table-column>
-            <el-table-column label="角色名称" prop="roleName"></el-table-column>
             <el-table-column label="使用人" prop="realName">
             </el-table-column>
             <el-table-column label="联系方式" prop="phoneNum"></el-table-column>
+            <el-table-column label="角色权限" prop="roleName"></el-table-column>
             <el-table-column label="状态">
                 <template slot-scope="scope">
                     <span v-if='scope.row.status===3' style="color:red">待审核</span>

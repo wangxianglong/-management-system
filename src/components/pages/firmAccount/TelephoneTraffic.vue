@@ -1,12 +1,13 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="选择坐席">
-                <el-select v-model="myData.ext" placeholder="请选择坐席" clearable>
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
+            <el-form-item label="选择坐席" prop="userName" v-if="roleId !=5">
+                <!-- <el-select v-model="myData.ext" placeholder="请选择坐席" clearable>
                     <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
-                </el-select>
+                </el-select> -->
+                <el-input v-model="myData.userName" placeholder="请输入坐席号"></el-input>
             </el-form-item>
-            <el-form-item label="通话号码">
+            <el-form-item label="通话号码" prop="phoneNum">
                 <el-input v-model="myData.phoneNum"></el-input>
             </el-form-item>
             <el-form-item label="通话时间">
@@ -17,18 +18,24 @@
                             range-separator="至"
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
-                            value-format="yyyy-MM-dd hh:mm:ss"
+                            value-format="yyyy-MM-dd HH:mm:ss"
                     >
                     </el-date-picker>
                 </template>
             </el-form-item>
-            <el-form-item label="时长设置">
+            <el-form-item label="时长设置" prop="timeLongType">
                 <el-select v-model="myData.timeLongType" placeholder="请选择">
-                    <el-option v-for="item in timeSet" :key="item.type" :label="item.label" :value="item.type"></el-option>
+                    <el-option v-for="item in timeSet" :key="item.set" :label="item.label" :value="item.set"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="意向" prop="intention">
+                <el-select v-model="myData.intention" placeholder="请选择意向">
+                    <el-option v-for="item in intentionList" :key="item.type" :label="item.label" :value="item.type"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
                 <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <!-- <el-button type='primary' @click="resetForm('myData')">重置</el-button> -->
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -38,7 +45,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
@@ -57,12 +64,23 @@
             </el-table-column>
             <el-table-column label="通话号码" prop="phoneNum"></el-table-column>
             <el-table-column label="通话时长(秒)" prop="timeLong"></el-table-column>
+            <el-table-column label="意向" prop="intention">
+                <template slot-scope="scope">
+                    <span v-if='scope.row.intention === 1'>A</span>
+                    <span v-if='scope.row.intention === 2'>B</span>
+                    <span v-if='scope.row.intention === 3'>C</span>
+                    <span v-if='scope.row.intention === 4'>D</span>
+                    <span v-if='scope.row.intention === 6'>拒接</span>
+                    <span v-if='scope.row.intention === 7'>忙音/关机</span>
+                    <span v-if='scope.row.intention === 8 || scope.row.intention == null'>其他</span>
+                </template>
+            </el-table-column>
             <!-- <el-table-column label="通话时长(分)">
                 <template slot-scope="scope">
                     <span>{{scope.row.timeLong/60 | numFilter()}}</span>
                 </template>
             </el-table-column> -->
-            <el-table-column label="通话费用" prop="fee"></el-table-column>
+            <!-- <el-table-column label="通话费用" prop="fee"></el-table-column> -->
             <el-table-column label="录音" prop="path" width="290px" align="center">
                 <template slot-scope="scope">
                     <div class='audio-box'>
@@ -87,19 +105,52 @@ import vAudio from '../../common/VueAudio'
             return {
                 timeSet:[
                     {
-                        type:1,
+                        set:1,
                         label:'60s以内'
                     },
                     {
-                        type:2,
+                        set:2,
                         label:'60s~180s'
                     },
                     {
-                        type:3,
+                        set:3,
                         label:'180s以上'
                     }
                 ],
-                
+                intentionList:[
+                    {
+                        type:null,
+                        label:'全部'
+                    },
+                    {
+                        type:1,
+                        label:'A'
+                    },
+                    {
+                        type:2,
+                        label:'B'
+                    },
+                    {
+                        type:3,
+                        label:'C'
+                    },
+                    {
+                        type:4,
+                        label:'D'
+                    },
+                    {
+                        type:6,
+                        label:'拒接'
+                    },
+                    {
+                        type:7,
+                        label:'忙音/关机'
+                    },
+                    {
+                        type:8,
+                        label:'其他'
+                    },
+                ],
                 phoneNumList:[],
                 loading:false,
                 tableData:[],
@@ -107,6 +158,7 @@ import vAudio from '../../common/VueAudio'
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    
                 },
                 time:null,
                 entId:'',
@@ -173,7 +225,11 @@ import vAudio from '../../common/VueAudio'
             },
             goBack(){
                 this.$router.push({path:'/telephoneManagement'})
-            }
+            },
+            // resetForm(myData){
+            //     this.$nextTick(()=>{})
+            //     this.$refs[myData].resetFields();
+            // }
         },
         created(){
             this.getTableList()

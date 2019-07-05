@@ -33,7 +33,7 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <!-- <el-table-column type="selection"></el-table-column> -->
@@ -43,10 +43,22 @@
             <el-table-column label="数据量" prop="data_count"></el-table-column>
             <el-table-column label="数据费(元)" prop="data_amount"></el-table-column>
             <el-table-column label="座席数" prop="seat_count"></el-table-column>
-            <el-table-column label="座席费(元)" prop="seat_fee"></el-table-column>
-            <el-table-column label="语音时长" prop="time_long"></el-table-column>
-            <el-table-column label="语音费(元)" prop="voice_amount" width="100px"></el-table-column>
-            <el-table-column label="定制费(元)" prop="model_amount"></el-table-column>
+            <el-table-column label="座席费(元)" prop="seat_amount">
+                <template slot-scope="scope">
+                    <span>{{scope.row.seat_amount | toString()}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="语音时长(分)" prop="time_min"></el-table-column>
+            <el-table-column label="语音费(元)">
+                <template slot-scope="scope">
+                    <span>{{scope.row.voice_amount2==0?scope.row.voice_amount:scope.row.voice_amount2}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="定制费(元)" prop="model_amount">
+                <template slot-scope="scope">
+                    <span>{{scope.row.model_amount | toString()}}</span>
+                </template>
+            </el-table-column>
             <!-- <el-table-column label="其他" prop='others'>
             </el-table-column> -->
             <el-table-column label="累积消费金额(元)" prop='consume_total'  width="130px">
@@ -56,7 +68,7 @@
             </el-table-column>
             <el-table-column label="余额(元)" prop="balance">
                 <template slot-scope="scope">
-                    <span>{{scope.row.balance | toString()}}</span>
+                    <span :class="scope.row.balance<0?'myColor':''">{{scope.row.balance | toString()}}</span>
                 </template>
             </el-table-column>
             <!-- <el-table-column label="操作">
@@ -151,6 +163,9 @@
         align-items: center;
         width:200px;
         height:30px
+    }
+    .myColor{
+        color:red
     }
 </style>
 

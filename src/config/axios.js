@@ -24,9 +24,9 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 axios.interceptors.request.use(function (config) {
     //openLoading()
-    if(localStorage.getItem('Authorization')){
-        config.headers.Authorizations = localStorage.getItem('Authorizations')
-    }
+    // if(localStorage.getItem('Authorization')){
+    //     config.headers.Authorizations = localStorage.getItem('Authorizations')
+    // }
     return config;
 }, function (err) {
     this.message.error({

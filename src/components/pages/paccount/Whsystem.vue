@@ -18,41 +18,41 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table id="out-table" :data="tableData" show-header @selection-change="changeFun" v-loading="loading" element-loading-text="拼命加载中"
+        <el-table id="out-table" :data="tableData" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun" v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="selection"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="70px"></el-table-column>
             <el-table-column label="项目名称" prop="itemName" width="100px"></el-table-column>
-            <el-table-column label="数据量" prop="cusNum" sortable width="100px"></el-table-column>
-            <el-table-column label="下发量" prop="assignNum" sortable width="100px"></el-table-column>
-            <el-table-column label="呼出量" prop="expiration" sortable width="100px"></el-table-column>
-            <el-table-column label="拨打量" prop="dialNum" sortable width="100px"></el-table-column>
-            <el-table-column label="呼通量" prop="flux" sortable width="100px"></el-table-column>
-            <el-table-column label="成功量" prop="successNum" sortable width="100px"></el-table-column>
-            <el-table-column label="成功率" prop="successRate" sortable width="100px">
+            <el-table-column label="数据量" prop="cusNum" ></el-table-column>
+            <el-table-column label="下发量" prop="assignNum" ></el-table-column>
+            <el-table-column label="呼出量" prop="expiration"></el-table-column>
+            <el-table-column label="拨打量" prop="dialNum"></el-table-column>
+            <el-table-column label="呼通量" prop="flux" ></el-table-column>
+            <el-table-column label="成功量" prop="successNum" ></el-table-column>
+            <el-table-column label="成功率" prop="successRate"  >
                 <template slot-scope="scope">
                     {{scope.row.cusNum?scope.row.successNum/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
-            <el-table-column label="失败量" prop="failNum" sortable width="100px"></el-table-column>
-            <el-table-column label="失败率" prop="failRate" sortable width="100px">
+            <el-table-column label="失败量" prop="failNum" ></el-table-column>
+            <el-table-column label="失败率" prop="failRate" >
                 <template slot-scope="scope">
                     {{scope.row.cusNum?scope.row.failNum/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
-            <el-table-column label="再呼次数" prop="againNum" sortable width="100px">
+            <el-table-column label="再呼次数" prop="againNum" width="100px">
                 <template slot-scope="scope">
                     {{scope.row.dialNum-scope.row.expiration}}
                 </template>
             </el-table-column>
-            <el-table-column label="再呼率" prop="againRate" sortable width="100px">
+            <!-- <el-table-column label="再呼率" prop="againRate" sortable width="100px">
                 <template slot-scope="scope">
                     {{scope.row.cusNum?(scope.row.dialNum-scope.row.expiration)/scope.row.cusNum:'0' | numFilter}}
                 </template>
             </el-table-column>
-            <el-table-column label="总时长" prop="duration" sortable width="100px"></el-table-column>
-            <el-table-column label="计费时长" prop="charging" sortable width="100px"></el-table-column>
+            <el-table-column label="总时长" prop="duration" sortable width="100px"></el-table-column> -->
+            <el-table-column label="计费时长(分)" prop="charging" width="120px"></el-table-column>
             <el-table-column label="详情"  width="100px">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="handleKb(scope.$index,scope.row)">看板</el-button>
@@ -62,8 +62,8 @@
         </el-table>
         </div>
 
-        <el-dialog title="房产教育" :visible.sync="boardDialog" center width="90%">
-            <v-board :child-data="childData" :seat-list="seatList" :my-row="myRow" :suc-list="sucList" :duration-list="durationList" :arr='arr' v-if="childData.length > 0"></v-board>
+        <el-dialog :title="title" :visible.sync="boardDialog" center width="90%">
+            <v-board :child-data="childData" v-if="reFresh" ></v-board>
         </el-dialog>
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
@@ -75,9 +75,12 @@
     import vBoard from '../../common/Board.vue'
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
+    
     export default {
         data(){
             return {
+               
+                reFresh:false,
                 loading:false,
                 boardDialog:false,
                 myData:{
@@ -88,16 +91,22 @@
                 value:'',
                 createtime:'',
                 tableData:[],
-                rowData:'',
-                
                 selectList:[],
-                childData:[],
-                seatList:[],
-                myRow:null,
+                childData:{
+                    
+                },
                 total:1,
-                durationList:[],
-                sucList:[],
-                arr:[]
+                
+                
+                
+                title:''
+            }
+        },
+        watch:{
+            childData:{
+                function(){
+                    
+                }
             }
         },
         components:{
@@ -137,31 +146,37 @@
             },
             
             handleKb(index,row){
-                this.myRow=row
-                this.arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
-                this.arr[0].value=this.myRow.cusNum
-                this.arr[1].value=this.myRow.assignNum
-                this.arr[2].value=this.myRow.expiration
-                this.arr[3].value=this.myRow.flux
-                this.arr[4].value=this.myRow.successNum
-                console.log(this.arr)
-                row.againNum=row.dialNum-row.expiration
+                this.reFresh = false
+                
+                this.title = row.itemName
+                this.childData.myRow=row
+                this.childData.arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
+                this.childData.arr[0].value=this.childData.myRow.cusNum
+                this.childData.arr[1].value=this.childData.myRow.assignNum
+                this.childData.arr[2].value=this.childData.myRow.expiration
+                this.childData.arr[3].value=this.childData.myRow.flux
+                this.childData.arr[4].value=this.childData.myRow.successNum
                 let token=this.$cookieStore.getCookie('token')
                 let id=row.id
                 this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id,token:token}}).then(res => {
                     if(res.data.code === 0){
-                        console.log(res.data)
-                        this.childData=res.data.data
-                        this.seatList=res.data.seatList
-                        this.durationList=res.data.durationList
-                        this.sucList=res.data.sucList
+                        console.log('请求的data',res.data)
+                        this.childData.optionbarData=res.data.data
+                        this.childData.seatList=res.data.seatList
+                        this.childData.durationList=res.data.durationList
+                        this.childData.sucList=res.data.sucList
+                        this.$nextTick( ()=>{
+                            this.reFresh = true
+                        })
+                        this.boardDialog=true
                     }else{
                         this.$message.error(res.data.message)
                     }
+                    console.log('父组件的',this.childData)
                 }).catch((e)=>{
                     console.log(e)
                 })
-                this.boardDialog=true
+                
             },
             // handleXq(index,row){
             //     console.log("x详情")
@@ -174,7 +189,10 @@
             }, 
             //导出
             outExe() {
-                
+                if(this.selectList == ''){
+                    this.$message.warning('请勾选数据')
+                    return
+                }
                 this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',

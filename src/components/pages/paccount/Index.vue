@@ -4,11 +4,16 @@
         element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-row :gutter="20">
             <el-col :span="24" >
-                <div class="grid-content bg-purple oneFloor">
-                    <span>项目</span>
+                <!-- <div class="grid-content bg-purple oneFloor"> -->
+                    <!-- <div>网聚海数（杭州）数据科技有限公司</div>
+                    <div>
+                        <div></div>
+                        <div></div>
+                    </div> -->
+                    <!-- <span>项目</span>
                     <el-select class="mySelect" v-model="value" placeholder="全部" style="margin-left:30px;">
                         <el-option v-for="item in options" :key="item.id" :label="item.itemName" :value="item.id"></el-option>
-                    </el-select>
+                    </el-select> -->
                     <!-- <el-radio-group v-model="radio3" style="margin-left:10px;">
                         <el-radio label="昨天"></el-radio>
                         <el-radio label="今日"></el-radio>
@@ -25,7 +30,7 @@
                         end-placeholder="结束日期">
                         </el-date-picker>
                     </div> -->
-                </div>
+                <!-- </div> -->
             </el-col>
         </el-row>
         <el-row :gutter="20" class="fourbox">
@@ -74,7 +79,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.cusNum?statistics.successNum/statistics.cusNum:'--' | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.cusNum?statistics.successNum/statistics.cusNum*100:'--' | toString()}}%</span></div>
                     <!-- <div class="three-box">
                         <el-progress :percentage="78" :text-inside="true" :stroke-width="12" style="width:100%"></el-progress>
                     </div>
@@ -93,13 +98,13 @@
             <el-col :span="6">
                 <div class="grid-content bg-purple wjhsInfo">
                     <div class="one">
-                        <strong>拨打时长</strong>
+                        <strong>拨打时长(分)</strong>
                         <el-tooltip placement="top">
                         <div slot="content">通话累计时长</div>
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.duration | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.charging | toString}}</span></div>
                     <!-- <div class="four"><span class="buding">累积拨打时长</span><span>1D 15H 24M 34S</span></div> -->
                 </div>
             </el-col>
@@ -140,7 +145,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header>
+                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header :header-cell-style="tableHeaderStyle">
                         <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="user_name" width="150px"></el-table-column>
                         <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
@@ -191,16 +196,16 @@
           num:1500,
         radio3: '今日',
         value4: [new Date(), new Date()],
-        options: [{
-          value: '选项1',
-          label: '全部'
-        }, {
-          value: '选项2',
-          label: '项目1'
-        },{
-          value:'选项3',
-          label:'项目2'
-        }],
+        // options: [{
+        //   value: '选项1',
+        //   label: '全部'
+        // }, {
+        //   value: '选项2',
+        //   label: '项目1'
+        // },{
+        //   value:'选项3',
+        //   label:'项目2'
+        // }],
         value: '',
         currentPage:1,
         pageSize:5,
@@ -311,7 +316,7 @@
                     width: '70%',
                     // height: {totalHeight} - y - y2,
                     min: 0,
-                    max: 30000,
+                    max: '',
                     minSize: '0',
                     maxSize: '100%',
                     sort: 'descending',
@@ -347,7 +352,7 @@
     mounted() {
         
         this.getDataList()
-        this.getItemList()
+        // this.getItemList()
         this.drawLine()
     },
     methods: {
@@ -385,7 +390,8 @@
                     //console.log(arr)
                     this.chartmainfunnel.setOption({
                         series:[{
-                            data:arr
+                            data:arr,
+                            max:this.statistics.cusNum
                         }]
                     })
                     this.chartmainline.setOption({
@@ -399,18 +405,18 @@
                 console.log(error)
             })
         },
-        getItemList(){
-            let token=this.$cookieStore.getCookie('token')
-            let pageSize=200
-            let pageIndex=1
-            let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
-            this.$http.get(this.$api.platform.itemList,{params:params}).then(res=>{
-                if(res.data.code===0){
-                    //console.log(res)
-                    this.options=res.data.list
-                }
-            })
-        },
+        // getItemList(){
+        //     let token=this.$cookieStore.getCookie('token')
+        //     let pageSize=200
+        //     let pageIndex=1
+        //     let params={pageSize:pageSize,pageIndex:pageIndex,token:token}
+        //     this.$http.get(this.$api.platform.itemList,{params:params}).then(res=>{
+        //         if(res.data.code===0){
+        //             //console.log(res)
+        //             this.options=res.data.list
+        //         }
+        //     })
+        // },
         drawLine() {
             let that=this
             this.chartmainline=this.$echarts.init(document.getElementById('chartmainline'))
@@ -521,5 +527,4 @@
       float:right;
       padding:10px 0
   }
-
 </style>

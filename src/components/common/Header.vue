@@ -16,11 +16,12 @@
                     <span>欢迎你，</span>
                     <el-dropdown trigger="click">
                       <span class="el-dropdown-link">
-                        {{userName}}<i class="el-icon-arrow-down el-icon--right"></i>
+                        {{userName}}
+                        <!-- <i class="el-icon-arrow-down el-icon--right"></i> -->
                       </span>
-                      <el-dropdown-menu slot="dropdown">
+                      <!-- <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item>修改密码</el-dropdown-item>
-                      </el-dropdown-menu>
+                      </el-dropdown-menu> -->
                     </el-dropdown>
                   </div>
                   <div class="sss"><img src="../../assets/sss.png"></div>
@@ -69,7 +70,7 @@
             if(document.body.clientWidth < 1500){
                 this.collapseChage();
             }
-            this.userName=JSON.parse(sessionStorage.getItem("userName"));
+            this.userName=sessionStorage.getItem("userName");
         }
     };
 </script>

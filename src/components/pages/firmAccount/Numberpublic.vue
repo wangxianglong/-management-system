@@ -22,7 +22,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header>
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <!-- <el-table-column type="selection"></el-table-column> -->
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
             <el-table-column label="号码" prop="showNumber"></el-table-column>
@@ -40,7 +40,7 @@
                 </template> 
             </el-table-column>
             <!-- <el-table-column label="创建时间" prop="using" sortable></el-table-column> -->
-            <el-table-column label="操作">
+            <el-table-column label="操作" v-if='roleId == 1'>
                 <template slot-scope="scope">
                     <el-button type="text" v-if="scope.row.status!=1" @click="startUse(scope.row)">启用</el-button>
                     <el-button type="text" v-if="scope.row.status!=2&&scope.row.status!=0" @click="stopUse(scope.row)">停用</el-button>

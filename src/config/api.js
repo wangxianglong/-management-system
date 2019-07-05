@@ -35,12 +35,14 @@ const platform={
     delete:'api/user/delete',                           //删除坐席
     userEnable:'api/user/userEnable',                   //坐席状态
     insertSingle:'api/price/insertSingle',              //价格配置
+    updateSingle:'api/price/updateSingle',              //价格更新
     consumeStat:'api/price/consumeStat',                //消费统计
     recharge:'api/recharge/insert',                     //充值功能
     rechargeDetail:'api/recharge/list',                  //充值功能详情
     rechargeUpdate:'api/recharge/update',                //财务管理审核
     numberDelete:'api/number/delete',                   //外显管理编辑删除
-    userDetail:'api/user/userDetail'                    //配置管理详情
+    userDetail:'api/user/userDetail',                   //配置管理详情
+    selectSingle:'api/price/selectSingle',               //获取当前配置价格
 }
 //企业账户
 const firm= {
@@ -62,7 +64,8 @@ const firm= {
 const monitor={
     taskAssign:'api/project/taskAssign',         //班长任务管理
     seatList:'api/user/seatList',               //班长详情
-    assignSeat:'api/project/assignSeat'         //分配任务
+    assignSeat:'api/project/assignSeat',         //分配任务
+    recoverySeat:'api/project/recoverySeat'         //坐席回收
 }
 //坐席
 const amati={
@@ -71,7 +74,9 @@ const amati={
     getDataDetail:'api/call/getDataDetail',     //外呼
     updateCustomer:'api/call/updateCustomer',    //保存
     call:'api/call/seatMakeCallEx',
-    callCustomer:'api/call/callCustomer'
+    callCustomer:'api/call/callCustomer',
+    insertTelDetail:'api/result/insertTelDetail',
+    updateTelDetail:'api/result/updateTelDetail'        
 }
 //外呼统计
 const callee={

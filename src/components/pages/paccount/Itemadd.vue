@@ -4,7 +4,7 @@
             <el-form-item label="行销名单">
                 <el-input placeholder="请输入行销名单" v-model="myData.activityName"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" v-if="roleId!=3">
                 <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
@@ -22,12 +22,17 @@
                     </el-date-picker>
                 </template>
             </el-form-item>
-            <el-form-item label="开始时间：">
+            <!-- <el-form-item label="开始时间：">
                 <el-date-picker v-model="myData.startTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
             <el-form-item label="结束时间：">
                 <el-date-picker v-model="myData.endTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
+            <!-- <el-form-item label="有效期">
+                <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
+                    <el-option v-for="item in timeValidity" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item> -->
             <el-form-item>
                 <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
             </el-form-item>
@@ -35,12 +40,12 @@
         <div class="small-divider"></div>
         <!--获取行销名单-->
         <div style="padding:20px">
-            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button>
+            <!-- <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button> -->
             <el-button type="primary" @click='addActivity'>新增行销名单</el-button>
             <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制行销名单</el-button>
         </div>
         <!--弹框-->
-        <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="30%">
+        <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="600px">
             <el-form :model="form" label-width="100px" class="formPage" label-position='left' ref="form">
                 <el-form-item label="行销名单名称">
                     <el-input v-model="form.activityName" placeholder="请输入行销名单名称"></el-input>
@@ -49,6 +54,19 @@
                     <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="form.content">
                     </el-input>
                 </el-form-item>
+                <el-form-item label="名单有效时间">
+                <template>
+                    <el-date-picker
+                            v-model="listTime"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
+            </el-form-item>
                 <el-form-item label="上传文件">
                     <el-upload action="api/uploadExcel" :before-upload="beforeUpload" :on-preview="handlePreview" :on-remove="handleRemove" :on-success="handleSuccess" :before-remove="beforeRemove">
                         <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
@@ -70,16 +88,32 @@
                 </el-form-item>
             </el-form> 
         </el-dialog>
-        <el-dialog title="复制行销名单" :visible.sync="copyDialog" width="30%">
-            <span>行销名单名称：</span>
-            <el-input label="行销名单名称" v-model="copyActivityName" style="width:300px" clearable></el-input>
+        <el-dialog title="复制行销名单" :visible.sync="copyDialog" width="500px">
+            <div>
+                <span>行销名单名称：</span>
+                <el-input label="行销名单名称" v-model="copyActivityName" style="width:300px" clearable></el-input>
+            </div>
+            <div style="margin-top:20px">
+                <span style="margin-left:50px">有效期:</span>
+                <el-date-picker
+                        v-model="copyListTime"
+                        type="daterange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        value-format="yyyy-MM-dd"
+                        style="width:300px"
+                >
+                </el-date-picker>
+                
+            </div>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click = "copyDialog =false">取消</el-button>
                 <el-button type="primary" @click = "showCopyActivity">确认</el-button>
             </span>
         </el-dialog>
         <el-dialog :visible.sync="activityShow">
-            <el-table :data="activityList" style="width:100%;" show-header v-loading='loading'>
+            <el-table :data="activityList" style="width:100%;" show-header v-loading='loading' :header-cell-style="tableHeaderStyle">
                 <el-table-column label="行销名单名" prop="activityName"></el-table-column>
                 <el-table-column label="行销名单ID" prop="activityId"></el-table-column>
                 <el-table-column label="开始时间" prop="activityBeginDate"></el-table-column>
@@ -94,7 +128,7 @@
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading="loading" element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)" @current-change="clickChange">
             <el-table-column label="" align="center" width="50" v-if="roleId==1">
@@ -118,17 +152,31 @@
                     <el-button type="text" @click="numDetail(scope.row)">{{scope.row.orderNum}}</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable>
+            <el-table-column label="创建时间" prop="createTime">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(hour)}}
                 </template>
             </el-table-column>
-            <el-table-column label="开始时间" prop="startTime" sortable></el-table-column>
-            <el-table-column label="结束时间" prop="endTime" sortable></el-table-column>
-            <el-table-column label="状态" v-if="roleId==1">
+            <el-table-column label="开始时间" prop="startTime" >
+                <template slot-scope="scope">
+                    {{scope.row.startTime*1000 | date()}}
+                </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endTime" >
+                <template slot-scope="scope">
+                    {{scope.row.endTime*1000 | date()}}
+                </template>
+            </el-table-column>
+            <el-table-column label="有效期" prop="validity">
+                <template slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.validity<0">无效</span>
+                    <span v-else>{{scope.row.validity}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="分配去向" v-if="roleId!=3">
                 <template  slot-scope="scope">
                     <span style="color:red" v-if="scope.row.status===0">未分配</span>
-                    <span v-if="scope.row.status!==0">已分配</span>
+                    <span v-if="scope.row.status!==0">{{scope.row.company}}</span>
                 </template> 
             </el-table-column>
             <el-table-column label="操作">
@@ -181,8 +229,11 @@
                 form:{
                     activityName:'',
                     content:'',
-                    excelFileName:''
+                    excelFileName:'',
+                    
                 },
+                listTime:null,
+                copyListTime:null,
                 addNewitemdialog:false,
                 time:null,
                 hour:true,
@@ -202,7 +253,13 @@
                 activityList:[],//行销名单列表
                 //dialogVisible:false,
                 value:'', 
-                
+                timeValidity:[{
+                    value: '0',
+                    label: '无效'
+                }, {
+                    value: '1',
+                    label: '3'
+                }],
                 options2: [{
                     value: '0',
                     label: '未分配'
@@ -347,12 +404,18 @@
                 //console.log("aaaaaaaa",this.selected)
                 let id=this.selected.id
                 let activityName=this.copyActivityName
+                if(this.copyListTime == null){
+                    this.$message.warning('请输入有效期')
+                    return
+                }
+                let startTime = this.copyListTime[0]
+                let endTime = this.copyListTime[1]
                 let token=this.$cookieStore.getCookie('token')
                 if(activityName ===''){
                     this.$message.warning('请输入行销名单名')
                     return
                 }
-                let params={id:id,activityName:activityName,token:token}
+                let params={id:id,activityName:activityName,token:token,startTime:startTime,endTime:endTime}
                 this.$http.post(this.$api.platform.copyActivity,params).then(res => {
                     if(res.data.code === 0){
                         this.getTablelist()
@@ -373,6 +436,13 @@
             },
             add(form){
                 //console.log('上传'+this.form.excelFileName)
+                if (this.listTime!==null){
+                   this.form.startTime=this.listTime[0];
+                   this.form.endTime =this.listTime[1];
+                }else{
+                    this.$message.warning('请选择要上传的名单有效期！')
+                    return false
+                }
                 if(this.form.excelFileName == ""){
                     this.$message.warning('请选择要上传的文件！')
                     return false
@@ -451,7 +521,6 @@
         created(){
            this.getTablelist()
            //console.log(this.myData.status)
-           
         },
         computed:{
             

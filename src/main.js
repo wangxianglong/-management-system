@@ -14,6 +14,9 @@ import preview from 'vue-photo-preview'
 
 import {setCookie,getCookie,delCookie} from '@/config/cookie'
 import filters from './config/filter';
+
+import global from './global'//引用
+Vue.use(global);//将全局函数当做插件来进行注册
 // import Blob from './excel/Blob'
 // import Export2Excel from './excel/Export2Excel'
 

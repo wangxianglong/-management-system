@@ -49,7 +49,7 @@
         <div class="divider"></div>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header >
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column label="项目名" prop="itemName"></el-table-column>
             <el-table-column label="行销名单" prop="num" sortable></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable>

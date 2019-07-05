@@ -31,7 +31,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' element-loading-text="拼命加载中"
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px;"></el-table-column>
@@ -39,7 +39,7 @@
             <el-table-column label="金额(元)" prop="amount"></el-table-column>
             <el-table-column label="时间" prop="create_time">
                 <template slot-scope="scope">
-                    <span>{{scope.row.create_time | date(true)}}</span>
+                    <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="提交人" prop="submitter"></el-table-column>

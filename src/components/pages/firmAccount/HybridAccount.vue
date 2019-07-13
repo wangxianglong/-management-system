@@ -1,11 +1,11 @@
 <template>
     <div>
-        <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="企业名称">
-                <el-input v-model="myData.userName"></el-input>
+        <el-form :inline="true" class="form-inline" :model="myData" ref='myData'>
+            <el-form-item label="企业名称" prop="company">
+                <el-input v-model="myData.company"></el-input>
             </el-form-item>
             
-            <el-form-item label="手机号">
+            <el-form-item label="手机号" prop="phoneNum">
                 <el-input v-model="myData.phoneNum"></el-input>
             </el-form-item>
             <!-- <el-form-item label="注册时间">
@@ -27,7 +27,8 @@
                 </el-select>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist" size="small">搜索</el-button>
+                <el-button  @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <!-- <div class="small-divider"></div>
@@ -89,9 +90,9 @@
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <!-- <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column> -->
             <el-table-column label="企业ID" prop='entId'></el-table-column>
-            <el-table-column label="企业名称" prop='company'></el-table-column>
+            <el-table-column label="企业名称" prop='company' width="120px"></el-table-column>
             <el-table-column label="联系人" prop='contacts'></el-table-column>
-            <el-table-column label="手机号" prop='phoneNum'></el-table-column>
+            <el-table-column label="手机号" prop='phoneNum' width="120px"></el-table-column>
             <el-table-column label="外显数量" prop="numberCount">
                 <template slot-scope="scope">
                     <el-button type="text" @click="seeNumBerCount(scope.row)">{{scope.row.numberCount}}</el-button>
@@ -127,7 +128,7 @@
                 <template slot-scope="scope">
                     <el-button v-if="scope.row.status === 2" type="primary" size="mini" @click="usingBtn(scope.row)">启用</el-button>
                     <el-button v-if="scope.row.status === 1" type="danger" size="mini" @click="stopBtn(scope.row)">停用</el-button>
-                    <el-button type="text" size="mini" @click="detail(scope.row)" :disabled="scope.row.monitorCount === 0 || scope.row.priceCount === 0 || scope.row.numberCount===0">详情</el-button>
+                    <el-button type="info" plain size="mini" @click="detail(scope.row)" :disabled="scope.row.monitorCount === 0 || scope.row.priceCount === 0 || scope.row.numberCount===0">详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -224,7 +225,9 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
-                    roleId:3
+                    roleId:3,
+                    company:'',
+                    phoneNum:''
                 },
                 isShow:true,
                 amonitorList:[],
@@ -265,6 +268,10 @@
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields();
+                this.getTablelist()
+            },
             //tabs事件
             handleClick(tab, event) {
                 this.seatFee=null
@@ -293,9 +300,9 @@
                     delete this.myData.startTime
                     delete this.myData.endTime
                 }
-                // let token=this.$cookieStore.getCookie('token')
+                //  
                 let params=this.myData
-                // params.token=token
+                //   
                 this.$http.get(this.$api.firm.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -367,16 +374,16 @@
             //名单配置
             activityAllocation(row){
                 this.entRow=row
-                if(this.count===0){
+                if(this.count==0){
                     this.$message.error('当前没有可分配名单')
                     return
                 }
                 this.activityDialog=true
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //let status=this.$route.query.status
                 //console.log(token)
                 
-                let params={pageIndex:1,pageSize:200,token:token,status:0}
+                let params={pageIndex:1,pageSize:200,status:0}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
@@ -391,13 +398,13 @@
             
             //获取可分配名单
             getuserActivity(){
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //console.log(token)
-                let params={pageIndex:1,pageSize:200,token:token,status:0}
+                let params={pageIndex:1,pageSize:200,  status:0}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
-                        this.count=res.data.count
+                        this.count=res.data.list
                     }else{
                         this.$message.error(res.data.message)
                     }
@@ -517,10 +524,11 @@
                 this.entRow = row
                 if(this.entRow.priceCount !== 0){
                     let userId = this.entRow.id
-                    let params = {userId:userId}
+                    let params = {userId:userId,status:2}
                     this.$http.get(this.$api.platform.selectSingle,{params:params}).then( res => {
+                        console.log(res)
                         if(res.data.code === 0){
-                            this.nowPrice = res.data.data
+                            this.nowPrice = res.data.list[0]
                             this.priceUpdateDialog = true
                         }
                     })
@@ -551,7 +559,7 @@
                 }
                 // let params = this.nowPrice
                 // params.userId = userId
-                if(this.entRow.priceCount == 0){
+                
                     this.$http.post(this.$api.platform.insertSingle,params).then(res => {
                         if(res.data.code === 0){
                             this.$message.success(res.data.msg)
@@ -560,17 +568,17 @@
                             this.getTablelist()
                         }
                     })
-                }else{
-                    params.id=this.nowPrice.id
-                    this.$http.post(this.$api.platform.updateSingle,params).then(res => {
-                        if(res.data.code === 0){
-                            this.$message.success(res.data.msg)
-                            this.priceDialog = false
-                            this.priceUpdateDialog = false
-                            this.getTablelist()
-                        }
-                    })
-                }
+                
+                    // params.id=this.nowPrice.id
+                    // this.$http.post(this.$api.platform.updateSingle,params).then(res => {
+                    //     if(res.data.code === 0){
+                    //         this.$message.success(res.data.msg)
+                    //         this.priceDialog = false
+                    //         this.priceUpdateDialog = false
+                    //         this.getTablelist()
+                    //     }
+                    // })
+                
             },
             seeNumBerCount(row){
                 let userId=row.id

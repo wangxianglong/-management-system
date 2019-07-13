@@ -73,7 +73,7 @@
                                 }).then((res) => {
                                         console.log(res)
                                         if(res.data.data.status=='success'){ 
-                                            // let token=this.$cookieStore.getCookie('token') 
+                                            //   
                                             // this.$store.commit('SET_TOKEN',token)
                                             this.$store.commit("GET_ID",res.data.data.id)
                                             this.$store.commit("GET_USER",this.ruleForm.userName)

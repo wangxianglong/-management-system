@@ -50,6 +50,19 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false
 
+router.beforeEach((to,from,next) => {
+    if (to.path === '/login') {
+      sessionStorage.clear();
+    }
+    //let userName = sessionStorage.getItem('userName');
+    let token = sessionStorage.getItem('token')
+    if (!token && to.path !== '/login') {
+      next({path: '/login'})
+    } else {
+      next()
+    }
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

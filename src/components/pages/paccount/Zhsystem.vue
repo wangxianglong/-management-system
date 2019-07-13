@@ -1,19 +1,20 @@
 <template>
     <div>
-        <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="企业名称">
+        <el-form :inline="true" class="form-inline" :model="myData" ref ="myData">
+            <el-form-item label="企业名称" prop = "company">
                 <el-input v-model="myData.company"></el-input>
             </el-form-item>
-            <el-form-item label="登录账号">
+            <el-form-item label="登录账号" prop = "userName">
                 <el-input v-model="myData.userName"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
-                <el-select class="mySelect" v-model="myData.status" placeholder="请选择" style="margin-left:10px; width:150px;">
+            <el-form-item label="状态" prop = "status">
+                <el-select class="mySelect" v-model="myData.status" placeholder="请选择">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getTableList">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTableList" size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -27,13 +28,13 @@
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun">
             <el-table-column type="selection"></el-table-column>
             <el-table-column label="企业ID" prop="entId"></el-table-column>
-            <el-table-column label="企业名称" prop="company"></el-table-column>
-            <el-table-column label="登陆账号" prop="userName" ></el-table-column>
+            <el-table-column label="企业名称" prop="company" width="120px"></el-table-column>
+            <el-table-column label="登陆账号" prop="userName" width="100px"></el-table-column>
             <el-table-column label="登陆密码" prop="passWord"></el-table-column>
             <el-table-column label="联系人" prop="contacts">
             </el-table-column>
-            <el-table-column label="电话" prop="phoneNum"></el-table-column>
-            <el-table-column label="邮箱" prop="email"></el-table-column>
+            <el-table-column label="电话" prop="phoneNum" width="120px"></el-table-column>
+            <el-table-column label="邮箱" prop="email" width="180px"></el-table-column>
             <el-table-column label="创建时间" prop="createTime" sortable width="150px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(1)}}
@@ -44,13 +45,20 @@
                     {{scope.row.validity | time()}}
                 </template>
             </el-table-column> -->
-            <el-table-column label="税号" prop="taxNumber" sortable></el-table-column>
-            <el-table-column label="营业执照" sortable>
+            <el-table-column label="税号" prop="taxNumber" width="160px"></el-table-column>
+            <el-table-column label="营业执照" >
                 <template slot-scope="scope">
-                    <img :src="url+scope.row.businessLicense" style="widht:30px;height:50px">
+                    <el-popover
+                            placement="right"
+                            title=""
+                            trigger="click">
+                        <img slot="reference" :src="url+scope.row.businessLicense" :alt="url+scope.row.businessLicense" style="max-height: 100px;max-width: 200px">
+                        <img :src="url+scope.row.businessLicense" >
+                    </el-popover>
+                    <!-- <img :src="url+scope.row.businessLicense" style="widht:30px;height:50px"> -->
                 </template>
             </el-table-column>
-            <el-table-column label="状态" sortable>
+            <el-table-column label="状态" >
                 <template  slot-scope="scope">
                     <span style="color:red" v-if="scope.row.status===3">待审核</span>
                     <span v-if="scope.row.status===1">使用中</span>
@@ -60,14 +68,14 @@
                     <!-- <span v-if="scope.row.status===4">冻结中</span> -->
                 </template> 
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="150px">
                 <template slot-scope="scope">
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button> -->
-                    <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>
+                    <el-button type="primary" size="small" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handledh(scope.row)">打回</el-button> -->
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
                     <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button> -->
-                    <el-button type="text" size="mini" @click="handleXq(scope.row)">详情</el-button>
+                    <el-button type="primary" size="small" @click="handleXq(scope.row)">详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -87,9 +95,13 @@
                     pageIndex:1,
                     pageSize:10,
                     roleId:3,
+                    company:'',
+                    userName:'',
+                    status:''
                 },
                 value:'',
-                options:[{
+                options:[
+                {
                     value: '0',
                     label: '待认证'
                 }, {
@@ -106,13 +118,23 @@
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getTableList()
+            },
             addClient(){
                 this.$router.push({path:'/approve'})
             },
             //表格选中事件
             changeFun(val){
-                this.selectList=val
-                //console.log(this.selectList)
+                this.selectList=val.concat()
+                let filters = this.$root.$options.filters
+                for (let item of this.selectList) {
+                    item.createTime=filters.date(item.createTime,true)
+                }
+                console.log(val)
+                console.log(this.selectList)
+                // this.$set(this.selectList.map(val => filters.date(val.createTime)))
             }, 
             //导出
             outExe() {
@@ -121,7 +143,8 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.excelData = this.selectList //你要导出的数据list。
+                    
+                    this.excelData = this.selectList//你要导出的数据list。
                     this.export2Excel()
                 }).catch(() => {
 
@@ -130,11 +153,11 @@
             export2Excel() {
                 require.ensure([], () => {
                     const {export_json_to_excel} = require('@/vendor/Export2Excel');
-                    const tHeader = ['企业名称','登陆账号', '创建时间','账户有效期','税号'];
-                    const filterVal = ['company', 'userName', 'createTime','validity','taxNumber'];
+                    const tHeader = ['企业名称','登陆账号', '登陆密码','联系人','电话','邮箱','创建时间','税号'];
+                    const filterVal = ['company', 'userName','passWord','contacts','phoneNum','email', 'createTime','taxNumber'];
                     const list = this.excelData;
                     const data = this.formatJson(filterVal, list);
-                    export_json_to_excel(tHeader, data, '账户管理');
+                    export_json_to_excel(tHeader, data, '客户管理');
                 })
             },
             formatJson(filterVal, jsonData) {
@@ -152,7 +175,7 @@
                 this.getTableList()
             },
             getTableList(){
-                //let token=this.$cookieStore.getCookie('token')
+                // 
                 let params=this.myData
                 this.$http.get(this.$api.platform.userList,{params:params}).then(res=>{
                     if(res.data.code===0){
@@ -226,14 +249,15 @@
             //     })
             // },
             handleXq(row){
-                console.log(row)
-                let agentId=row.id
-                this.$router.push({name:'zhdetail',query:{agentId:agentId}})
+                //console.log(row)
+                let entId=row.entId
+                this.$router.push({name:'zhdetail',query:{entId:entId}})
             },
             
         },
         created(){
             this.getTableList()
+            
         }
     }
 </script>

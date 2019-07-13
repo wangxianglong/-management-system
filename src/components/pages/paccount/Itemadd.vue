@@ -1,15 +1,15 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" :model="myData">
-            <el-form-item label="行销名单">
+        <el-form :inline="true" class="form-inline" :model="myData" ref="myData">
+            <el-form-item label="行销名单" prop="activityName">
                 <el-input placeholder="请输入行销名单" v-model="myData.activityName"></el-input>
             </el-form-item>
-            <el-form-item label="状态" v-if="roleId!=3">
-                <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
-                    <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            <el-form-item label="有效期" prop="validityType">
+                <el-select class="mySelect" v-model="myData.validityType" placeholder="全部" clearable >
+                    <el-option v-for="item in validityType" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="创建时间">
+            <el-form-item label="创建时间" prop="time">
                 <template>
                     <el-date-picker
                             v-model="time"
@@ -34,18 +34,19 @@
                 </el-select>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getTablelist" size="small">搜索</el-button>
+                <el-button size="small" @click="resetForm('myData')">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <!--获取行销名单-->
         <div style="padding:20px">
-            <!-- <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button> -->
+            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button>
             <el-button type="primary" @click='addActivity'>新增行销名单</el-button>
             <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制行销名单</el-button>
         </div>
         <!--弹框-->
-        <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="600px">
+        <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="600px" :close-on-click-modal='false'>
             <el-form :model="form" label-width="100px" class="formPage" label-position='left' ref="form">
                 <el-form-item label="行销名单名称">
                     <el-input v-model="form.activityName" placeholder="请输入行销名单名称"></el-input>
@@ -66,7 +67,13 @@
                     >
                     </el-date-picker>
                 </template>
-            </el-form-item>
+                </el-form-item>
+                <el-form-item label = '加密'>
+                    <el-radio-group v-model = 'form.desensitization'>
+                        <el-radio :label="0">否</el-radio>
+                        <el-radio :label='1'>是</el-radio>
+                    </el-radio-group>
+                </el-form-item>
                 <el-form-item label="上传文件">
                     <el-upload action="api/uploadExcel" :before-upload="beforeUpload" :on-preview="handlePreview" :on-remove="handleRemove" :on-success="handleSuccess" :before-remove="beforeRemove">
                         <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
@@ -105,7 +112,13 @@
                         style="width:300px"
                 >
                 </el-date-picker>
-                
+            </div>
+            <div style="margin-top:20px">
+                <span style="margin-left:55px">加密：</span>
+                <el-radio-group v-model = 'desensitization'>
+                    <el-radio :label="0">否</el-radio>
+                    <el-radio :label='1'>是</el-radio>
+                </el-radio-group>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click = "copyDialog =false">取消</el-button>
@@ -152,17 +165,17 @@
                     <el-button type="text" @click="numDetail(scope.row)">{{scope.row.orderNum}}</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="创建时间" prop="createTime">
+            <el-table-column label="创建时间" prop="createTime" width="150px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(hour)}}
                 </template>
             </el-table-column>
-            <el-table-column label="开始时间" prop="startTime" >
+            <el-table-column label="开始时间" prop="startTime" width="100px">
                 <template slot-scope="scope">
                     {{scope.row.startTime*1000 | date()}}
                 </template>
             </el-table-column>
-            <el-table-column label="结束时间" prop="endTime" >
+            <el-table-column label="结束时间" prop="endTime" width="100px">
                 <template slot-scope="scope">
                     {{scope.row.endTime*1000 | date()}}
                 </template>
@@ -170,7 +183,7 @@
             <el-table-column label="有效期" prop="validity">
                 <template slot-scope="scope">
                     <span style="color:red" v-if="scope.row.validity<0">无效</span>
-                    <span v-else>{{scope.row.validity}}</span>
+                    <span v-else>{{scope.row.validity}}天</span>
                 </template>
             </el-table-column>
             <el-table-column label="分配去向" v-if="roleId!=3">
@@ -223,6 +236,7 @@
             return {
                 copyActivityName:'',
                 copyDialog:false,
+                desensitization:1,
                 selected:'', 
                 fileList:[],
                 files:'',
@@ -230,17 +244,21 @@
                     activityName:'',
                     content:'',
                     excelFileName:'',
-                    
+                    desensitization:1,
                 },
                 listTime:null,
                 copyListTime:null,
                 addNewitemdialog:false,
-                time:null,
+                time:'',
                 hour:true,
                 loading:false,
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    cstartTime:'',
+                    cendTime:'',
+                    validityType:'',
+                    activityName:''
                 }, 
                 userId:null,
                 rowData:'',
@@ -260,12 +278,26 @@
                     value: '1',
                     label: '3'
                 }],
-                options2: [{
-                    value: '0',
-                    label: '未分配'
+                validityType: [
+                {
+                    value:0,
+                    label:'无效'
+                },
+                {
+                    value: 1,
+                    label: '0~3天'
                 }, {
-                    value: '5',
-                    label: '已分配'
+                    value: 2,
+                    label: '3~5天'
+                },{
+                    value:3,
+                    label:'5~10天'
+                },{
+                    value:4,
+                    label:'10~15天'
+                },{
+                    value:5,
+                    label:'大于15天'
                 }],
                 tableData:[],//表格数据
                 total:1,
@@ -273,6 +305,11 @@
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.time = ''
+                this.getTablelist()
+            },
             numDetail(row){
                 let activityId=row.activityId
                 this.$router.push({name:'numberPool',query:{activityId:activityId}})
@@ -282,18 +319,16 @@
             },
             //获取表格列表
             getTablelist(){
-                if (this.time!==null){
+                if (this.time!==''){
                    this.myData.cstartTime=this.time[0];
                    this.myData.cendTime =this.time[1];
                 }else{
-                    delete this.myData.cstartTime
-                    delete this.myData.cendTime
+                    this.myData.cstartTime ='';
+                    this.myData.cendTime = ''
                 }
                 this.loading=true
-                let token=this.$cookieStore.getCookie('token')
-                //console.log(token)
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res.data)
@@ -410,12 +445,13 @@
                 }
                 let startTime = this.copyListTime[0]
                 let endTime = this.copyListTime[1]
-                let token=this.$cookieStore.getCookie('token')
+                 
                 if(activityName ===''){
                     this.$message.warning('请输入行销名单名')
                     return
                 }
-                let params={id:id,activityName:activityName,token:token,startTime:startTime,endTime:endTime}
+                let desensitization = this.desensitization
+                let params={id:id,activityName:activityName,startTime:startTime,endTime:endTime,desensitization:desensitization}
                 this.$http.post(this.$api.platform.copyActivity,params).then(res => {
                     if(res.data.code === 0){
                         this.getTablelist()
@@ -453,7 +489,6 @@
                 }
                 this.addNewitemdialog = false
                 this.loading=true
-                this.form.token=this.$cookieStore.getCookie('token')
                 let params=this.form
                 this.$http.post(this.$api.platform.createActivity,params).then(res =>{
                     if(res.data.code===0){

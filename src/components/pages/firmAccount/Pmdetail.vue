@@ -1,15 +1,15 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="行销名单名">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
+            <el-form-item label="行销名单" prop="activityName">
                 <el-input v-model="myData.activityName" placeholder="请输入行销名单名"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" prop="status">
                 <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="创建时间">
+            <el-form-item label="创建时间:">
                 <template>
                     <el-date-picker
                             v-model="time"
@@ -22,14 +22,20 @@
                     </el-date-picker>
                 </template>
             </el-form-item>
-            <el-form-item label="开始时间：">
+            <el-form-item label="有效期" prop="validityType">
+                <el-select class="mySelect" v-model="myData.validityType" placeholder="全部" clearable >
+                    <el-option v-for="item in validityType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item>
+            <!-- <el-form-item label="开始时间：" prop="starteTime">
                 <el-date-picker v-model="myData.starteTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
             </el-form-item>
-            <el-form-item label="结束时间：">
+            <el-form-item label="结束时间：" prop="endTime">
                 <el-date-picker v-model="myData.endTime" type="date" placeholder="选择日期时间" value-format="yyyy-MM-dd"></el-date-picker>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="getactivityList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getactivityList" size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -107,6 +113,11 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    activityName:'',
+                    status:'',
+                    cstartTime:'',
+                    cendTime:'',
+                    validityType:''
                 },
                 checkList:[],
                 activity:[],
@@ -125,6 +136,27 @@
                     value: '选项4',
                     label: '未通过'
                 }],
+                validityType: [
+                {
+                    value:0,
+                    label:'无效'
+                },
+                {
+                    value: 1,
+                    label: '0~3天'
+                }, {
+                    value: 2,
+                    label: '3~5天'
+                },{
+                    value:3,
+                    label:'5~10天'
+                },{
+                    value:4,
+                    label:'10~15天'
+                },{
+                    value:5,
+                    label:'大于15天'
+                }],
                 tableData:[],
                 ids:null,
             }
@@ -133,6 +165,11 @@
             
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.time=null
+                this.getactivityList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -153,10 +190,10 @@
                     delete this.myData.cstartTime
                     delete this.myData.cendTime
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //console.log(token)
                 let params=this.myData
-                params.token=token
+                  
                 if(this.$route.query.id!==undefined){
                     sessionStorage.setItem('itemId',this.$route.query.id)
                     
@@ -190,11 +227,11 @@
                     return
                 }
                 this.activityDialog=true
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //let status=this.$route.query.status
                 //console.log(token)
                 
-                let params={pageIndex:1,pageSize:100,token:token,status:1}
+                let params={pageIndex:1,pageSize:100,  status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
@@ -233,9 +270,9 @@
             },
             //获取可分配行销名单
             getuserActivity(){
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //console.log(token)
-                let params={pageIndex:1,pageSize:200,token:token,status:1}
+                let params={pageIndex:1,pageSize:200,  status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)

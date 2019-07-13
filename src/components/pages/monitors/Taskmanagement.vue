@@ -1,13 +1,13 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="myData">
+        <el-form :inline="true" class="form-inline" :model="myData" ref="myData">
             <!-- <el-form-item label="任务名">
                 <el-input placeholder="请输入任务名称" v-model="myData.taskname"></el-input>
             </el-form-item> -->
-            <el-form-item label="行销名单">
+            <el-form-item label="行销名单" prop="activityName">
                 <el-input v-model="myData.activityName"></el-input>
             </el-form-item>
-            <el-form-item label="任务时段">
+            <!-- <el-form-item label="任务时段">
                 <template>
                     <el-date-picker 
                             v-model="time" 
@@ -19,14 +19,20 @@
                     >
                     </el-date-picker>
                 </template>
+            </el-form-item> -->
+            <el-form-item label="有效期" prop="validityType">
+                <el-select class="mySelect" v-model="myData.validityType" placeholder="全部" clearable >
+                    <el-option v-for="item in validityType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" prop="status">
                 <el-select v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click='getActivityList'>搜索</el-button>
+                <el-button type='primary' size="small" @click='getActivityList'>搜索</el-button>
+                <el-button size="small" @click="resetForm('myData')">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
@@ -84,6 +90,9 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    activityName:'',
+                    status:'',
+                    validityType:''
                 },  
                 count:1,
                 selectName:'',
@@ -103,6 +112,27 @@
                     value: '4',
                     label: '已完成'
                 }],
+                validityType: [
+                {
+                    value:0,
+                    label:'无效'
+                },
+                {
+                    value: 1,
+                    label: '0~3天'
+                }, {
+                    value: 2,
+                    label: '3~5天'
+                },{
+                    value:3,
+                    label:'5~10天'
+                },{
+                    value:4,
+                    label:'10~15天'
+                },{
+                    value:5,
+                    label:'大于15天'
+                }],
                 total:1,
                 tableData:[]
             }
@@ -111,6 +141,10 @@
             //初始化
             init (){
                 
+            },
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getActivityList()
             },
             handleCurrentChange(val) {
                 this.myData.pageIndex =val;
@@ -123,16 +157,16 @@
             //获取表格列表
             getActivityList(){
                 this.loading=true
-                if(this.time!==null){
-                    this.myData.starteTime=this.time[0]
-                    this.myData.endTime=this.time[1]
-                }else{
-                    delete this.myData.starteTime
-                    delete this.myData.endTime
-                }
-                let token=this.$cookieStore.getCookie('token')
+                // if(this.time!==null){
+                //     this.myData.starteTime=this.time[0]
+                //     this.myData.endTime=this.time[1]
+                // }else{
+                //     delete this.myData.starteTime
+                //     delete this.myData.endTime
+                // }
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.monitor.taskAssign,{params:params}).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)

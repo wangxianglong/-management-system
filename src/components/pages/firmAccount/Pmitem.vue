@@ -1,10 +1,10 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="项目名">
+        <el-form :inline="true" class="form-inline" :model="myData" ref="myData">
+            <el-form-item label="项目名" prop="itemName">
                 <el-input placeholder="请输入项目名称" v-model="myData.itemName"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" prop="status">
                 <el-select class="mySelect" v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
@@ -29,7 +29,8 @@
                 <el-date-picker v-model="tableData.jsdate" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getItemlist">搜索</el-button>
+                <el-button type='primary' size="small" @click="getItemlist">搜索</el-button>
+                <el-button size="small" @click="resetForm('myData')">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -82,7 +83,7 @@
     export default {
         data(){
             return {
-                time:'',
+                time:null,
                 hour:true,
                 itemName:"",  
                 addNewitemdialog:false,
@@ -108,6 +109,10 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    itemName:'',
+                    status:'',
+                    startTime:'',
+                    endTime:''
                 }
             }
         },
@@ -115,6 +120,11 @@
             //初始化
             init (){
                 
+            },
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.time = null
+                this.getItemlist()
             },
             handleCurrentChange(val) {
                 this.myData.pageIndex=val;
@@ -127,15 +137,15 @@
             //获取项目列表
             getItemlist(){
                 if (this.time!==null){
-                   this.myData.cstartTime=this.time[0];
-                   this.myData.cendTime =this.time[1];
+                   this.myData.startTime=this.time[0];
+                   this.myData.endTime =this.time[1];
                 }else{
-                    delete this.myData.cstartTime
-                    delete this.myData.cendTime
+                    delete this.myData.startTime
+                    delete this.myData.endTime
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.firm.itemList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
@@ -146,9 +156,9 @@
             },
             //获取可分配行销名单
             getuserActivity(){
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //console.log(token)
-                let params={pageIndex:1,pageSize:1000,token:token,status:1}
+                let params={pageIndex:1,pageSize:1000,  status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
@@ -166,8 +176,8 @@
             },
             add(){
                 //console.log(this.itemName)
-                let token=this.$cookieStore.getCookie('token')
-                let params={itemName:this.itemName,token:token}
+                 
+                let params={itemName:this.itemName}
                 this.$http.post(this.$api.firm.addItem,params).then(res =>{
                     if(res.data.code===0){
                         //console.log(res)

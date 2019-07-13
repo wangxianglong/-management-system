@@ -199,9 +199,9 @@
                     delete this.myData.startTime
                     delete this.myData.endTime
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.firm.recordList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)

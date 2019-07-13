@@ -1,14 +1,14 @@
 <template>
     <div>
-        <el-form :inline="true" class="form-inline" v-model="myData">
+        <el-form :inline="true" class="form-inline" :model="myData">
             <el-form-item label="项目名称:">
-                <el-input placeholder="请输入项目名称" v-model="myData.itemName"></el-input>
+                <el-input placeholder="请输入项目名称" v-model="myData.itemName" clearabled></el-input>
             </el-form-item>
             <!-- <el-form-item label="创建时间：">
                 <el-date-picker class='dateInput' v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
+                <el-button type='primary' @click="getTablelist" size="mini">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -127,10 +127,10 @@
             //获取表格数据
             getTablelist(){
                 this.loading=true
-                let token=this.$cookieStore.getCookie('token')
+                 
                 //console.log(token)
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.callee.statistics,{params:params}).then(res => {
                     if(res.data.code === 0){
                         console.log(res.data)
@@ -156,9 +156,9 @@
                 this.childData.arr[2].value=this.childData.myRow.expiration
                 this.childData.arr[3].value=this.childData.myRow.flux
                 this.childData.arr[4].value=this.childData.myRow.successNum
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let id=row.id
-                this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id,token:token}}).then(res => {
+                this.$http.get(this.$api.callee.statisticsDetail,{params:{pageIndex:1,pageSize:5,id:id}}).then(res => {
                     if(res.data.code === 0){
                         console.log('请求的data',res.data)
                         this.childData.optionbarData=res.data.data

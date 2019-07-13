@@ -135,7 +135,7 @@
                 
             },
             // getDetail(){
-            //     let token=this.$cookieStore.getCookie('token')
+            //      
             //     let params={token:token}
             //     this.$http.get(this.$api.firm.approve,{params:params}).then(res=>{
             //         if(res.data.code===0){

@@ -37,7 +37,6 @@ const router= new Router({
       path: '/',
       name:'home',
       component: resolve => require(['../components/common/Home.vue'], resolve),
-      
       meta: { title: '平台账户',isLogin:true},
       children:[
         {
@@ -247,30 +246,7 @@ const router= new Router({
     },
   ]
 })
-router.beforeEach((to,from,next) => {
- let token =getCookie('token')
- //console.log(token)
-  if(to.meta.isLogin){
-      if(token){
-        next()
-      }else{
-        next({
-          path:'/login',
-          query:{redirect:to.fullPath}
-        })
-      }
-  }else{
-    next()
-  }
-if (to.path === '/login') {
-    sessionStorage.clear();
-  }
-  let userName = sessionStorage.getItem('userName');
-  if (!userName && to.path !== '/login') {
-    next({path: '/login'})
-  } else {
-    next()
-}
+
     // if(to.path === '/login') {
     //   next();
     // }else{
@@ -281,5 +257,5 @@ if (to.path === '/login') {
     //     next()
     //   }
     // }
-})
+
 export default router

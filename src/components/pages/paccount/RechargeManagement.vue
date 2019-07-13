@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
             <!-- <el-form-item label="客户电话">
                 <el-input v-model="searchList.name"></el-input>
             </el-form-item> -->
@@ -9,20 +9,21 @@
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item> -->
-            <el-form-item label="企业ID">
+            <!-- <el-form-item label="企业ID">
                 <el-input v-model="myData.provide"></el-input>
+            </el-form-item> -->
+            <el-form-item label="企业名称" prop="company">
+                <el-input v-model="myData.company"></el-input>
             </el-form-item>
-            <el-form-item label="名称">
-                <el-input v-model="myData.area"></el-input>
-            </el-form-item>
-            <el-form-item label="充值金额">
+            <!-- <el-form-item label="充值金额" prop="rechargeTotal">
                 <el-input v-model="myData.rechargeTotal"></el-input>
             </el-form-item>
-            <el-form-item label="充值次数">
-                <el-input v-model="myData.area"></el-input>
-            </el-form-item>
+            <el-form-item label="充值次数" prop="rechargeCount">
+                <el-input v-model="myData.rechargeCount"></el-input>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList" size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
@@ -119,7 +120,10 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
-                    roleId:3
+                    roleId:3,
+                    company:'',
+                    rechargeTotal:'',
+                    rechargeCount:''
                 },
                 time:null,
                 entRow:{},
@@ -140,7 +144,10 @@
             }
         },
         methods:{
-            
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getTableList()
+            },
             handleCurrentChange(val) {
                 this.myData.pageIndex=val;
                 this.getTableList()
@@ -182,10 +189,10 @@
             saveRecharge(form){
                 this.$refs[form].validate((valid) => {
                     if(valid){
-                        let token=this.$cookieStore.getCookie('token')
+                         
                         let params=this.form
                         params.status = 1
-                        params.token=token
+                          
                         this.$http.post(this.$api.platform.recharge,params).then(res=>{
                             if(res.data.code===0){
                                 this.$message.success(res.data.msg)

@@ -1,8 +1,8 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="myData">
+        <el-form :inline="true" class="form-inline" :model="myData">
             <el-form-item label="坐席名">
-                <el-input placeholder="请输入任务名称" v-model="myData.userName"></el-input>
+                <el-input placeholder="请输入任务名称" v-model="myData.userName" clearable size="small"></el-input>
             </el-form-item>
             <!-- <el-form-item label="客户量">
                 <el-input v-model="myData.activityname"></el-input>
@@ -19,7 +19,7 @@
                 <el-date-picker v-model="myData.time" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getActivityList">搜索</el-button>
+                <el-button type='primary' style="margin-left:50px;" @click="getActivityList" size="small">搜索</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -113,7 +113,7 @@
                     pageIndex:1,
                     pagesize:10,
                     activityId:this.$route.query.id,
-                    status:this.$route.query.status
+                    status:this.$route.query.status,
                 },  
                 count:1,
                 selectName:'',
@@ -163,9 +163,9 @@
             },
             //获取表格列表
             getActivityList(){
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.monitor.seatList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         console.log(res.data)
@@ -194,7 +194,7 @@
                     this.$message.warning('分配数量不足')
                     return false
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 var arr=this.multipleSelection
                 let multis=[]
                 for(var i=0;i<arr.length;i++){
@@ -205,18 +205,18 @@
                 let num=this.myNum
                 let ids=multis
                 //console.log(ids)
-                let params={token:token,num:num,ids:ids,activityId:activityId}
+                let params={  num:num,ids:ids,activityId:activityId}
                 //console.log(activityId)
                 this.$http.post(this.$api.monitor.assignSeat,params).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
                         //this.tableData=res.data.list
                         this.taskDialog=false
-                        let token=this.$cookieStore.getCookie('token')
+                         
                         let id=this.$route.query.id
                         let status=3
                         //console.log(id)
-                        this.$http.get(this.$api.monitor.seatList,{params:{token:token,activityId:id,status:status}}).then(res =>{
+                        this.$http.get(this.$api.monitor.seatList,{params:{  activityId:id,status:status}}).then(res =>{
                             if(res.data.code===0){
                                 console.log(res.data)
                                 this.tableData=res.data.list

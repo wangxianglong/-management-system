@@ -14,15 +14,15 @@
                   <div class="myself"><img src="../../assets/myself.png"></div>
                   <div style="font-size:14px">
                     <span>欢迎你，</span>
-                    <el-dropdown trigger="click">
-                      <span class="el-dropdown-link">
+                    <!-- <el-dropdown trigger="click">
+                      <span class="el-dropdown-link"> -->
                         {{userName}}
-                        <!-- <i class="el-icon-arrow-down el-icon--right"></i> -->
+                        <!-- <i class="el-icon-arrow-down el-icon--right"></i>
                       </span>
-                      <!-- <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item>修改密码</el-dropdown-item>
-                      </el-dropdown-menu> -->
-                    </el-dropdown>
+                      </el-dropdown-menu>
+                    </el-dropdown> -->
                   </div>
                   <div class="sss"><img src="../../assets/sss.png"></div>
                 </div>

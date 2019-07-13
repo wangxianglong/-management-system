@@ -18,7 +18,7 @@
                             range-separator="至"
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
-                            value-format="yyyy-MM-dd HH:mm:ss"
+                            value-format="yyyy-MM-dd"
                     >
                     </el-date-picker>
                 </template>
@@ -34,14 +34,15 @@
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
-                <!-- <el-button type='primary' @click="resetForm('myData')">重置</el-button> -->
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
+                <el-button type='primary' @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <!--获取活动-->
         <div style="padding:20px">
-            <el-button v-if="roleId==1" type="primary" @click='goBack'>返回</el-button>
+            <el-button type="primary" @click="outExe">导出</el-button>
+            <el-button v-if="roleId==1" type="primary" @click='$router.go(-1)'>返回</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
@@ -49,21 +50,29 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="项目名称" prop="item_name"></el-table-column>
-            <el-table-column label="座席号" prop="user_name"></el-table-column>
-            <el-table-column label="端口号" prop="ext"></el-table-column>
-            <el-table-column label="开始时间" prop="StartTime">
+            <el-table-column label="项目名称" prop="item_name" width="120px"></el-table-column>
+            <el-table-column label="座席号" prop="user_name" width="120px"></el-table-column>
+            <el-table-column label="使用人" prop="real_name" width="120px"></el-table-column>
+            <el-table-column label="端口号" prop="ext" width="120px"></el-table-column>
+            <el-table-column label="开始时间" prop="StartTime" width="150px">
                 <template slot-scope="scope">
                     {{scope.row.StartTime | date(true)}}
                 </template>
             </el-table-column>
-            <el-table-column label="结束时间" prop="EndTime">
+            <el-table-column label="结束时间" prop="EndTime" width="150px">
                 <template slot-scope="scope">
                     {{scope.row.EndTime | date(true)}}
                 </template>
             </el-table-column>
-            <el-table-column label="通话号码" prop="phoneNum"></el-table-column>
-            <el-table-column label="通话时长(秒)" prop="timeLong"></el-table-column>
+            <el-table-column label="通话号码" prop="phoneNum" width="120px">
+                <template slot-scope="scope">
+                    <el-popover placement='top-start' width="200" trigger="hover" :content="scope.row.comment" :disabled="scope.row.comment?false:true">
+                        <el-button type="text" slot="reference" v-if="scope.row.desensitization === 0">{{scope.row.phoneNum}}</el-button>
+                        <el-button type="text" slot="reference" v-if="scope.row.desensitization === 1">{{scope.row.phoneNum | placePhone()}}</el-button>
+                    </el-popover>
+                </template>
+            </el-table-column>
+            <el-table-column label="通话时长(秒)" prop="timeLong" width="120px"></el-table-column>
             <el-table-column label="意向" prop="intention">
                 <template slot-scope="scope">
                     <span v-if='scope.row.intention === 1'>A</span>
@@ -84,7 +93,7 @@
             <el-table-column label="录音" prop="path" width="290px" align="center">
                 <template slot-scope="scope">
                     <div class='audio-box'>
-                        <vAudio v-if="scope.row.path" :theUrl="scope.row.path" />
+                        <vAudio :theUrl="scope.row.path" v-if="reFresh"/>
                     </div>
                 </template>
             </el-table-column>
@@ -103,6 +112,7 @@ import vAudio from '../../common/VueAudio'
     export default {
         data(){
             return {
+                reFresh:false,
                 timeSet:[
                     {
                         set:1,
@@ -118,10 +128,6 @@ import vAudio from '../../common/VueAudio'
                     }
                 ],
                 intentionList:[
-                    {
-                        type:null,
-                        label:'全部'
-                    },
                     {
                         type:1,
                         label:'A'
@@ -158,7 +164,12 @@ import vAudio from '../../common/VueAudio'
                 myData:{
                     pageIndex:1,
                     pageSize:10,
-                    
+                    userName:"",
+                    phoneNum:'',
+                    startTime:'',
+                    endTime:'',
+                    timeLongType:'',
+                    intention:''
                 },
                 time:null,
                 entId:'',
@@ -177,7 +188,7 @@ import vAudio from '../../common/VueAudio'
         },
         methods:{
             audioPlay(row){
-                console.log(row.path)
+                //console.log(row.path)
                 if(row.path === undefined){
                     this.$message.error('没有录音文件')
                 }else{
@@ -197,6 +208,7 @@ import vAudio from '../../common/VueAudio'
             },
             //获取表格列表
             getTableList(){
+                this.reFresh = false
                 this.loading=true
                 if (this.time!==null){
                    this.myData.startTime=this.time[0];
@@ -210,45 +222,106 @@ import vAudio from '../../common/VueAudio'
                 }else{
                     this.entId=sessionStorage.getItem('entId')
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 params.entId = this.entId
                 this.$http.get(this.$api.platform.getTelDetail,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.tableData=res.data.list
                         this.total=res.data.count
                         this.loading=false
+                        this.$nextTick( ()=>{
+                            this.reFresh = true
+                        })
                     }
                 })
             },
-            goBack(){
-                this.$router.push({path:'/telephoneManagement'})
+            resetForm(myData){
+                this.$nextTick(()=>{})
+                this.$refs[myData].resetFields();
+                this.time = null
+                this.getTableList()
             },
-            // resetForm(myData){
-            //     this.$nextTick(()=>{})
-            //     this.$refs[myData].resetFields();
-            // }
+            //导出
+            outExe() {
+                function copyArr(arr){
+                    return arr.map((e)=>{
+                        if(typeof e === 'object'){
+                            return Object.assign({},e)
+                        }else{
+                            return e
+                        }
+                    })
+                }
+                let excelList = copyArr(this.tableData)
+                let filters = this.$root.$options.filters
+                for (let item of excelList) {
+                    item.StartTime=filters.date(item.StartTime,true)
+                    item.EndTime=filters.date(item.EndTime,true)
+                    switch (item.intention) {
+                        case 1:
+                            item.intention = "A";
+                            break;
+                        case 2:
+                            item.intention = "B";
+                            break;
+                        case 3:
+                            item.intention = "C";
+                            break;
+                        case 4:
+                            item.intention = "D";
+                            break;
+                        case 6:
+                            item.intention = "拒接";
+                            break;
+                        case 7:
+                            item.intention = "忙音/关机";
+                            break;
+                        default:
+                            item.intention = "其他";
+                    }
+                }
+                this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    
+                    this.excelData = excelList//你要导出的数据list。
+                    this.export2Excel()
+                }).catch(() => {
+
+                });
+            },
+            export2Excel() {
+                require.ensure([], () => {
+                    const {export_json_to_excel} = require('@/vendor/Export2Excel');
+                    const tHeader = ['项目名称','坐席号', '端口号','开始时间','结束时间','通话号码','备注','通话时长(秒)','意向','录音'];
+                    const filterVal = ['item_name', 'user_name','ext','StartTime','EndTime','phoneNum', 'comment','timeLong','intention','path'];
+                    const list = this.excelData;
+                    const data = this.formatJson(filterVal, list);
+                    export_json_to_excel(tHeader, data, '话单详情');
+                })
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]))
+            },
         },
         created(){
             this.getTableList()
-        }
+        },
+        
     }
 </script>
 <style scoped>
     .pagebutton {
         float:right
     }
-    .audio {
-        width:200px;
-        
-    }
+    
     .audioBox{
-        display:flex;
-        align-items: center;
-        width:200px;
-        height:30px
+        
     }
     
  

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
+import router from '../router';
 //import { Loading } from 'element-ui';
 
 
@@ -8,7 +9,6 @@ axios.defaults.withCredentials = true;
 // axios.defaults.timeout = 1000 * 10;
 
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-
 // let loading;
 
 // let openLoading = () => {
@@ -24,9 +24,9 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 axios.interceptors.request.use(function (config) {
     //openLoading()
-    // if(localStorage.getItem('Authorization')){
-    //     config.headers.Authorizations = localStorage.getItem('Authorizations')
-    // }
+    if(sessionStorage.getItem('token')){
+        config.headers.token = sessionStorage.getItem('token')
+    }
     return config;
 }, function (err) {
     this.message.error({
@@ -39,18 +39,23 @@ axios.interceptors.response.use(function (response) {
     
     return response;
 }, function (error) {
-    //closeLoading();
-    if (error.response) {
-        // switch (error.response.status) {
-        //     case 401:
-                // 返回 401 清除token信息并跳转到登录页面
-                //alert('用户验证失效!');
-                
-                // this.$router.replace({
-                //     path: 'login',
-                //     query: {redirect: this.$router.currentRoute.fullPath}
-                // })
-        // }
+    if(error.response) {
+        switch (error.response.status) {
+            case 401:
+                alert('用户验证失效')
+                router.replace({
+                    path:'login',
+                    query:{redirect:router.currentRoute.fillPath}
+                })
+                break;
+            case 402:
+                alert('账号已登录，请重新登陆')
+                router.replace({
+                    path:'login',
+                    query:{redirect:router.currentRoute.fillPath}
+                })
+                break;
+        }
     }
     return Promise.reject(error);
 });

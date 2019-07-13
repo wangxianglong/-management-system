@@ -67,7 +67,7 @@
     name: 'VueAudio',
     data() {
       return {
-        url: this.theUrl || 'http://devtest.qiniudn.com/secret base~.mp3',
+        url: this.theUrl,
         audio: {
           currentTime: 0,
           maxTime: 0,
@@ -217,7 +217,7 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .main-wrap{
-    padding: 10px 15px;
+    padding: 0 15px;
   }
   .slider {
     display: inline-block;

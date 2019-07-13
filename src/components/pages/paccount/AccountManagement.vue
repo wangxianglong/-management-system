@@ -1,10 +1,10 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="账号">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
+            <el-form-item label="账号" prop="userName">
                 <el-input v-model="myData.userName"></el-input>
             </el-form-item>
-            <el-form-item label="角色名称">
+            <el-form-item label="角色名称" prop="roleId">
                 <el-select v-model="myData.roleId" placeholder="请选择">
                     <el-option v-for="item in roleNameList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
                 </el-select>
@@ -22,11 +22,12 @@
                     </el-date-picker>
                 </template>
             </el-form-item> -->
-            <el-form-item label="使用人">
+            <el-form-item label="使用人" prop="realName">
                 <el-input v-model="myData.realName"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  size="small">搜索</el-button>
+                <el-button  @click="resetForm('myData')"  size="small">重置</el-button>
             </el-form-item>
         </el-form>
          <div class="small-divider"></div>
@@ -109,6 +110,9 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    userName:'',
+                    roleId:'',
+                    realName:''
                 },
                 time:null,
                 rules:{
@@ -137,7 +141,10 @@
             })
         },
         methods:{
-            
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -152,10 +159,10 @@
             //获取表格列表
             getTableList(){
                 this.loading=true
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
                 let company = "网聚海数"
-                params.token=token
+                  
                 params.company = company
                 this.$http.get(this.$api.user.userList,{params:params}).then(res=>{
                     if(res.data.code===0){

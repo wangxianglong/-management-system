@@ -1,8 +1,8 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="myData">
+        <el-form :inline="true" class="form-inline" :model="myData">
             <el-form-item label="班长名">
-                <el-input placeholder="请输入班长名" v-model="myData.userName"></el-input>
+                <el-input placeholder="请输入班长名" size="small" v-model="myData.userName" clearable></el-input>
             </el-form-item>
             <!--
             <el-form-item label="数据量">
@@ -21,7 +21,7 @@
             </el-form-item>
             -->
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getTablelist">搜索</el-button>
+                <el-button type='primary' @click="getTablelist" size="small">搜索</el-button>
             </el-form-item>
             
         </el-form>
@@ -192,9 +192,9 @@
             },
             //获取表格列表
             getTablelist(){
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 //console.log(status+'jia')
                 //console.log(activityId)
                 this.$http.get(this.$api.firm.monitorList,{params:params}).then(res=>{

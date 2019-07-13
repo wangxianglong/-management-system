@@ -2,10 +2,10 @@
     <div>
         <el-form :inline="true" :model="myData" class="form-inline">
             <el-form-item label="企业名称">
-                <el-input v-model="myData.company"></el-input>
+                <el-input v-model="myData.company" clearable></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
             </el-form-item>
         </el-form>
         <!-- <div class="small-divider"></div>
@@ -21,7 +21,7 @@
             <el-table-column label="已停用" prop="stopped" width="200px"></el-table-column> -->
             <el-table-column label="外显新增">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="addBtn(scope.$index,scope.row)">新增</el-button>
+                    <el-button type="primary" size="mini" @click="addBtn(scope.$index,scope.row)">新增</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="显示方式">
@@ -31,7 +31,7 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="detail(scope.row)">编辑</el-button>
+                    <el-button type="primary" size="mini" @click="detail(scope.row)">详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -62,8 +62,8 @@
         </el-dialog> -->
         <el-dialog title="新增" :visible.sync="addDialog" width="550px">
             <span style="vertical-align:top;">外显号码：</span><el-input type="textarea" :rows="5" placeholder="请输入外显号码" v-model="addNum" style="width:300px"></el-input>
-            <p style='color:red;margin-left:110px'>
-                多个号码之间请用逗号隔开,请勿重复号码
+            <p style='color:red;margin-left:90px'>
+                多个号码之间请用英文逗号隔开,请勿重复号码
             </p>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addDialog = false">取 消</el-button>

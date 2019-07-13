@@ -1,10 +1,10 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="号码">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
+            <el-form-item label="号码" prop="showNumber">
                 <el-input v-model="myData.showNumber"></el-input>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" prop="status">
                 <el-select v-model="myData.status" placeholder="全部" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
@@ -13,12 +13,13 @@
                 <el-date-picker v-model="myData.num" type="datetime" placeholder="选择日期时间"></el-date-picker>
             </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px">
-            <el-button type="primary" @click="goBack" v-if='roleId == 1'>返回</el-button>
+            <el-button type="primary" @click="$router.go(-1)" v-if='roleId == 1'>返回</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
@@ -91,6 +92,8 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    showNumber:'',
+                    status:''
                 },
                 // value:'',
                 // createtime:'',
@@ -101,6 +104,10 @@
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getTableList()
+            },
             // handleChange(value, direction, movedKeys) {
             // console.log(value, direction, movedKeys);
             //  //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
@@ -144,13 +151,13 @@
                 }else{
                     this.userId=sessionStorage.getItem('agentId')
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
                 params.userId = this.userId
-                params.token=token
+                  
                 this.$http.get(this.$api.firm.numList,{params:params}).then(res=>{
                     if(res.data.code===0){
-                        console.log(res)
+                        //console.log(res)
                         this.tableData=res.data.list
                         this.total=res.data.count
                     }
@@ -198,9 +205,6 @@
                     });          
                 })
             },
-            goBack(){
-                this.$router.push({path:'/exontotal'})
-            }
         },
         created(){
             this.getTableList()

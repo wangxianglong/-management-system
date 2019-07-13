@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
             <!-- <el-form-item label="客户电话">
                 <el-input v-model="searchList.name"></el-input>
             </el-form-item> -->
@@ -9,20 +9,36 @@
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item> -->
-            <el-form-item label="企业ID">
+            <!-- <el-form-item label="企业ID">
                 <el-input v-model="myData.ent_id"></el-input>
-            </el-form-item>
-            <el-form-item label="名称">
+            </el-form-item> -->
+            <el-form-item label="企业名称" prop="company">
                 <el-input v-model="myData.company"></el-input>
             </el-form-item>
-            <el-form-item label="充值金额">
+            <!-- <el-form-item label="充值金额">
                 <el-input v-model="myData.amount"></el-input>
+            </el-form-item> -->
+            <el-form-item label="日期">
+                <template>
+                    <el-date-picker 
+                            v-model="time" 
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
             </el-form-item>
-            <el-form-item label="状态">
-                <el-input v-model="myData.status"></el-input>
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
+                    <el-option v-for="item in statusType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')"  size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
@@ -35,7 +51,7 @@
             <el-table-column label="名称" prop="company"></el-table-column>
             <el-table-column label="充值金额" prop="amount"></el-table-column>
             <el-table-column label="事项说明" prop="content"></el-table-column>
-            <el-table-column label="提交时间" prop="createTime">
+            <el-table-column label="提交时间" prop="createTime" width="150px">
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
@@ -81,11 +97,35 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    company:'',
+                    amount:'',
+                    status:'',
+                    startTime:'',
+                    endTime:''
                 },
+                statusType:[
+                    {
+                        value:1,
+                        label:'待审核'
+                    },
+                    {
+                        value:2,
+                        label:'充值成功'
+                    },
+                    {
+                        value:3,
+                        label:'退回'
+                    }
+                ],
                 time:null,
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.time = null
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -107,9 +147,9 @@
                     delete this.myData.startTime
                     delete this.myData.endTime
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.platform.rechargeDetail,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)

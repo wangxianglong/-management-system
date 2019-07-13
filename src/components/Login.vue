@@ -110,14 +110,15 @@ import { mapMutations } from 'vuex'
                         let passWord=this.loginData.passWord
                         
                         // this.$cookieStore.setCookie( userName ,'',1800);
-                        // this.$cookieStore.getCookie(userName)
+                        // this.$cookieStore.getCookie('userName')
                         this.$http.post(this.$api.login.login,{
                             userName,
                             passWord
                         }).then((res) => {
                                 //console.log(res)
                                 if(res.data.data.status=="success"){
-                                    let token=this.$cookieStore.getCookie('token')
+                                     let token = this.$cookieStore.getCookie('token')
+                                     //console.log(token)
                                     // _this.changeLogin({Authorization:token}) 
                                     // this.$store.commit('SET_TOKEN',token)
                                     this.$store.commit("GET_ID",res.data.data.id)
@@ -127,6 +128,7 @@ import { mapMutations } from 'vuex'
                                     sessionStorage.setItem('phoneNum',res.data.data.phoneNum)
                                     sessionStorage.setItem('entId',res.data.data.entId)
                                     sessionStorage.setItem('userName',userName)
+                                    sessionStorage.setItem('token',token)
                                     this.$message({
                                         message:'登录成功',
                                         type:'success'

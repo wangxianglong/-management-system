@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
             <el-form-item label="日期">
                 <template>
                     <el-date-picker 
@@ -14,14 +14,17 @@
                     </el-date-picker>
                 </template>
             </el-form-item>
-            <el-form-item label="状态">
-                <el-input v-model="myData.area"></el-input>
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
+                    <el-option v-for="item in statusType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
             </el-form-item>
-            <el-form-item label="金额">
-                <el-input v-model="myData.area"></el-input>
-            </el-form-item>
+            <!-- <el-form-item label="金额" prop="amount">
+                <el-input v-model="myData.amount"></el-input>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
@@ -75,13 +78,36 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    amount:'',
+                    status:'',
+                    startTime:'',
+                    endTime:''
                 },
+                statusType:[
+                    {
+                        value:1,
+                        label:'待审核'
+                    },
+                    {
+                        value:2,
+                        label:'充值成功'
+                    },
+                    {
+                        value:3,
+                        label:'退回'
+                    }
+                ],
                 time:null,
                 userId:'',
                 roleId:sessionStorage.getItem('roleId')
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.time = null
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -103,14 +129,14 @@
                     delete this.myData.startTime
                     delete this.myData.endTime
                 }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 if(window.location.href.split('?').length!==1){
-                    this.userId=this.$route.query.agentId
+                    this.userId=this.$route.query.userId
                 }else{
                     this.userId=sessionStorage.getItem('agentId')
                 }
                 let params=this.myData
-                params.token=token
+                  
                 params.userId=this.userId
                 this.$http.get(this.$api.platform.rechargeDetail,{params:params}).then(res=>{
                     if(res.data.code===0){

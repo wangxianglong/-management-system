@@ -43,7 +43,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.expiration | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.expiration!=null?statistics.expiration:'0'}}</span></div>
                     <!-- <div class="three-box">
                     <div class="three">
                         <span style="color:#aaa;margin-right:10px">同比</span>
@@ -66,7 +66,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.dialNum | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.dialNum!=null?statistics.dialNum:'0'}}</span></div>
                     <!-- <div class="four"><span class="buding">呼通率</span><span>60%</span></div> -->
                 </div>
             </el-col>
@@ -79,7 +79,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.cusNum?statistics.successNum/statistics.cusNum*100:'--' | toString()}}%</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.expiration!=null?statistics.successNum/statistics.expiration*100:'0' | toString()}}%</span></div>
                     <!-- <div class="three-box">
                         <el-progress :percentage="78" :text-inside="true" :stroke-width="12" style="width:100%"></el-progress>
                     </div>
@@ -104,7 +104,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.charging | toString}}</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.charging!=null?statistics.charging:'0'}}</span></div>
                     <!-- <div class="four"><span class="buding">累积拨打时长</span><span>1D 15H 24M 34S</span></div> -->
                 </div>
             </el-col>
@@ -145,7 +145,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header :header-cell-style="tableHeaderStyle">
+                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header >
                         <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="user_name" width="150px"></el-table-column>
                         <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
@@ -369,8 +369,8 @@
         },
         getDataList(){
             this.loading=true
-            let token=this.$cookieStore.getCookie('token')
-            let params={token:token,pageIndex:this.currentPage,pageSize:this.pageSize}
+             
+            let params={pageIndex:this.currentPage,pageSize:this.pageSize}
             this.$http.get(this.$api.platform.index,{params:params}).then(res=>{
                 if(res.data.code===0){
                     //console.log(res)
@@ -406,7 +406,7 @@
             })
         },
         // getItemList(){
-        //     let token=this.$cookieStore.getCookie('token')
+        //      
         //     let pageSize=200
         //     let pageIndex=1
         //     let params={pageSize:pageSize,pageIndex:pageIndex,token:token}

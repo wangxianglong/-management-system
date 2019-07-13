@@ -125,7 +125,12 @@ export default {
     },
     //隐藏号码中间四位
     placePhone(num){
-	    return num.toString().replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+        if(num.toString().length === 11){
+            return num.toString().replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
+        }else{
+            return num.toString().replace(/^(\d{4})\d{4}(\d{4})$/, '$1****$2')
+        }
+	    
     }
     // numFormat(value){
     //     if(!value) return '0.00';

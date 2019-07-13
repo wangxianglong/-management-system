@@ -1,12 +1,13 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="企业名称">
-                <el-select v-model="myData.ext" placeholder="请填写企业名称" clearable>
+        <el-form :inline="true" :model="myData" class="form-inline" ref = 'myData'>
+            <el-form-item label="企业名称" prop="company">
+                <!-- <el-select v-model="myData.ext" placeholder="请填写企业名称" clearable>
                     <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
-                </el-select>
+                </el-select> -->
+                <el-input v-model = "myData.company"></el-input>
             </el-form-item>
-            <el-form-item label="通话号码">
+            <!-- <el-form-item label="通话号码">
                 <el-input v-model="myData.phoneNum"></el-input>
             </el-form-item>
             <el-form-item label="通话时间">
@@ -21,14 +22,15 @@
                     >
                     </el-date-picker>
                 </template>
-            </el-form-item>
-            <el-form-item label="时长设置">
+            </el-form-item> -->
+            <!-- <el-form-item label="时长设置">
                 <el-select v-model="myData.timeLongType" placeholder="请选择">
                     <el-option v-for="item in timeSet" :key="item.type" :label="item.label" :value="item.type"></el-option>
                 </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
@@ -38,8 +40,8 @@
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="企业Id" prop="ent_id"></el-table-column>
-            <el-table-column label="企业名称" prop="company"></el-table-column>
-            <el-table-column label="创建时间" prop="create_time">
+            <el-table-column label="企业名称" prop="company" width="120px"></el-table-column>
+            <el-table-column label="创建时间" prop="create_time" width="150px">
                 <template slot-scope="scope">
                     {{scope.row.create_time | date(true)}}
                 </template>
@@ -102,13 +104,18 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    company:''
                 },
-                time:null,
+                //time:null,
             }
         },
         mounted(){
         },
         methods:{
+            resetForm(myData) {
+                this.$refs[myData].resetFields();
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -123,16 +130,14 @@
             //获取表格列表
             getTableList(){
                 this.loading=true
-                if (this.time!==null){
-                   this.myData.startTime=this.time[0];
-                   this.myData.endTime =this.time[1];
-                }else{
-                    delete this.myData.startTime
-                    delete this.myData.endTime
-                }
-                let token=this.$cookieStore.getCookie('token')
+                // if (this.time!==null){
+                //    this.myData.startTime=this.time[0];
+                //    this.myData.endTime =this.time[1];
+                // }else{
+                //     delete this.myData.startTime
+                //     delete this.myData.endTime
+                // }
                 let params=this.myData
-                params.token=token
                 this.$http.get(this.$api.platform.getTelList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)

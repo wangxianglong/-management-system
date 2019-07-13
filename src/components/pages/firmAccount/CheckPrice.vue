@@ -1,18 +1,19 @@
 <template>
     <div>
-        <el-form :inline="true" :model="myData" class="form-inline">
-            <el-form-item label="企业ID">
-                <el-input v-model="myData.ent_id"></el-input>
-            </el-form-item>
-            <el-form-item label="名称">
+        <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
+            
+            <el-form-item label="公司名称" prop="company">
                 <el-input v-model="myData.company"></el-input>
             </el-form-item>
             
-            <el-form-item label="状态">
-                <el-input v-model="myData.status"></el-input>
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="myData.status" placeholder="请选择" style="margin-left:10px;">
+                    <el-option v-for="item in statusType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type='primary' @click="getTableList"  style="margin-left:50px;">搜索</el-button>
+                <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
+                <el-button  @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
@@ -21,11 +22,11 @@
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="企业ID" prop="ent_id" width="100px"></el-table-column>
-            <el-table-column label="名称" prop="company"></el-table-column>
-            <el-table-column label="坐席费(元/个)" prop="seatFee" width="120px"></el-table-column>
-            <el-table-column label="语音费(元/分)" prop="voiceFee" width="120px"></el-table-column>
-            <el-table-column label="套餐费(元)" prop="set" width="120px">
+            <el-table-column label="企业ID" prop="ent_id" ></el-table-column>
+            <el-table-column label="企业名称" prop="company" width="150px"></el-table-column>
+            <el-table-column label="坐席费(元/个)" prop="seatFee" ></el-table-column>
+            <el-table-column label="语音费(元/分)" prop="voiceFee" ></el-table-column>
+            <el-table-column label="套餐费(元)" prop="set">
                 <template slot-scope="scope">
                     <span>{{scope.row.set === 1?'850':'0'}}</span>
                 </template>
@@ -33,7 +34,7 @@
             <!-- <el-table-column label="待审核坐席费" prop="amount"  width='120px'></el-table-column>
             <el-table-column label="待审核语音费" prop="amount"  width='120px'></el-table-column>
             <el-table-column label="待审核套餐费" prop="amount" width='120px'></el-table-column> -->
-            <el-table-column label="提交时间" prop="createTime">
+            <el-table-column label="提交时间" prop="createTime" width="150px">
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
@@ -42,10 +43,11 @@
                 <template slot-scope="scope">
                     <el-button type='text' style='color:red' v-if = "scope.row.status===1">待审核</el-button>
                     <el-button type="text" v-if = "scope.row.status===2">通过</el-button>
-                    <el-button type="text" v-if = "scope.row.status===3">退回</el-button>
+                    <el-button style="color:red" type="text" v-if = "scope.row.status===3">退回</el-button>
+                    <el-button style="color:red" type="text" v-if = "scope.row.status===4">已过期</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="200px" align="center">
+            <el-table-column label="操作" width="200px">
                 <template slot-scope="scope">
                     <el-button v-if='scope.row.status === 1' type="primary" size="mini" @click="moderate(scope.row)">审核通过</el-button>
                     <el-button v-if='scope.row.status === 2' type="text" size="mini">已通过</el-button>
@@ -72,11 +74,30 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    company:null,
+                    status:null
                 },
                 time:null,
+                statusType: [{
+                    value: '1',
+                    label: '待审核'
+                }, {
+                    value: '2',
+                    label: '通过'
+                },{
+                    value: '3',
+                    label: '退回'
+                },{
+                    value:'4',
+                    label:'已过期'
+                }],
             }
         },
         methods:{
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },
@@ -98,9 +119,9 @@
                 //     delete this.myData.startTime
                 //     delete this.myData.endTime
                 // }
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 this.$http.get(this.$api.platform.selectSingle,{params:params}).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)

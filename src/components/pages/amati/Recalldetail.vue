@@ -1,14 +1,14 @@
 <template>
     <div class="itemadd">
-        <el-form :inline="true" class="form-inline" v-model="myData">
-            <el-form-item label="姓氏">
+        <el-form :inline="true" class="form-inline" :model="myData" ref="myData">
+            <!-- <el-form-item label="姓氏" prop="firstName">
                 <el-input placeholder="请输入名称" v-model="myData.firstName"></el-input>
             </el-form-item>
-            <el-form-item label="性别">
+            <el-form-item label="性别" prop='sex'>
                 <el-select v-model="myData.sex" placeholder="请选择" style="margin-left:10px;">
-                    <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    <el-option v-for="item in sexType" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <!-- <el-form-item label="状态">
                 <el-select v-model="value" placeholder="请选择" style="margin-left:10px;">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -26,20 +26,29 @@
             <el-form-item label="号码后四位">
                 <el-input v-model="myData.taskname"></el-input>
             </el-form-item> -->
+            <el-form-item label="电话号码：" prop="phoneNum">
+                <el-input placeholder="请输入号码" v-model="myData.phoneNum"></el-input>
+            </el-form-item>
             <el-form-item>
-                <el-button type='primary' style="margin-left:50px;" @click="getActivityList">搜索</el-button>
+                <el-button type='primary' size="small" @click="getActivityList">搜索</el-button>
+                <el-button size="small" @click="resetForm('myData')">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
-            <el-button type="primary" @click="goback">返回</el-button>
+            <el-button type="primary" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="姓氏/性别" prop="cName" sortable width="150px"></el-table-column>
-            <el-table-column label="电话" prop="phoneNum" sortable width="150px"></el-table-column>
+            <el-table-column label="电话" prop="phoneNum" sortable width="150px">
+                <template slot-scope="scope">
+                    <span v-if="scope.row.desensitization === 0">{{scope.row.phoneNum}}</span>
+                    <span v-if="scope.row.desensitization === 1">{{scope.row.phoneNum | placePhone()}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="省份" prop="provide" sortable></el-table-column>
             <el-table-column label="地市" prop="area" sortable></el-table-column>
             <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
@@ -64,9 +73,9 @@
             <!-- <el-table-column label="客户有效期" sortable>
                 <el-button type="text" @click="whdialog">失效</el-button>
             </el-table-column> -->
-            <el-table-column label="操作">
+            <el-table-column label="操作" align="center">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="makeCall(scope.$index,scope.row)" :disabled="isDisabled"><i class="el-icon-phone"></i> 外呼</el-button>
+                    <el-button type="primary" size="mini" @click="makeCall(scope.$index,scope.row)" :disabled="isDisabled"><i class="el-icon-phone"></i> 外呼</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -88,7 +97,8 @@
                 </template>
             </el-form-item>
             <el-form-item label="手机">
-                <span>{{form.phoneNum}}</span>
+                <span v-if="form.desensitization === 0">{{form.phoneNum}}</span>
+                <span v-if="form.desensitization === 1">{{form.phoneNum | placePhone()}}</span>
             </el-form-item>
             <el-form-item label="意向">
                 <el-radio-group v-model="form.intention">
@@ -113,9 +123,9 @@
                     <el-checkbox label="其他"></el-checkbox>
                 </el-checkbox-group> -->
             </el-form-item>
-            <!-- <el-form-item>
-                <el-input type="textarea" v-model="form.desc" size="medium"></el-input>
-            </el-form-item> -->
+            <el-form-item label="备注">
+                <el-input type="textarea" maxLength="50" show-word-limit='true' v-model="form.comment" size="medium" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注"></el-input>
+            </el-form-item>
             <el-form-item label="话术">
                 <el-input type="textarea" v-model="form.content"></el-input>
             </el-form-item>
@@ -150,7 +160,8 @@
                     pageIndex:1,
                     pageSize:10,
                     activityId:this.$route.query.activityId,
-                    status:3
+                    status:3,
+                    phoneNum:null
                 },  
                 total:1,
                 count:1,
@@ -184,7 +195,7 @@
                     value:'选项7',
                     label:'其他'
                 }],
-                options2: [{
+                sexType: [{
                     value: '先生',
                     label: '先生'
                 }, {
@@ -199,7 +210,7 @@
                 activityId:null,
                 states:'',
                 phoneNum:sessionStorage.getItem('phoneNum'),
-                sessionId:''
+                sessionId:null
             }
         },
         destroyed(){
@@ -224,75 +235,35 @@
                             e.earlyMedia=true
                             console.log('IDle')
                             if(e.msg == 'Normal release'){
-                                let params = {sessionId:this.sessionId}
-                                this.$http.get(this.$api.amati.updateTelDetail,{params:params}).then( res=>{
-                                    if(res.data.code !== 0){
-                                        alert('复制话单错误')
-                                    }
-                                })
+                                if(this.sessionId != null){
+                                    let params = {sessionId:this.sessionId}
+                                    this.$http.get(this.$api.amati.updateTelDetail,{params:params}).then( res=>{
+                                        if(res.data.code === 0){
+                                            this.sessionId = null
+                                        }
+                                    })
+                                }
                             }
                             break;
                         case theWebPhone.States.Init:
                             this.states = theWebPhone.States.Init
                             console.log('Init')
                             if(e.cid != null){
-                                let params = {}
-                                params.customerId = this.form.cId
-                                params.itemId = this.form.itemId
-                                params.remoteUrl = this.form.phoneNum
-                                params.callIdx = e.cid
-                                params.entId = sessionStorage.getItem('entId')
-                                params.localUrl = sessionStorage.getItem('phoneNum')
-                                params.agentId = sessionStorage.getItem('userName')
-                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
-                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
-                                    console.log(res)
-                                    if(res.data.code === 0 ){
-                                        this.sessionId = res.data.sessionId
-                                    }
-                                })
+                                this.getTicket(e)
                             }
                             break;
                         case theWebPhone.States.Alert:
                             this.states = theWebPhone.States.Alert
                             console.log('Alert')
                             if(e.cid != null){
-                                let params = {}
-                                params.customerId = this.form.cId
-                                params.itemId = this.form.itemId
-                                params.remoteUrl = this.form.phoneNum
-                                params.callIdx = e.cid
-                                params.entId = sessionStorage.getItem('entId')
-                                params.localUrl = sessionStorage.getItem('phoneNum')
-                                params.agentId = sessionStorage.getItem('userName')
-                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
-                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
-                                    console.log(res)
-                                    if(res.data.code === 0 ){
-                                        this.sessionId = res.data.sessionId
-                                    }
-                                })
+                                this.getTicket(e)
                             }
                             break;
                         case theWebPhone.States.Connected:
                             this.states = theWebPhone.States.Connected
                             console.log('Connected')
                             if(e.cid != null){
-                                let params = {}
-                                params.customerId = this.form.cId
-                                params.itemId = this.form.itemId
-                                params.remoteUrl = this.form.phoneNum
-                                params.callIdx = e.cid
-                                params.entId = sessionStorage.getItem('entId')
-                                params.localUrl = sessionStorage.getItem('phoneNum')
-                                params.agentId = sessionStorage.getItem('userName')
-                                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
-                                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
-                                    console.log(res)
-                                    if(res.data.code === 0 ){
-                                        this.sessionId = res.data.sessionId
-                                    }
-                                })
+                                this.getTicket(e)
                             }
                             break;
                     }
@@ -328,11 +299,29 @@
             init (){
                 
             },
-            goback(){
-                this.$router.push({name:'recall'})
+            getTicket(e){
+                let params = {}
+                params.customerId = this.form.cId
+                params.itemId = this.form.itemId
+                params.remoteUrl = this.form.phoneNum
+                params.callIdx = e.cid
+                params.entId = sessionStorage.getItem('entId')
+                params.localUrl = sessionStorage.getItem('phoneNum')
+                params.agentId = sessionStorage.getItem('userName')
+                //console.log('aaaaaaaaaaaaaaaa',sessionStorage.getItem('userName'))
+                this.$http.post(this.$api.amati.insertTelDetail,params).then( res => {
+                    console.log(res)
+                    if(res.data.code === 0 ){
+                        this.sessionId = res.data.sessionId
+                    }
+                })
+            },
+            resetForm(myData){
+                this.$refs[myData].resetFields()
+                this.getActivityList()
             },
             // user(){
-            //     let token=this.$cookieStore.getCookie('token')
+            //      
             //     this.$http.post(this.$api.login.seatLogin,{token:token}).then( res =>{
             //     if(res.data.code===0){
             //         console.log(res)
@@ -352,9 +341,9 @@
             //获取活动列表
             getActivityList(){
                 let intention = this.$route.query.intention
-                let token=this.$cookieStore.getCookie('token')
+                 
                 let params=this.myData
-                params.token=token
+                  
                 params.intention = intention
                 this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
                     if(res.data.code===0){
@@ -371,6 +360,7 @@
             //挂断
             hangup(){
                 window.theWebPhone.hangup()
+                this.$message.success('电话已挂断')
             },
             makeCall(index,row) {
                 window.theWebPhone.hangup()
@@ -395,8 +385,8 @@
                         // let activityId=this.form.activityId
                         // let customerId=this.form.customerId
                         // let provideId=this.form.provideId
-                        // let token=this.$cookieStore.getCookie('token')
-                        // this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                        //  
+                        // this.$http.post(this.$api.amati.call,{  activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
                         //     if(res.data.code===0){
                         //         this.$message({
                         //             message:'电话正在转接，请稍后',
@@ -465,8 +455,8 @@
                         // let activityId=this.form.activityId
                         // let customerId=this.form.customerId
                         // let provideId=this.form.provideId
-                        // let token=this.$cookieStore.getCookie('token')
-                        // this.$http.post(this.$api.amati.call,{token:token,activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
+                        //  
+                        // this.$http.post(this.$api.amati.call,{  activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
                         //     if(res.data.code===0){
                         //         this.$message({
                         //             message:'电话正在转接，请稍后',
@@ -506,9 +496,10 @@
                     return
                 }
                 this.isSave=true
-                console.log(this.tableData[this.index])
+                //console.log(this.tableData[this.index])
+                let comment = this.form.comment
                 let customerId=this.tableData[this.index].customerId
-                let params={customerId:customerId,intention:intention}
+                let params={customerId:customerId,intention:intention,comment:comment}
                 this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
                     if(res.data.code===0){
                         console.log(res)

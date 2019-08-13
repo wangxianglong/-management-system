@@ -25,7 +25,8 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px">
-            <el-button type="primary" v-if = "roleId == 1" @click="$router.go(-1)">返回</el-button>
+            <el-button type="primary" @click="outExe">导出</el-button>
+            <el-button type="primary" v-if ="roleId!=3" @click="$router.go(-1)">返回</el-button>
             <!-- <el-button type="primary" @click="addPhone">新增</el-button> -->
         </div>
         <!--弹框-->
@@ -68,14 +69,14 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
+            <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="60px"></el-table-column>
             <el-table-column label="账户" prop="userName" width="120px"></el-table-column>
             <el-table-column label="用户密码" prop="passWord" ></el-table-column>
-            <el-table-column label="使用人" prop="realName" width="160px" align="center">
+            <el-table-column label="使用人" prop="realName" width="200px" align="center">
                 <template slot-scope="scope">
                     <span>{{scope.row.realName}}</span>
-                    <el-button style="float:right" size="mini" type="primary" @click="amendBtn(scope.row)">修改</el-button>
+                    <el-button style="float:right"  v-if="roleId!=27" size="mini" type="primary" @click="amendBtn(scope.row)">修改</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="角色">
@@ -86,8 +87,8 @@
                     <span v-if="scope.row.roleId===6">质检</span>
                 </template>
             </el-table-column>
-            <el-table-column label="端口号" prop="phoneNum" width="120px"></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" width="150px">
+            <el-table-column label="端口/外显号" prop="phoneNum" width="120px"></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" width="160px">
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>
@@ -100,7 +101,7 @@
                 </template>
             </el-table-column>
             <!-- <el-table-column label="登录IP" prop="cgnum" sortable></el-table-column> -->
-            <el-table-column label="操作" width="120px">
+            <el-table-column label="操作" width="120px" v-if="roleId!=27">
                 <template slot-scope="scope">
                     <el-button type="primary" size="mini" v-if='scope.row.status===2' @click="startUsing(scope.row)">启用</el-button>
                     <el-button type="danger" size="mini" v-if='scope.row.status===1' @click="stopUsing(scope.row)">停用</el-button>
@@ -200,6 +201,58 @@
             handleSizeChange(val){
                 this.myData.pageSize=val;
                 this.getTableList()
+            },
+            //导出
+            outExe() {
+                function copyArr(arr){
+                    return arr.map((e)=>{
+                        if(typeof e === 'object'){
+                            return Object.assign({},e)
+                        }else{
+                            return e
+                        }
+                    })
+                }
+                let excelList = copyArr(this.tableData)
+                for (let item of excelList) {
+                    switch (item.roleId) {
+                        case 3:
+                            item.roleId = "管理员";
+                            break;
+                        case 4:
+                            item.roleId = "班长";
+                            break;
+                        case 5:
+                            item.roleId = "坐席";
+                            break;
+                        case 6:
+                            item.roleId = "质检";
+                            break;
+                    }
+                }
+                this.$confirm('此操作将导出excel文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.excelData = excelList//你要导出的数据list。
+                    this.export2Excel()
+                }).catch(() => {
+
+                });
+            },
+            export2Excel() {
+                require.ensure([], () => {
+                    const {export_json_to_excel} = require('@/vendor/Export2Excel');
+                    const tHeader = ['账户','用户密码', '使用人','角色'];
+                    const filterVal = ['userName','passWord','realName','roleId'];
+                    const list = this.excelData;
+                    const data = this.formatJson(filterVal, list);
+                    export_json_to_excel(tHeader, data, '客户管理');
+                })
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]))
             },
             //获取列表
             getTableList(){

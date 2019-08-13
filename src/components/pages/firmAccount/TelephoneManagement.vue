@@ -2,32 +2,11 @@
     <div>
         <el-form :inline="true" :model="myData" class="form-inline" ref = 'myData'>
             <el-form-item label="企业名称" prop="company">
-                <!-- <el-select v-model="myData.ext" placeholder="请填写企业名称" clearable>
-                    <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
-                </el-select> -->
                 <el-input v-model = "myData.company"></el-input>
             </el-form-item>
-            <!-- <el-form-item label="通话号码">
-                <el-input v-model="myData.phoneNum"></el-input>
+            <el-form-item label="代理商" prop = "agentName">
+                <el-input v-model="myData.agentName"></el-input>
             </el-form-item>
-            <el-form-item label="通话时间">
-                <template>
-                    <el-date-picker
-                            v-model="time"
-                            type="daterange"
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            value-format="yyyy-MM-dd hh:mm:ss"
-                    >
-                    </el-date-picker>
-                </template>
-            </el-form-item> -->
-            <!-- <el-form-item label="时长设置">
-                <el-select v-model="myData.timeLongType" placeholder="请选择">
-                    <el-option v-for="item in timeSet" :key="item.type" :label="item.label" :value="item.type"></el-option>
-                </el-select>
-            </el-form-item> -->
             <el-form-item>
                 <el-button type='primary' @click="getTableList"  style="margin-left:50px;" size="small">搜索</el-button>
                 <el-button @click="resetForm('myData')" size="small">重置</el-button>
@@ -37,11 +16,12 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="企业Id" prop="ent_id"></el-table-column>
-            <el-table-column label="企业名称" prop="company" width="120px"></el-table-column>
-            <el-table-column label="创建时间" prop="create_time" width="150px">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
+            <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="120"></el-table-column>
+            <el-table-column label="企业Id" prop="ent_id" width="150"></el-table-column>
+            <el-table-column label="企业名称" prop="company" width="150"></el-table-column>
+            <el-table-column label="所属代理商" prop="agent_name" width="150"></el-table-column>
+            <el-table-column label="创建时间" prop="create_time" width="160">
                 <template slot-scope="scope">
                     {{scope.row.create_time | date(true)}}
                 </template>
@@ -56,7 +36,7 @@
             </el-table-column> -->
             <el-table-column label="话单条数" prop="call_count"></el-table-column>
             <!-- <el-table-column label="通话时长(秒)" prop="timeLong"></el-table-column> -->
-            <el-table-column label="通话时长(分)" prop="time_min">
+            <el-table-column label="通话时长(分)" prop="time_min" width="120">
             </el-table-column>
             <el-table-column label="通话费用">
                 <template slot-scope="scope">
@@ -96,7 +76,6 @@
                         label:'180s以上'
                     }
                 ],
-                
                 phoneNumList:[],
                 loading:false,
                 tableData:[],
@@ -104,7 +83,8 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
-                    company:''
+                    company:'',
+                    agentName:''
                 },
                 //time:null,
             }

@@ -3,7 +3,7 @@
         <div class="sideBarBox">
         <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse"
             text-color="#fff" active-text-color="#20a0ff" unique-opened router>
-            <div class="logo"><img src="../../assets/logo.png"></div>
+            <div class="logo"><span>智能云呼</span></div>
             <template v-for="item in items">
                 <template>
                     <el-menu-item :index="item.path" :key="item.path">
@@ -12,6 +12,7 @@
                 </template>
             </template>
         </el-menu>
+        <div class="code" v-if="roleId==5"><img src="../../assets/img/code.jpg" alt=""></div>
         </div>
     </div>
 </template>
@@ -22,6 +23,7 @@
             return {
                 collapse: false,
                 items: [],
+                roleId:sessionStorage.getItem('roleId')
             }
         },
         computed:{
@@ -71,14 +73,27 @@
         z-index:100;    
     }
     .logo {
-        padding:15px 10px 15px 14px;
-        img{
-            width:130px;
+        padding:15px 12px 15px 12px;
+        text-align:center;
+        span{
+            color:#fff;
+            font-size:18px;
+            font-weight: bold;
             
         }
     }
     .el-menu-item:hover {
         background:#ccc
     }
-    
+    .code{
+        width:100px;
+        height:100px;
+        position:absolute;
+        bottom:100px;
+        left:20%
+    }
+    .code img{
+        width:100%;
+        height:100%
+    }
 </style>

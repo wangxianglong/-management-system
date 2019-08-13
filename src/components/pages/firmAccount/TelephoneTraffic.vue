@@ -48,23 +48,13 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="项目名称" prop="item_name" width="120px"></el-table-column>
-            <el-table-column label="座席号" prop="user_name" width="120px"></el-table-column>
-            <el-table-column label="使用人" prop="real_name" width="120px"></el-table-column>
-            <el-table-column label="端口号" prop="ext" width="120px"></el-table-column>
-            <el-table-column label="开始时间" prop="StartTime" width="150px">
-                <template slot-scope="scope">
-                    {{scope.row.StartTime | date(true)}}
-                </template>
-            </el-table-column>
-            <el-table-column label="结束时间" prop="EndTime" width="150px">
-                <template slot-scope="scope">
-                    {{scope.row.EndTime | date(true)}}
-                </template>
-            </el-table-column>
-            <el-table-column label="通话号码" prop="phoneNum" width="120px">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
+            <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="120px"></el-table-column>
+            <el-table-column label="项目名称" prop="item_name" width="150px"></el-table-column>
+            <el-table-column label="座席号" prop="user_name" width="150px"></el-table-column>
+            <el-table-column label="使用人" prop="real_name" width="150px"></el-table-column>
+            <el-table-column label="端口/外显号" prop="ext" width="120px"></el-table-column>
+            <el-table-column label="通话号码" prop="phoneNum" width="150px">
                 <template slot-scope="scope">
                     <el-popover placement='top-start' width="200" trigger="hover" :content="scope.row.comment" :disabled="scope.row.comment?false:true">
                         <el-button type="text" slot="reference" v-if="scope.row.desensitization === 0">{{scope.row.phoneNum}}</el-button>
@@ -72,6 +62,17 @@
                     </el-popover>
                 </template>
             </el-table-column>
+            <el-table-column label="开始时间" prop="StartTime" width="160px">
+                <template slot-scope="scope">
+                    {{scope.row.StartTime | date(true)}}
+                </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="EndTime" width="160px">
+                <template slot-scope="scope">
+                    {{scope.row.EndTime | date(true)}}
+                </template>
+            </el-table-column>
+            
             <el-table-column label="通话时长(秒)" prop="timeLong" width="120px"></el-table-column>
             <el-table-column label="意向" prop="intention">
                 <template slot-scope="scope">
@@ -90,7 +91,7 @@
                 </template>
             </el-table-column> -->
             <!-- <el-table-column label="通话费用" prop="fee"></el-table-column> -->
-            <el-table-column label="录音" prop="path" width="290px" align="center">
+            <el-table-column label="录音" prop="path" width="350px" align="center">
                 <template slot-scope="scope">
                     <div class='audio-box'>
                         <vAudio :theUrl="scope.row.path" v-if="reFresh"/>
@@ -258,6 +259,7 @@ import vAudio from '../../common/VueAudio'
                 let excelList = copyArr(this.tableData)
                 let filters = this.$root.$options.filters
                 for (let item of excelList) {
+                    item.phoneNum=filters.placePhone(item.phoneNum)
                     item.StartTime=filters.date(item.StartTime,true)
                     item.EndTime=filters.date(item.EndTime,true)
                     switch (item.intention) {

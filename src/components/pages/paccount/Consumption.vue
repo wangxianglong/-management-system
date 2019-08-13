@@ -1,51 +1,33 @@
 <template>
     <div>
         <el-form :inline="true" :model="myData" class="form-inline" ref="myData">
-            <!-- <el-form-item label="客户电话">
-                <el-input v-model="searchList.name"></el-input>
-            </el-form-item> -->
-            <!-- <el-form-item label="营销情况">
-                <el-select v-model="myData.intention" placeholder="请选择" style="margin-left:10px;">
-                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                </el-select>
-            </el-form-item> -->
-            <!-- <el-form-item label="企业ID">
-                <el-input v-model="myData.ent_id"></el-input>
-            </el-form-item> -->
-            <el-form-item label="企业名称">
+            <el-form-item label="企业名称" prop="company">
                 <el-input v-model="myData.company" clearable></el-input>
             </el-form-item>
-            <!-- <el-form-item label="数据量">
-                <el-input v-model="myData.data_count"></el-input>
+            <el-form-item label="代理商" prop = "agentName">
+                <el-input v-model="myData.agentName"></el-input>
             </el-form-item>
-            <el-form-item label="座席数">
-                <el-input v-model="myData.seat_count"></el-input>
-            </el-form-item> -->
-            <!-- <el-form-item label="语音时长">
-                <el-input v-model="myData.time_long"></el-input>
-            </el-form-item> -->
-            <!-- <el-form-item label="通话时长：">
-                <el-input v-model="tableData.stdate"></el-input>
-            </el-form-item> -->
             <el-form-item>
                 <el-button type='primary' @click="getTableList"  size="mini">搜索</el-button>
+                <el-button @click="resetForm('myData')" size="small">重置</el-button>
             </el-form-item>
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <!-- <el-table-column type="selection"></el-table-column> -->
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
+            <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="50"></el-table-column>
             <el-table-column label="企业ID" prop="ent_id" width="100px"></el-table-column>
-            <el-table-column label="名称" prop="company" width="120px"></el-table-column>
+            <el-table-column label="名称" prop="company" width="150px"></el-table-column>
+            <el-table-column label="所属代理商" prop="agent_name" width="120"></el-table-column>
             <el-table-column label="数据量" prop="data_count"  width="120px"></el-table-column>
             <el-table-column label="数据费(元)" prop="data_amount" width="120px"></el-table-column>
             <el-table-column label="座席数" prop="seat_count" width="120px"></el-table-column>
             <el-table-column label="座席费(元)" prop="seat_amount" width="120px">
                 <template slot-scope="scope">
-                    <span>{{scope.row.seat_amount | toString()}}</span>
+                    <span>{{scope.row.seat_amount==null?'0':scope.row.seat_amount}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="语音时长(分)" prop="time_min" width="120px"></el-table-column>
@@ -93,12 +75,18 @@
                 myData:{
                     pageIndex:1,
                     pageSize:10,
+                    company:'',
+                    agentName:''
                 },
                 time:null,
                 agentId:''
             }
         },
         methods:{
+            resetForm(myData) {
+                this.$refs[myData].resetFields();
+                this.getTableList()
+            },
             indexMethod(index) {
                 return index+1;
             },

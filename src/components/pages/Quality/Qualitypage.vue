@@ -34,7 +34,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="客户电话" prop="activityName"></el-table-column>
             <el-table-column label="营销情况" prop="orderNum"></el-table-column>

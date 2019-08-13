@@ -34,16 +34,16 @@
         </el-form>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
-            <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
-            <el-table-column label="数据量" prop="num" sortable></el-table-column>
-            <el-table-column label="开始时间" prop="startTime" sortable>
+            <el-table-column label="行销名单" prop="activityName"></el-table-column>
+            <el-table-column label="数据量" prop="num" ></el-table-column>
+            <el-table-column label="开始时间" prop="startTime">
                 <template slot-scope="scope">
                     {{scope.row.startTime | date()}}
                 </template>
             </el-table-column>
-            <el-table-column label="结束时间" prop="endTime" sortable>
+            <el-table-column label="结束时间" prop="endTime"  >
                 <template slot-scope="scope">
                     {{scope.row.endTime | date()}}
                 </template>

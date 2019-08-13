@@ -84,7 +84,7 @@
 
         controlList: {
           // 不显示下载
-          noDownload: true,
+          noDownload: false,
           // 不显示静音
           noMuted: true,
           // 不显示音量条

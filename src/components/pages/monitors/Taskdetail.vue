@@ -72,7 +72,7 @@
         </el-dialog>
         -->
         <div class="table-box">
-        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="handleSelectionChange" ref="multipleTable">
+        <el-table :data="tableData" :row-key="getRowKeys" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="handleSelectionChange" ref="multipleTable" border>
             <el-table-column type="selection" :reserve-selection="true"></el-table-column>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="坐席" prop="userName" align="center"></el-table-column>

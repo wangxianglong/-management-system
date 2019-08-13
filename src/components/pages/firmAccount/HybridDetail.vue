@@ -9,7 +9,7 @@
                 <el-form-item label="企业名称">
                     <el-input v-model="form.user.company" readonly="readonly"></el-input>
                 </el-form-item>
-                <el-form-item label="配置座席">
+                <el-form-item label="班长/座席">
                     <el-input type="textarea" :rows=3 v-model="form.seats" readonly="readonly"></el-input>
                 </el-form-item>
                 <el-form-item label="座席单价">

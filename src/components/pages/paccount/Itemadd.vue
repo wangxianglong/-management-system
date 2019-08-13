@@ -9,6 +9,16 @@
                     <el-option v-for="item in validityType" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
+            <el-form-item label="来源" prop="type">
+                <el-select class="mySelect" v-model="myData.type" placeholder="全部" clearable >
+                    <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态" prop="status" v-if="roleId==1">
+                <el-select class="mySelect" v-model="myData.status" placeholder="全部" clearable >
+                    <el-option v-for="item in statusType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="创建时间" prop="time">
                 <template>
                     <el-date-picker
@@ -40,12 +50,21 @@
         </el-form>
         <div class="small-divider"></div>
         <!--获取行销名单-->
-        <div style="padding:20px">
-            <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button>
+        <div style="padding:20px" v-if="roleId!=27">
+            <!-- <el-button type="primary" v-if="roleId==1" @click='getActivity'>获取行销名单</el-button> -->
             <el-button type="primary" @click='addActivity'>新增行销名单</el-button>
-            <el-button type="primary" v-if="roleId==1" @click='copyActivity'>复制行销名单</el-button>
+            <el-button type="info" v-if="roleId!=3" @click='copyActivity'>复制行销名单</el-button>
+            <el-dropdown trigger="click"  v-if="roleId!=3">
+                <el-button type="success">
+                    获取更多行销名单<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item  @click.native='ltMarketingListBtn'>联 通</el-dropdown-item>
+                    <el-dropdown-item @click.native='dxMarketingListBtn'>电 信</el-dropdown-item>
+                    <el-dropdown-item @click.native='ydMarketingListBtn'>移 动</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </div>
-        <!--弹框-->
         <el-dialog title="新建行销名单" :visible.sync="addNewitemdialog" width="600px" :close-on-click-modal='false'>
             <el-form :model="form" label-width="100px" class="formPage" label-position='left' ref="form">
                 <el-form-item label="行销名单名称">
@@ -125,47 +144,112 @@
                 <el-button type="primary" @click = "showCopyActivity">确认</el-button>
             </span>
         </el-dialog>
+        <!-- 联通行销名单框 -->
         <el-dialog :visible.sync="activityShow">
             <el-table :data="activityList" style="width:100%;" show-header v-loading='loading' :header-cell-style="tableHeaderStyle">
-                <el-table-column label="行销名单名" prop="activityName"></el-table-column>
-                <el-table-column label="行销名单ID" prop="activityId"></el-table-column>
-                <el-table-column label="开始时间" prop="activityBeginDate"></el-table-column>
-                <el-table-column label="结束时间" prop="activityEndDate"></el-table-column>
-                <el-table-column label="行销名单号码" prop="showNumber"></el-table-column>
+                <el-table-column label="行销名单名" prop="ACTIVITY_NAME"></el-table-column>
+                <el-table-column label="行销名单ID" prop="SALE_ACTIVITY_ID"></el-table-column>
+                <el-table-column label="开始时间" prop="ACTIVITY_BEGIN_DATE"></el-table-column>
+                <el-table-column label="结束时间" prop="ACTIVITY_END_DATE"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" size="mini" @click="addActivity(scope.row)">获取</el-button>
+                        <el-button type="text" size="mini" @click="getLtMarketingList(scope.row)">获取</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+        </el-dialog>
+        <!--电信弹框-->
+        <el-dialog title="获取电信行销名单" :visible.sync="dxMarketingListDialog" width="600px" :close-on-click-modal='false'>
+            <el-form :model="dxMarketingList" label-width="100px" class="formPage" label-position='left' ref="dxMarketingList">
+                <el-form-item label="行销名单名称">
+                    <el-input v-model="dxMarketingList.activityName" placeholder="请输入行销名单名称"></el-input>
+                </el-form-item>
+                <el-form-item label="行业">
+                    <template>
+                        <el-cascader v-model="dxMarketingList.selectBusiness" :props="props" :options="businessList" @change="handleChange"  style="width:300px"></el-cascader>
+                    </template>
+                </el-form-item>
+                <el-form-item label="话术">
+                    <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="dxMarketingList.content">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="计划数据量">
+                    <el-input type='number' v-model="dxMarketingList.callCount" placeholder="请输入计划数据量"></el-input>
+                </el-form-item>
+                <el-form-item label="名单有效时间">
+                <template>
+                    <el-date-picker
+                            v-model="dxTime"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
+                </el-form-item>
+                <el-form-item size="medium" class="formBtn">
+                    <el-button type="primary" @click="getDxMarketingList('form')">提 交</el-button>
+                </el-form-item>
+            </el-form> 
+        </el-dialog>
+        <el-dialog title="获取移动行销名单" :visible.sync="ydMarketingListDialog" width="600px" :close-on-click-modal='false'>
+            <el-form :model="ydMarketingList" label-width="100px" class="formPage" label-position='left' ref="dxMarketingList">
+                <el-form-item label="行销名单名称">
+                    <el-input v-model="ydMarketingList.activityName" placeholder="请输入行销名单名称"></el-input>
+                </el-form-item>
+                <el-form-item label="话术">
+                    <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="ydMarketingList.content">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="名单有效时间">
+                <template>
+                    <el-date-picker
+                            v-model="ydTime"
+                            type="daterange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            value-format="yyyy-MM-dd"
+                    >
+                    </el-date-picker>
+                </template>
+                </el-form-item>
+                <el-form-item size="medium" class="formBtn">
+                    <el-button type="primary" @click="getYdMarketingList('form')">提 交</el-button>
+                </el-form-item>
+            </el-form> 
         </el-dialog>
         <div class="divider"></div>
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)" @current-change="clickChange">
+        element-loading-background="rgba(0, 0, 0, 0.8)" @current-change="clickChange" border>
             <el-table-column label="" align="center" width="50" v-if="roleId==1">
                 <template slot-scope="scope">
                     <el-radio :label="scope.row" v-model="selected">&nbsp;</el-radio>
                 </template>
             </el-table-column>
-            <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
-            <el-table-column label="行销名单" prop="activityName"></el-table-column>
+            <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="50px"></el-table-column>
+            <el-table-column label="行销名单" prop="activityName" width="120px"></el-table-column>
             <el-table-column label="来源" prop="type">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.type===1">移动</span>
-                    <span v-if="scope.row.type===2">联通</span>
-                    <span v-if="scope.row.type===3">电信</span>
+                    <span v-if="scope.row.type===1">移动名单</span>
+                    <span v-if="scope.row.type===2">联通名单</span>
+                    <span v-if="scope.row.type===3">电信名单</span>
                     <span v-if="scope.row.type===4">内部名单</span>
                     <span v-if="scope.row.type===5">外部名单</span>
                 </template>
             </el-table-column>
             <el-table-column label="数据量" prop="orderNum">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="numDetail(scope.row)">{{scope.row.orderNum}}</el-button>
+                    <el-button v-if='scope.row.type!==1' type="text" @click="numDetail(scope.row)">{{scope.row.orderNum}}</el-button>
+                    <span v-else>{{scope.row.orderNum}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="创建时间" prop="createTime" width="150px">
+            <el-table-column label="数据类型"></el-table-column>
+            <el-table-column label="创建时间" prop="createTime" width="160px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(hour)}}
                 </template>
@@ -189,39 +273,52 @@
             <el-table-column label="分配去向" v-if="roleId!=3">
                 <template  slot-scope="scope">
                     <span style="color:red" v-if="scope.row.status===0">未分配</span>
-                    <span v-if="scope.row.status!==0">{{scope.row.company}}</span>
+                    <span v-if="scope.row.status===1 || scope.row.status===2 || scope.row.status===3 || scope.row.status===4">{{scope.row.company}}</span>
+                    <span style="color:red" v-if="scope.row.status===5">待审核</span>
+                    <span style="color:red" v-if="scope.row.status===6">退回</span>
                 </template> 
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="状态" v-if="roleId==3">
+                <template  slot-scope="scope">
+                    <span style="color:red" v-if="scope.row.status===1">未分配</span>
+                    <span v-if="scope.row.status===2 || scope.row.status===3">已分配</span>
+                    <span v-if="scope.row.status===4">已完成</span>
+                    <span style="color:red" v-if="scope.row.status===5">待审核</span>
+                    <span style="color:red" v-if="scope.row.status===6">退回</span>
+                </template> 
+            </el-table-column>
+            <el-table-column label="操作" width='220'  v-if="roleId!=27">
                 <template slot-scope="scope">
-                    <!-- <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="taskEdit(scope.$index,scope.row)">分配任务</el-button> -->
-                    <el-button type="primary" size="mini" :disabled="scope.row.status !== 0" @click="deleteActivity(scope.row)">删除</el-button>
+                    <el-button type="primary" size="mini" v-if='roleId!=3 && scope.row.status===5'  @click="checkListBtn(scope.row)">审核</el-button>
+                    <el-button type="primary" size="mini" v-if='roleId!=3 && scope.row.status===5'  @click="checkListBack(scope.row)">退回</el-button>
+                    <el-button type="primary" size="mini" v-if='scope.row.status===6'  @click="amendListBtn(scope.row)">修改</el-button>
+                    <el-button type="danger" size="mini" :disabled="scope.row.status !== 0 && scope.row.status !==1 && scope.row.status !==6" @click="deleteActivity(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
         </div>
-        <!--编辑弹框-->
-        <!-- <el-dialog title="分配任务" :visible.sync="dialogVisible" width="30%">
-            <div style="border-top:1px solid #ccc;border-bottom:1px solid #ccc;height:100px;padding:20px 0 20px 40px">
-                <p style="margin-bottom:20px"><span style="margin-right:40px">行销名单名称</span>{{activityName}}<span></span></p>
-                <p style="margin-bottom:20px"><span style="margin-right:55px">数据量</span>{{orderNum}}<span></span></p>
-                <p>
-                    <span style="margin-right:20px">公司名</span>
-                    <el-select v-model="userId" filterable placeholder="请选择">
-                        <el-option
-                        v-for="item in firmName"
-                        :key="item.id"
-                        :label="item.company"
-                        :value="item.id">
-                        </el-option>
-                    </el-select>
-                </p>
+        <!--修改弹框-->
+        <el-dialog title="行销名单修改" :visible.sync="amendListDialog" width="30%">
+            <div >
+                <span style="vertical-align:top">话术：</span>
+                <el-input type="textarea" v-model="amendContent" style="width:80%"></el-input>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
+                <el-button @click="amendListDialog = false">取 消</el-button>
+                <el-button type="primary" @click="amendList">修 改</el-button>
             </span>
-        </el-dialog> -->
+        </el-dialog>
+        <!--审核弹框-->
+        <el-dialog title="行销名单审核" :visible.sync="checkListDialog" width="30%">
+            <div>
+                <span>话术：</span>
+                <span style="color:red">{{dialogContent}}</span>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="checkListDialog = false">取 消</el-button>
+                <el-button type="primary" @click="checkList">通 过</el-button>
+            </span>
+        </el-dialog>
         <!--分页导航-->
         <div class="fpage">
             <el-pagination class="pagebutton" background @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-sizes="[10,20,30,100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
@@ -234,6 +331,17 @@
     export default {
         data(){
             return {
+                props:{
+                    value: 'id',
+                    label:'name',
+                },
+                businessList:[],
+                dxMarketingList:{},
+                dxMarketingListDialog:false,
+                dxTime:null,
+                ydMarketingList:{},
+                ydMarketingListDialog:false,
+                ydTime:null,
                 copyActivityName:'',
                 copyDialog:false,
                 desensitization:1,
@@ -270,7 +378,23 @@
                 activityShow:false,
                 activityList:[],//行销名单列表
                 //dialogVisible:false,
-                value:'', 
+                value:'',
+                typeList:[{
+                    value: '1',
+                    label: '移动名单'
+                }, {
+                    value: '2',
+                    label: '联通名单'
+                }, {
+                    value: '3',
+                    label: '电信名单'
+                }, {
+                    value: '4',
+                    label: '内部名单'
+                }, {
+                    value: '5',
+                    label: '外部名单'
+                }], 
                 timeValidity:[{
                     value: '0',
                     label: '无效'
@@ -299,12 +423,74 @@
                     value:5,
                     label:'大于15天'
                 }],
+                statusType:[
+                    {
+                        value:0,
+                        label:'未分配'
+                    },
+                    {
+                        value:5,
+                        label:'待审核'
+                    },
+                    {
+                        value:6,
+                        label:'退回'
+                    }
+                ],
                 tableData:[],//表格数据
                 total:1,
-                roleId:sessionStorage.getItem('roleId')
+                roleId:sessionStorage.getItem('roleId'),
+                checkListDialog:false,
+                dialogContent:'',
+                id:'',
+                amendListDialog:false,
+                amendContent:'',
+                amendId:''
             }
         },
         methods:{
+            
+            // 修改名单
+            amendListBtn(row){
+                this.amendId = row.id
+                this.amendListDialog=true
+            },
+            amendList(){
+                let params={id:this.amendId,content:this.amendContent,status:5}
+                this.$http.post(this.$api.platform.updateContent,params).then(res => {
+                    if(res.data.code===0){
+                        this.$message.success('名单修改成功')
+                        this.getTablelist()
+                        this.amendListDialog=false
+                        this.amendContent=null
+                    }
+                })
+            },
+            checkListBtn(row){
+                this.dialogContent = row.content
+                this.id = row.id
+                this.checkListDialog=true
+            },
+            checkList(){
+                let params = {id:this.id,status:1}
+                this.$http.post(this.$api.platform.examine,params).then(res =>{
+                    if(res.data.code === 0){
+                        this.$message.success('审核成功')
+                        this.getTablelist()
+                        this.checkListDialog=false
+                    }
+                })
+            },
+            checkListBack(row){
+                let id= row.id
+                let params = {id:id,status:6}
+                this.$http.post(this.$api.platform.examine,params).then(res =>{
+                    if(res.data.code === 0){
+                        this.$message.success('已退回')
+                        this.getTablelist()
+                    }
+                })
+            },
             resetForm(myData){
                 this.$refs[myData].resetFields()
                 this.time = ''
@@ -343,11 +529,56 @@
                 })
             },
             //获取行销名单列表
-            getActivity(){
+            //移动
+            ydMarketingListBtn(){
+                this.ydMarketingListDialog=true
+            },
+            getYdMarketingList(form){
+                if (this.ydTime!==null){
+                   this.ydMarketingList.startTime=this.ydTime[0];
+                   this.ydMarketingList.endTime =this.ydTime[1];
+                }
+                let params=this.ydMarketingList
+                this.$http.post(this.$api.platform.createYidongActivity,params).then(res => {
+                    if(res.data.code===0){
+                        this.$message.success('获取成功')
+                        this.getTablelist()
+                        this.ydMarketingListDialog=false
+                    }
+                })
+            },
+            //电信
+            handleChange(){
+                console.log(this.dxMarketingList.selectBusiness)
+            },
+            dxMarketingListBtn(){
+                this.dxMarketingListDialog=true
+                this.$http.get(this.$api.platform.getIndustry).then(res => {
+                    if(res.data.code===0){
+                        this.businessList = res.data.list
+                    }
+                })
+            },
+            getDxMarketingList(form){
+                if (this.dxTime!==null){
+                   this.dxMarketingList.startTime=this.dxTime[0];
+                   this.dxMarketingList.endTime =this.dxTime[1];
+                }
+                let params=this.dxMarketingList
+                this.$http.post(this.$api.platform.addActiveInfo,params).then(res => {
+                    if(res.data.code===0){
+                        this.$message.success('获取成功')
+                        this.getTablelist()
+                        this.dxMarketingListDialog=false
+                    }
+                })
+            },
+            //联通
+            ltMarketingListBtn(){
                 this.$http.post(this.$api.platform.activityList).then(res=>{
                     if(res.data.code === 0){
                         //console.log(res.data)
-                        this.activityList=res.data.param.resultList
+                        this.activityList=res.data.data.resultList
                         //console.log(this.activityList)
                         this.activityShow=true; 
                     }else{
@@ -357,11 +588,10 @@
                     console.log(e) 
                 })
             },
-            addActivity(row){
+            getLtMarketingList(row){
                 this.loading=true
-                const that=this
                 this.rowData=row
-                let params={activityId:this.rowData.activityId}
+                let params=this.rowData
                 //console.log(this.rowData)
                 this.$http.post(this.$api.platform.activity,params).then(res=>{
                     //console.log(res)
@@ -386,43 +616,43 @@
                 this.myData.pageSize=val;
                 this.getTablelist()
             },
-            taskEdit(index,row) {
-                this.dialogVisible=true
-                this.rowData=row
-                this.activityName=row.activityName
-                this.orderNum=row.orderNum
-                this.$http.get(this.$api.platform.company).then(
-                    res => {
-                        this.firmName=res.data.list
-                    }
-                ).catch(err => {
-                    console.log("err")
-                })
+            // taskEdit(index,row) {
+            //     this.dialogVisible=true
+            //     this.rowData=row
+            //     this.activityName=row.activityName
+            //     this.orderNum=row.orderNum
+            //     this.$http.get(this.$api.platform.company).then(
+            //         res => {
+            //             this.firmName=res.data.list
+            //         }
+            //     ).catch(err => {
+            //         console.log("err")
+            //     })
                 
-            },
-            saveEdit(){
-                this.$http.post(this.$api.platform.projectUpdate,
-                    {
-                        id:this.rowData.id,
-                        userId:this.userId,
-                        status:1
-                    }).then(
-                    res => {
-                        this.dialogVisible=false
-                        if(res.data.code===0){
-                            this.getTablelist()
-                            this.$message({
-                                message:'分配成功',
-                                type:'success'
-                            });
-                        }
-                    }
-                ).catch(err => {
-                    console.log("err")
-                })
+            // },
+            // saveEdit(){
+            //     this.$http.post(this.$api.platform.projectUpdate,
+            //         {
+            //             id:this.rowData.id,
+            //             userId:this.userId,
+            //             status:1
+            //         }).then(
+            //         res => {
+            //             this.dialogVisible=false
+            //             if(res.data.code===0){
+            //                 this.getTablelist()
+            //                 this.$message({
+            //                     message:'分配成功',
+            //                     type:'success'
+            //                 });
+            //             }
+            //         }
+            //     ).catch(err => {
+            //         console.log("err")
+            //     })
                 
-                //this.rowData.status=1
-            },
+            //     //this.rowData.status=1
+            // },
             // 复制行销名单
             copyActivity(){
                 if(this.selected===''){
@@ -574,4 +804,7 @@
     .ruleBox {
         color:red !important
     }   
+    .el-icon-arrow-down {
+        font-size: 12px;
+    }
 </style>

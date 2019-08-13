@@ -9,7 +9,8 @@ const user={
     getExtNumber:'api/user/getExtNumber',    //坐席号码
     entEnable:'api/user/entEnable',         
     userSave:'api/user/save',                //新增管理账户
-    userList:'api/user/userList'             //管理账户列表
+    userList:'api/user/userList',             //管理账户列表
+    updatePassword:'api/user/updatePassword',      //修改密码
 }
 //平台账户
 const platform={
@@ -43,6 +44,11 @@ const platform={
     numberDelete:'api/number/delete',                   //外显管理编辑删除
     userDetail:'api/user/userDetail',                   //配置管理详情
     selectSingle:'api/price/selectSingle',               //获取当前配置价格
+    examine:'api/project/examine',                      //行销名单审核
+    updateContent:'api/project/updateContent',          //行销名单修改
+    getIndustry:'api/activity/getIndustry',             //获取电信的行业数据
+    addActiveInfo:'api/activity//addActiveInfo',         //获取电信行销名单
+    createYidongActivity:'api/activity/createYidongActivity',              //获取移动行销名单
 }
 //企业账户
 const firm= {

@@ -60,7 +60,7 @@
         </el-dialog>
         <!--表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" align="center"></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable align="center"></el-table-column>
@@ -226,16 +226,12 @@
                     this.$message.error('当前没有可分配行销名单')
                     return
                 }
-                this.activityDialog=true
-                 
-                //let status=this.$route.query.status
-                //console.log(token)
-                
                 let params={pageIndex:1,pageSize:100,  status:1}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
                         this.activity=res.data.list
+                        this.activityDialog=true
                     }else{
                         this.$message.error(res.data.message)
                     }

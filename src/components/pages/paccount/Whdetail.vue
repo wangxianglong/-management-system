@@ -30,7 +30,7 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table id="out-table" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;padding:10px;" show-header>
+        <el-table id="out-table" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width:100%;padding:10px;" show-header border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width='100px'></el-table-column>
             <el-table-column label="姓氏/性别" prop="name"></el-table-column>
             <el-table-column label="电话" prop="tel"></el-table-column>

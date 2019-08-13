@@ -14,15 +14,15 @@
                   <div class="myself"><img src="../../assets/myself.png"></div>
                   <div style="font-size:14px">
                     <span>欢迎你，</span>
-                    <!-- <el-dropdown trigger="click">
-                      <span class="el-dropdown-link"> -->
+                    <el-dropdown trigger="click" @command="handleCommand">
+                      <span class="el-dropdown-link">
                         {{userName}}
-                        <!-- <i class="el-icon-arrow-down el-icon--right"></i>
+                        <i class="el-icon-arrow-down el-icon--right"></i>
                       </span>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>修改密码</el-dropdown-item>
+                        <el-dropdown-item command="a">修改密码</el-dropdown-item>
                       </el-dropdown-menu>
-                    </el-dropdown> -->
+                    </el-dropdown>
                   </div>
                   <div class="sss"><img src="../../assets/sss.png"></div>
                 </div>
@@ -35,6 +35,25 @@
           </div>
         </el-col>
       </el-row>
+      <!--修改弹框-->
+      <el-dialog title="修改密码" :visible.sync="amendDialog" width="500px" :before-close="handleClose">
+          <div style="margin-bottom:10px">
+              <span>旧密码:</span>
+              <el-input type="passWord" v-model='oldPassWord' placeholder="请输入密码" style="width:300px" size="small" maxLength='12' minlength='8'></el-input>
+          </div>
+          <div style="margin-bottom:10px">
+              <span>新密码:</span>
+              <el-input type="passWord" v-model='passWord' placeholder="请输入密码" style="width:300px" size="small" maxLength='12' minlength='8'></el-input>
+          </div>
+          <div style="margin-bottom:10px">
+              <span>确认新密码:</span>
+              <el-input type="passWord" v-model='newPassWord' placeholder="请输入密码" style="width:300px" size="small" maxLength='12' minlength='8'></el-input>
+          </div>
+          <span slot="footer">
+              <el-button @click="amendDialog = false">取 消</el-button>
+              <el-button type="primary" @click="amendPassword">确 定</el-button>
+          </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -45,7 +64,12 @@
           return {
               tabPosition: 'left',
               collapse:true,
-              userName:null
+              userName:null,
+              amendDialog:false,
+              oldPassWord:null,
+              passWord:null,
+              newPassWord:null,
+              id:sessionStorage.getItem('id')
           };
         },
         methods: {
@@ -65,6 +89,27 @@
                   
                 });
           },
+          handleCommand(command) {
+            this.amendDialog=true
+          },
+          handleClose(){
+            this.oldPassWord=null
+            this.passWord=null
+            this.newPassWord=null
+            this.amendDialog=false
+          },
+          amendPassword(){
+            if(this.passWord===this.newPassWord && this.passWord!=null){
+              let params={oldPassword:this.oldPassWord,passWord:this.passWord,id:this.id}
+              this.$http.post(this.$api.user.updatePassword,params).then(res => {
+                this.$message.success(res.data.msg)
+                this.amendDialog=false
+              })
+            }else{
+              this.$message('请确认密码')
+            }
+            
+          }
         },
         mounted(){
             if(document.body.clientWidth < 1500){

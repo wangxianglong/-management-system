@@ -43,7 +43,7 @@ const router= new Router({
           path:'/index',
           name:'index',
           component:resolve => require(['../components/pages/paccount/Index.vue'],resolve),
-          meta: {title:'首页',isLogin:true}
+          meta: {title:'首页',isLogin:true,keepAlive:false}
         },
         {
           path:'/itemadd',

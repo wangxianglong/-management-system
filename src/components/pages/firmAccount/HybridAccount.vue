@@ -43,28 +43,19 @@
                 <el-button type="primary" @click='nowSeat'>确 定</el-button>
             </span>
         </el-dialog>
-        <el-dialog title="新增座席" :visible.sync="dialogbox" width="500px">
+        <el-dialog title="新增班长/座席" :visible.sync="dialogbox" width="600px">
             <div class="small-divider"></div>
-            <div class="radioGroup">
+            <!-- <div class="radioGroup">
                 <span style="margin-right:30px">账号类型</span>
                 <el-radio-group v-model="radio" >
                     <el-radio :label="4">班长</el-radio>
                     <el-radio :label="5">座席</el-radio>
                     <el-radio :label="6">质检</el-radio>
                 </el-radio-group>
-             </div>
-            <div class="small-divider" style="margin-bottom:10px"></div>
+             </div> -->
+            <!-- <div class="small-divider" style="margin-bottom:10px"></div>
             <div class="myInput">
                 <el-form :model="formList" label-width="100px" size="small" ref="formList">
-                <!-- <el-form-item label="用户名/账号" prop="userName">
-                <el-input v-model="formList.userName"></el-input>
-                </el-form-item>
-                <el-form-item label="密码" prop="passWord">
-                    <el-input type="passWord" v-model="formList.passWord"></el-input>
-                </el-form-item>
-                <el-form-item label="姓名" prop="realName">
-                    <el-input v-model="formList.realName" placeholder="请输入姓名"></el-input>
-                </el-form-item> -->
                 <el-form-item label="端口号" prop="phoneNum" v-if="radio!=4">
                     <el-select v-model="formList.phoneNum" placeholder="请选择">
                         <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
@@ -76,9 +67,75 @@
                     </el-select>
                 </el-form-item>
                 </el-form>
-            </div>
-            
-            <div class="small-divider"></div>
+            </div> -->
+            <el-tabs v-model="accountType" type="border-card" @tab-click="accountTypeChange">
+                <el-tab-pane label="班长" name="4">
+                    <el-radio-group v-model="monitorType">
+                        <el-radio :label='1'>普通_班长</el-radio>
+                        <el-radio :label="2">移动_班长</el-radio>
+                        <el-radio :label="3">联通_班长</el-radio>
+                        <el-radio :label="4">电信_班长</el-radio>
+                    </el-radio-group>
+                </el-tab-pane>
+                <el-tab-pane label="坐席" name="5">
+                    <el-tabs v-model='seatType' tab-position="left" type="card" style="height: 200px;" @tab-click="seatTypeChange">
+                        <el-tab-pane label="普通_坐席" name='1'>
+                            <el-form :model="ptFormList" label-width="100px" size="small" ref="formList">
+                                <el-form-item label="端口/外显号" prop="phoneNum">
+                                    <el-select v-model="ptFormList.phoneNum" placeholder="请选择">
+                                        <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="关联班长" prop="agentId">
+                                    <el-select v-model="ptFormList.agentId" placeholder="请选择">
+                                        <el-option v-for="item in amonitorList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                        <el-tab-pane label="移动_坐席" name='2'>
+                            <el-form :model="ydFormList" label-width="100px" size="small" ref="formList">
+                                <el-form-item label="端口/外显号" prop="phoneNum">
+                                    <el-select v-model="ydFormList.phoneNum" placeholder="请选择">
+                                        <el-option v-for="item in phoneNumList" :key="item.Number" :label="item.Number" :value="item.Number"></el-option>
+                                    </el-select>
+                                    <!-- <el-input style="width:215px" v-model='ydFormList.phoneNum'></el-input> -->
+                                </el-form-item>
+                                <el-form-item label="关联班长" prop="agentId">
+                                    <el-select v-model="ydFormList.agentId" placeholder="请选择">
+                                        <el-option v-for="item in amonitorList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                        <el-tab-pane label="联通_坐席" name='3'>
+                            <el-form :model="ltFormList" label-width="100px" size="small" ref="formList">
+                                <el-form-item label="端口/外显号" prop="phoneNum">
+                                    <el-input style="width:215px" v-model='ltFormList.phoneNum'></el-input>
+                                </el-form-item>
+                                <el-form-item label="关联班长" prop="agentId">
+                                    <el-select v-model="ltFormList.agentId" placeholder="请选择">
+                                        <el-option v-for="item in amonitorList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                        <el-tab-pane label="电信_坐席" name='4'>
+                            <el-form :model="dxFormList" label-width="100px" size="small" ref="formList">
+                                <el-form-item label="端口/外显号" prop="phoneNum">
+                                    <el-input style="width:215px" v-model='dxFormList.phoneNum'></el-input>
+                                </el-form-item>
+                                <el-form-item label="关联班长" prop="agentId">
+                                    <el-select v-model="dxFormList.agentId" placeholder="请选择">
+                                        <el-option v-for="item in amonitorList" :key="item.id" :label="item.userName" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
+                        </el-tab-pane>
+                    </el-tabs>
+                </el-tab-pane>
+            </el-tabs>
+            <!-- <div class="small-divider"></div> -->
             <span slot="footer">
                 <el-button @click="dialogbox = false">取 消</el-button>
                 <el-button type="primary" @click="add('formList')">确 定</el-button>
@@ -87,37 +144,37 @@
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <!-- <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column> -->
-            <el-table-column label="企业ID" prop='entId'></el-table-column>
-            <el-table-column label="企业名称" prop='company' width="120px"></el-table-column>
-            <el-table-column label="联系人" prop='contacts'></el-table-column>
-            <el-table-column label="手机号" prop='phoneNum' width="120px"></el-table-column>
-            <el-table-column label="外显数量" prop="numberCount">
+            <el-table-column label="企业ID" prop='entId' width="150"></el-table-column>
+            <el-table-column label="企业名称" prop='company' width="150px"></el-table-column>
+            <el-table-column label="联系人" prop='contacts' width="150"></el-table-column>
+            <el-table-column label="手机号" prop='phoneNum' width="150px"></el-table-column>
+            <el-table-column label="外显数量" prop="numberCount" width="150">
                 <template slot-scope="scope">
                     <el-button type="text" @click="seeNumBerCount(scope.row)">{{scope.row.numberCount}}</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="名单分配">
+            <el-table-column label="名单分配" width="150">
                 <template slot-scope="scope">
                     <el-button type="primary" size="mini" @click="activityAllocation(scope.row)">分配</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="座席配置" width="100px">
+            <el-table-column label="班长/座席配置" width="150px">
                 <template slot-scope="scope">
                     <span style="color:red" v-if="scope.row.monitorCount === 0">无</span>
                     <span v-else>有</span>
                     <el-button type='primary' @click="addAccount(scope.row)" size='mini'>配置</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="价格配置" width="120px">
+            <el-table-column label="价格配置" width="150px">
                 <template slot-scope="scope">
                     <span style="color:red" v-if="scope.row.priceCount === 0">无</span>
                     <span v-else>有</span>
                     <el-button type='primary' @click="priceSet(scope.row)" size='mini'>配置</el-button>
                 </template>
             </el-table-column>
-            <el-table-column label="状态">
+            <el-table-column label="状态" width="150">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status === 1">启用</span>
                     <span style="color:red" v-if="scope.row.status === 2">停用</span>
@@ -207,6 +264,9 @@
     export default {
         data(){
             return {
+                accountType:'4',
+                monitorType:null,
+                seatType:'1',
                 seats:'',
                 seatDialog:false,
                 priceUpdateDialog:false,
@@ -232,10 +292,19 @@
                 isShow:true,
                 amonitorList:[],
                 phoneNumList:[],
-                formList:{
-                    userName:'',
-                    passWord:'',
-                    realName:'',
+                ptFormList:{
+                    phoneNum:'',
+                    agentId:''
+                },
+                ltFormList:{
+                    phoneNum:'',
+                    agentId:''
+                },
+                dxFormList:{
+                    phoneNum:'',
+                    agentId:''
+                },
+                ydFormList:{
                     phoneNum:'',
                     agentId:''
                 },
@@ -278,12 +347,23 @@
                 this.voiceFee=null
                 this.set=null
             },
-            selectGet(vId){//这个vId也就是value值
-                this.formList.obj = this.amonitorList.find((item)=>{//这里的userList就是上面遍历的数据源
-                    return item.id === vId;//筛选出匹配数据
-            });
-                console.log(this.formList.obj.id);//我这边的name就是对应label的
+            accountTypeChange(tab,event){
+                this.monitorType=null
+                this.seatType=null
             },
+            seatTypeChange(tab,event){
+                this.ptFormList={}
+                this.ltFormList={}
+                this.dxFormList={}
+                this.ydFormList={}
+                this.getMonitorList(this.seatType)
+            },
+            // selectGet(vId){//这个vId也就是value值
+            //     this.ptFormList.obj = this.amonitorList.find((item)=>{//这里的userList就是上面遍历的数据源
+            //         return item.id === vId;//筛选出匹配数据
+            // });
+            //     console.log(this.formList.obj.id);//我这边的name就是对应label的
+            // },
             handleCurrentChange(val) {
                 this.myData.pageIndex =val;
                 this.getTablelist()
@@ -315,28 +395,30 @@
             // indexMethod(index) {
             //     return index+1;
             // },
-            //坐席配置
-            addAccount(row){
-                this.entRow=row
-                let agentId=row.id
-                let params={pageIndex:0,pageSize:10000,agentId:agentId}
+            //班长列表
+            getMonitorList(type){
+                let params={pageIndex:0,pageSize:10000,agentId:this.entRow.id,entId:this.entRow.entId,type:type}
                 this.$http.get(this.$api.platform.agendList,{params:params}).then(res=>{
                     if(res.data.code===0){
                         console.log(res)
                         this.amonitorList=res.data.list
-                        if(this.entRow.monitorCount !== 0){
-                            this.seatDialog = true
-                            let params2={id:agentId}
-                            this.$http.get(this.$api.platform.userDetail,{params:params2}).then(res => {
-                                if(res.data.code === 0){
-                                    this.seats = res.data.seats.toString()
-                                }
-                            })
-                        }else{
-                            this.dialogbox = true
-                        }
                     }
                 }) 
+            },
+            //坐席配置
+            addAccount(row){
+                this.entRow=row
+                if(this.entRow.monitorCount !== 0){
+                    this.seatDialog = true
+                    let params2={id:this.entRow.id}
+                    this.$http.get(this.$api.platform.userDetail,{params:params2}).then(res => {
+                        if(res.data.code === 0){
+                            this.seats = res.data.seats.toString()
+                        }
+                    })
+                }else{
+                    this.dialogbox = true
+                }
                 this.$http.get(this.$api.user.getExtNumber,{}).then(res => {
                     if(res.data.code===0){
                         this.phoneNumList=res.data.list
@@ -346,19 +428,45 @@
             },
             nowSeat(){
                 this.dialogbox = true
+                console.log(this.accountType)
             },
             add(formList){
-                let id=this.entRow.id
-                let entId=this.entRow.entId
-                let roleId=this.radio
-                let phoneNum=this.formList.phoneNum
-                if(this.radio===5 || this.radio===6){
-                    this.formList.agentId=this.formList.obj.id
-                    console.log(this.formList.agentId)
-                }else{
-                    this.formList.agentId=this.entRow.id
+                // let id=this.entRow.id
+                // let entId=this.entRow.entId
+                // let roleId=this.accountType
+                // let phoneNum=this.formList.phoneNum
+                // if(this.accountType===5){
+                //     this.formList.agentId=this.formList.obj.id
+                // }else if(this.accountType===4){
+                //     this.formList.agentId=this.entRow.id
+                // }
+                let params={}
+                params.id = this.entRow.id
+                params.entId = this.entRow.entId
+                params.roleId = this.accountType
+                if(this.accountType==4){
+                    params.agentId = this.entRow.id
+                    params.type = this.monitorType
+                }else if(this.accountType==5){
+                    if(this.seatType==1){
+                        params.phoneNum=this.ptFormList.phoneNum
+                        params.agentId=this.ptFormList.agentId
+                        params.type=this.seatType
+                    }else if(this.seatType==2){
+                        params.phoneNum=this.ydFormList.phoneNum
+                        params.agentId=this.ydFormList.agentId
+                        params.type=this.seatType
+                    }else if(this.seatType==3){
+                        params.phoneNum=this.ltFormList.phoneNum
+                        params.agentId=this.ltFormList.agentId
+                        params.type=this.seatType
+                    }else if(this.seatType==4){
+                        params.phoneNum=this.dxFormList.phoneNum
+                        params.agentId=this.dxFormList.agentId
+                        params.type=this.seatType
+                    }
                 }
-                let params={roleId:roleId,phoneNum:phoneNum,agentId:this.formList.agentId,entId:entId,id:id}
+                // let params={roleId:roleId,phoneNum:phoneNum,agentId:this.formList.agentId,entId:entId,id:id}
                 this.$http.post(this.$api.platform.addUser,params).then(res=>{
                     if(res.data.code===0){
                         //console.log(res)
@@ -378,16 +486,12 @@
                     this.$message.error('当前没有可分配名单')
                     return
                 }
-                this.activityDialog=true
-                 
-                //let status=this.$route.query.status
-                //console.log(token)
-                
                 let params={pageIndex:1,pageSize:200,status:0}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
                         //console.log(res)
                         this.activity=res.data.list
+                        this.activityDialog=true
                     }else{
                         this.$message.error(res.data.message)
                     }
@@ -398,8 +502,6 @@
             
             //获取可分配名单
             getuserActivity(){
-                 
-                //console.log(token)
                 let params={pageIndex:1,pageSize:200,  status:0}
                 this.$http.get(this.$api.platform.list,{params:params}).then(res => {
                     if(res.data.code === 0){
@@ -496,31 +598,6 @@
             },
             //价格配置
             priceSet(row){
-                // this.$confirm('此操作将修改价格'+'', '是否继续?', '提示', {
-                //     confirmButtonText: '确定',
-                //     cancelButtonText: '取消',
-                //     type: 'warning'
-                // }).then(() => {
-                //     // let userId = row.id
-                //     // let params = {userId:userId}
-                //     // this.$http.get(this.$api.platform.delete,{params:params}).then( res=> {
-                //     //     if(res.data.code ===0){
-                //     //         this.$message({
-                //     //             message:res.data.msg,
-                //     //             type:'success'
-                //     //         })
-                //     //         this.getTableList()
-                //     //     }
-                //     // })
-                    
-                    
-                // }).catch(() => {
-                //     this.$message({
-                //         type: 'info',
-                //         message: '已取消修改'
-                //     });          
-                // })
-                
                 this.entRow = row
                 if(this.entRow.priceCount !== 0){
                     let userId = this.entRow.id
@@ -534,9 +611,7 @@
                     })
                 }else{
                     this.priceDialog = true
-                }
-                
-                
+                }  
             },
             priceUpdate(){
                 this.priceDialog = true
@@ -557,28 +632,14 @@
                 }else if(this.priceType == 'second'){
                     params.set = this.set
                 }
-                // let params = this.nowPrice
-                // params.userId = userId
-                
-                    this.$http.post(this.$api.platform.insertSingle,params).then(res => {
-                        if(res.data.code === 0){
-                            this.$message.success(res.data.msg)
-                            this.priceDialog = false
-                            this.priceUpdateDialog = false
-                            this.getTablelist()
-                        }
-                    })
-                
-                    // params.id=this.nowPrice.id
-                    // this.$http.post(this.$api.platform.updateSingle,params).then(res => {
-                    //     if(res.data.code === 0){
-                    //         this.$message.success(res.data.msg)
-                    //         this.priceDialog = false
-                    //         this.priceUpdateDialog = false
-                    //         this.getTablelist()
-                    //     }
-                    // })
-                
+                this.$http.post(this.$api.platform.insertSingle,params).then(res => {
+                    if(res.data.code === 0){
+                        this.$message.success(res.data.msg)
+                        this.priceDialog = false
+                        this.priceUpdateDialog = false
+                        this.getTablelist()
+                    }
+                })
             },
             seeNumBerCount(row){
                 let userId=row.id

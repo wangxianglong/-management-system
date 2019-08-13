@@ -5,7 +5,10 @@
                 <el-input v-model="myData.userName"></el-input>
             </el-form-item>
             <el-form-item label="角色名称" prop="roleId">
-                <el-select v-model="myData.roleId" placeholder="请选择">
+                <el-select v-if="roleId==21" v-model="myData.roleId" placeholder="请选择">
+                    <el-option v-for="item in roleNameList1" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
+                </el-select>
+                <el-select v-else v-model="myData.roleId" placeholder="请选择">
                     <el-option v-for="item in roleNameList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
                 </el-select>
             </el-form-item>
@@ -32,21 +35,24 @@
         </el-form>
          <div class="small-divider"></div>
         <div style="padding:20px">
-            <el-button type="primary" @click='addUsing'>创建管理账户</el-button>
+            <el-button type="primary" @click='addUsing'>创建代理账户</el-button>
         </div>
         <!--弹框-->
-        <el-dialog title="新增管理账户" :visible.sync="addNewUsing" width="30%" :close-on-click-modal="false">
+        <el-dialog title="新增代理账户" :visible.sync="addNewUsing" width="40%" :close-on-click-modal="false">
             <el-form :model="form" :rules='rules' label-width="20%" class="formPage" label-position='right' ref="form">
                 <el-form-item label="账号" prop="userName">
                     <el-input placeholder="请输入账号" v-model="form.userName">
                     </el-input>
                 </el-form-item>
                 <el-form-item label="密码" prop="passWord">
-                    <el-input type="passWord" placeholder="请输入密码" v-model="form.passWord">
+                    <el-input type="passWord" placeholder="请输入密码" v-model="form.passWord" auto-complete="new-password">
                     </el-input>
                 </el-form-item>
                 <el-form-item label="角色名称" prop="roleId">
-                    <el-select v-model="form.roleId" placeholder="请选择">
+                    <el-select v-if="roleId==21" v-model="form.roleId" placeholder="请选择">
+                        <el-option v-for="item in roleNameList1" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
+                    </el-select>
+                    <el-select v-else v-model="form.roleId" placeholder="请选择">
                         <el-option v-for="item in roleNameList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
                     </el-select>    
                 </el-form-item>
@@ -66,10 +72,14 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="账号" prop="userName"></el-table-column>
-            <el-table-column label="密码" prop="passWord"></el-table-column>
+            <el-table-column label="密码" prop="passWord">
+                <template slot-scope="scope">
+                    <span>{{scope.row.passWord?'******':''}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="使用人" prop="realName">
             </el-table-column>
             <el-table-column label="联系方式" prop="phoneNum"></el-table-column>
@@ -82,8 +92,8 @@
             </el-table-column>
             <el-table-column label="操作" width="200px">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="mini" v-if='scope.row.status===3' @click="passUsing(scope.row)">审核通过</el-button>
-                    <el-button type="danger" size="mini" @click="deleteUsing(scope.row)">删除</el-button>
+                    <el-button type="primary" size="mini" v-if='scope.row.status===3 && roleId==1' @click="passUsing(scope.row)">审核通过</el-button>
+                    <el-button type="danger" size="mini" @click="deleteUsing(scope.row)" :disabled="scope.row.status===1 && roleId!=1">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -100,8 +110,15 @@
     export default {
         data(){
             return {
+                roleId:sessionStorage.getItem('roleId'),
                 form:{},
                 roleNameList:[],
+                roleNameList1:[
+                    {
+                        id:22,
+                        roleName:'代理商'
+                    }
+                ],
                 addNewUsing:false,
                 phoneNumList:[],
                 loading:false,
@@ -118,7 +135,7 @@
                 rules:{
                     userName:[
                         { required:true, message:'请输入账号名称',trigger:'blur'},
-                        { min: 2, max: 7, message: '长度在 2 到 7 个字符', trigger: 'blur' }
+                        { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
                     ],
                     passWord:[
                         { required:true, message:'请输入账号密码',trigger:'blur'},
@@ -183,6 +200,7 @@
                         this.$http.post(this.$api.user.userSave,params).then(res => {
                             if(res.data.code===0){
                                 this.$message.success('提交成功')
+                                this.form={}
                                 this.addNewUsing = false
                                 this.getTableList()
                             }else{

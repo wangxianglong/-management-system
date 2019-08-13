@@ -20,7 +20,7 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header v-loading='loading' :header-cell-style="tableHeaderStyle" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="企业ID" prop="ent_id" ></el-table-column>
             <el-table-column label="企业名称" prop="company" width="150px"></el-table-column>
@@ -34,7 +34,7 @@
             <!-- <el-table-column label="待审核坐席费" prop="amount"  width='120px'></el-table-column>
             <el-table-column label="待审核语音费" prop="amount"  width='120px'></el-table-column>
             <el-table-column label="待审核套餐费" prop="amount" width='120px'></el-table-column> -->
-            <el-table-column label="提交时间" prop="createTime" width="150px">
+            <el-table-column label="提交时间" prop="createTime" width="160px">
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>

@@ -39,7 +39,7 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading="loading" element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="行销名单" prop="activityName" sortable></el-table-column>
             <el-table-column label="数据量" prop="orderNum" sortable></el-table-column>

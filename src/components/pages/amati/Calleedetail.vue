@@ -21,6 +21,7 @@
                 <el-button type='primary' size="small" @click="getActivityList">搜索</el-button>
                 <el-button size="small" @click="resetForm('myData')">重置</el-button>
             </el-form-item>
+            
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 17px 20px">
@@ -28,7 +29,7 @@
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="100px"></el-table-column>
             <el-table-column label="姓氏/性别" prop="cName" sortable width="150px"></el-table-column>
             <el-table-column label="电话" prop="phoneNum" sortable width="150px">
@@ -60,52 +61,89 @@
         <video id="preview" :style="{display:'none'}"></video>
         <video id="remote" :style="{display:'none'}"></video>
         <!-- <audio ref='player' autoplay='autoplay' loop style="display: none"></audio> -->
-        <el-dialog title="呼叫号码" :visible.sync="showcalleeDialog" width="600px" :before-close="beforClose">
-            
-            <el-form ref="form" :model="form" label-width="60px">
-            <span style="color:red;margin:0 20px">{{promptMessage}}</span>
-            <el-form-item label="姓名">
-                <template>
-                    <span>{{form.cName}}</span>
-                </template>
-            </el-form-item>
-            <el-form-item label="手机">
-                <span v-if="form.desensitization===0">{{form.phoneNum}}</span>
-                <span v-if="form.desensitization===1">{{form.phoneNum | placePhone()}}</span>
-            </el-form-item>
-            <el-form-item label="意向">
-                <el-radio-group v-model="form.intention">
-                    <el-radio :label="1">A</el-radio>
-                    <el-radio :label="2">B</el-radio>
-                    <el-radio :label="3">C</el-radio>
-                    <el-radio :label="4">D</el-radio>
-                    <div>
-                        <!-- <el-radio :label="5">呼叫成功</el-radio> -->
+        <!-- 普通，移动 -->
+        <el-dialog title="呼叫号码" :visible.sync="showcalleeDialog" width="700px" :before-close="beforClose">
+            <div class='dialogTitle'>
+                <span style="color:red;margin:0 20px">{{promptMessage}}</span>
+            </div>
+            <div class="header">
+                <div>客户信息</div>
+            </div>
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="姓名">
+                    <template>
+                        <span>{{form.cName}}</span>
+                    </template>
+                </el-form-item>
+                <el-form-item label="手机">
+                    <span v-if="form.desensitization===0">{{form.phoneNum}}</span>
+                    <span v-if="form.desensitization===1">{{form.phoneNum | placePhone()}}</span>
+                </el-form-item>
+                <el-form-item label="意向">
+                    <el-radio-group v-model="form.intention">
+                        <el-radio :label="1">A</el-radio>
+                        <el-radio :label="2">B</el-radio>
+                        <el-radio :label="3">C</el-radio>
+                        <el-radio :label="4">D</el-radio>
                         <el-radio :label="6">拒接</el-radio>
                         <el-radio :label="7">忙音/关机</el-radio>
                         <el-radio :label="8">其他</el-radio>
-                    </div>
-                </el-radio-group>
-                <!-- <el-checkbox-group v-model="intention">
-                    <el-checkbox label="1">A</el-checkbox>
-                    <el-checkbox label="B"></el-checkbox>
-                    <el-checkbox label="C"></el-checkbox>
-                    <el-checkbox label="D"></el-checkbox>
-                    <el-checkbox label="未接通"></el-checkbox>
-                    <el-checkbox label="其他"></el-checkbox>
-                </el-checkbox-group> -->
-            </el-form-item>
-            <el-form-item label="备注">
-                <el-input type="textarea" maxLength="50" show-word-limit='true' v-model="form.comment" size="medium" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注"></el-input>
-            </el-form-item>
-            <el-form-item label="话术">
-                <el-input type="textarea" v-model="form.content"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="saveEdit">保存</el-button>
-                <el-button type="danger" @click="hangup"><i class="el-icon-phone-outline"></i>挂断</el-button>
-                <el-button type="primary" @click="nextMakeCall" v-if="showBtn">拨打下一个</el-button>
-            </el-form-item>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input type="textarea" maxLength="50" show-word-limit='true' v-model="form.comment" size="medium" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注"></el-input>
+                </el-form-item>
+                <el-form-item label="话术">
+                    <el-input type="textarea" v-model="form.content"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="saveEdit">保存</el-button>
+                    <el-button type="danger" @click="hangup"><i class="el-icon-phone-outline"></i>挂断</el-button>
+                    <el-button type="primary" @click="nextMakeCall" v-if="showBtn">拨打下一个</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+        <!-- 联通，电信弹框 -->
+        <el-dialog title="呼叫号码" :visible.sync="handleCalleeDialog" width="700px" :before-close="handleBeforClose">
+            <div class='dialogTitle' v-if="entRow.type===3">
+                <div>请使用：<span>{{phoneNum}}</span></div>
+                <div>拨打：<span>{{telx | showPhone()}}</span><span v-show="show">{{time}}s</span><el-button size=mini v-show="!show" @click="getCode">重新获取</el-button></div>
+            </div>
+            <div class='dialogTitle' v-if="entRow.type===2">
+                <span>正在转接 </span><span style="color:red">{{entRow.cName}}，{{entRow.phoneNum}}</span>
+            </div>
+            <div class="header">
+                <div>客户信息</div>
+            </div>
+            <el-form ref="phoneCallForm" :model="phoneCallForm" label-width="80px" :rules="rules">
+                <el-form-item label="客户姓名">
+                    <template>
+                        <el-input v-model='phoneCallForm.cName' size='small' style='width:50%'></el-input>
+                    </template>
+                </el-form-item>
+                <el-form-item label="客户手机">
+                    <el-input v-model='phoneCallForm.phoneNum' size='small' style='width:50%'></el-input>
+                </el-form-item>
+                <el-form-item label="客户意向" prop='intention'>
+                    <el-radio-group v-model="phoneCallForm.intention">
+                        <el-radio :label="1">A</el-radio>
+                        <el-radio :label="2">B</el-radio>
+                        <el-radio :label="3">C</el-radio>
+                        <el-radio :label="4">D</el-radio>
+                        <el-radio :label="6">拒接</el-radio>
+                        <el-radio :label="7">忙音/关机</el-radio>
+                        <el-radio :label="8">其他</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input type="textarea" maxLength="50" show-word-limit='true' v-model="phoneCallForm.comment" size="medium" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注"></el-input>
+                </el-form-item>
+                <el-form-item label="话术">
+                    <el-input type="textarea" v-model="phoneCallForm.content"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" class="submitBtn" @click="subPhoneCallForm('phoneCallForm')">提 交</el-button>
+                </el-form-item>
             </el-form>
         </el-dialog>
     </div>
@@ -116,12 +154,15 @@
     export default {
         data(){
             return {
+                rules:{
+                    intention:[
+                        {required:true,message:'请填写意向',trigger:'blur'},
+                    ],
+                },
                 isDisabled:false,
                 showcalleeDialog:false,
                 showBtn:true,
-                form:{
-                    
-                },
+                form:{},
                 promptMessage:'',
                 showcalleeDialog:false,
                 myData:{
@@ -177,7 +218,14 @@
                 activityId:null,
                 phoneNum:sessionStorage.getItem('phoneNum'),
                 states:'',
-                sessionId:null
+                sessionId:null,
+                phoneCallForm:{},
+                handleCalleeDialog:false,
+                time:'',
+                show:true,
+                timer:null,
+                entRow:'',
+                telx:''
             }
         },
         destroyed(){
@@ -239,9 +287,7 @@
                     break;
                 }
             })
-            //console.log("11111111",window.theWebPhone)
-            //console.log(theWebPhone.login);
-            //console.log('外呼号码',this.phoneNum)
+            
             window.theWebPhone .login ("outcall.chinawjhs.com", this.phoneNum, "1234", "cs")
             
             //console.log("登陆了")
@@ -266,6 +312,58 @@
             } 
         },
         methods:{
+            // 电信号码拨打框
+            handleBeforClose(){
+
+            },
+            subPhoneCallForm(phoneCallForm){
+                this.$refs[phoneCallForm].validate((valid)=>{
+                    if(valid) {
+                        this.handleCalleeDialog=false
+                        this.time=''
+                        let params=this.phoneCallForm
+                        params.customerId=this.entRow.customerId
+                        this.$http.post(this.$api.amati.updateCustomer,params).then(res =>{
+                            if(res.data.code===0){
+                                //console.log(res)
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:'success'
+                                })
+                                this.getActivityList()
+                                this.phoneCallForm={}
+                            }else{
+                                this.$message({
+                                    message:res.data.msg,
+                                    type:'error'
+                                })
+                            }
+                        }).catch(error => {
+                            console.log("出错了")
+                        }) 
+                    }else{
+                        console.log('error submit!!')
+                        return false
+                    }
+                })
+            },
+            // 倒计时
+            getCode(){
+                const TIME_COUNT = 180;
+                if (!this.timer) {
+                   this.time = TIME_COUNT;
+                   this.show = true;
+                   this.timer = setInterval(() => {
+                   if (this.time > 0 && this.time <= TIME_COUNT) {
+                     this.time--;
+                   } else {
+                     this.show = false;
+                     clearInterval(this.timer);
+                     this.timer = null;
+                   }
+                   }, 1000)
+                }
+            }, 
             //初始化
             init (){
                 
@@ -318,7 +416,9 @@
                 this.$http.get(this.$api.amati.getDataList,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.tableData=res.data.list
+                        console.log(this.tableData)
                         this.total=res.data.count
+                        console.log(this.total)
                     }
                 }).catch(error => {
                     console.log("出错了")
@@ -334,56 +434,95 @@
             },
             
             makeCall(index,row) {
-                window.theWebPhone.hangup()
-                this.dialogVisible=true
-                //console.log(row,index)
-                this.index=index
-                let customerId=row.customerId
-                this.activityId=row.activityId
-                let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
-                this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
-                    //console.log('cs',res)
-                    if(res.data.code===0){
-                        //console.log('1',res)
-                        this.form=res.data.data
-                        this.showcalleeDialog=true
-                        // let activityId=this.form.activityId
-                        // let customerId=this.form.customerId
-                        // let provideId=this.form.provideId
-                        //  
-                        // this.$http.post(this.$api.amati.call,{  activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                        //     if(res.data.code===0){
-                        //         this.$message({
-                        //             message:'电话正在转接，请稍后',
-                        //             type:'success'
-                        //         })
-                                
-                        //     }else{
-                        //         alert(res.data.msg)
-                        //     }
-                        // })
-                        window.theWebPhone .dial(this.form.phoneNum)
-                        // this.states = window.theWebPhone.States
-                        let customerId=this.form.customerId
-                        this.$http.post(this.$api.amati.callCustomer,{customerId:customerId}).then(res => {
-                            if(res.data.code===0){
-                                this.$message.success('正在拨打中...')
-                            }
-                        })
+                if(row.type == 4 || row.type == 5 || row.type == 1){
+                    window.theWebPhone.hangup()
+                    this.dialogVisible=true
+                    //console.log(row,index)
+                    this.index=index
+                    let customerId=row.customerId
+                    this.activityId=row.activityId
+                    let params={customerId:customerId,activityId:this.activityId,pageIndex:1,pageSize:30}
+                    this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
+                        //console.log('cs',res)
+                        if(res.data.code===0){
+                            //console.log('1',res)
+                            this.form=res.data.data
+                            this.showcalleeDialog=true
+                            let customerId=this.form.customerId
+                            let huashuNo=this.form.huashuNo
+                            let params={customerId:customerId,huashuNo:huashuNo}
+                            this.$http.post(this.$api.amati.callCustomer,params).then(res => {
+                                if(res.data.code===0){
+                                    //console.log(res)
+                                    if(res.data.telx!=null){
+                                        this.telx = res.data.telx
+                                        window.theWebPhone .dial(this.telx,0)
+                                    }else{
+                                        window.theWebPhone .dial(this.form.phoneNum,0)
+                                    } 
+                                }else{
+                                    alert(res.data.msg)
+                                }
+                            })
+                        }
+                    }).catch(error => {
+                        console.log("出错了",error)
+                    })
+                    let total=this.tableData.length-1
+                    if(this.index == this.total-1){
+                        this.showBtn=false 
+                    }else{
+                        this.showBtn=true 
                     }
-                }).catch(error => {
-                    console.log("出错了",error)
-                })
-
-                  
-
-                let total=this.tableData.length-1
-                if(this.index == this.total-1){
-                    this.showBtn=false 
-                }else{
-                    this.showBtn=true 
+                    this.isSave=false 
+                }else if(row.type == 3){
+                    this.entRow=row
+                    this.phoneCallForm.content = this.entRow.content
+                    let customerId=this.entRow.customerId
+                    let seatPhone=this.phoneNum
+                    let params={customerId:customerId,seatPhone:seatPhone}
+                    this.$http.post(this.$api.amati.callCustomer,params).then(res => {
+                        if(res.data.code===0){
+                            this.telx = res.data.telx
+                            this.getCode()
+                            this.handleCalleeDialog=true
+                        }else{
+                            alert(res.data.msg)
+                        }
+                    })
+                }else if(row.type == 2) {
+                    this.entRow=row
+                    this.phoneCallForm.content = this.entRow.content
+                    let customerId=this.entRow.customerId
+                    let seatPhone=this.phoneNum
+                    let params={customerId:customerId,seatPhone:seatPhone}
+                    this.$http.post(this.$api.amati.callCustomer,params).then(res => {
+                        if(res.data.code===0){
+                            this.handleCalleeDialog=true
+                            let params2={dataId:this.entRow.dataId,seatPhone:seatPhone}
+                            params2.customerId = this.entRow.cId
+                            params2.itemId = this.entRow.itemId
+                            params2.remoteUrl = this.entRow.phoneNum
+                            params2.entId = sessionStorage.getItem('entId')
+                            params2.localUrl = sessionStorage.getItem('phoneNum')
+                            params2.agentId = sessionStorage.getItem('userName')
+                            this.$http.post(this.$api.amati.call,params2).then(res=>{
+                                if(res.data.code===0){
+                                    this.$message({
+                                        message:'电话正在转接，请稍后',
+                                        type:'success'
+                                    })
+                                    
+                                }else{
+                                    alert(res.data.msg)
+                                }
+                            })
+                        }else{
+                            alert(res.data.msg)
+                        }
+                    })
+                    
                 }
-                this.isSave=false 
             },
             beforClose(){
                 if(!this.isSave){
@@ -393,6 +532,7 @@
                 this.showcalleeDialog=false
                 this.index=null
                 this.getActivityList()
+                window.theWebPhone.hangup()
             },
             // whdialog(){
             //     this.showcalleeDialog=true
@@ -421,35 +561,25 @@
                 this.$http.get(this.$api.amati.getDataDetail,{params:params}).then(res =>{
                     if(res.data.code===0){
                         this.form=res.data.data
-                        // let activityId=this.form.activityId
-                        // let customerId=this.form.customerId
-                        // let provideId=this.form.provideId
-                        //  
-                        // this.$http.post(this.$api.amati.call,{  activityId:activityId,customerId:customerId,provideId:provideId}).then(res=>{
-                        //     if(res.data.code===0){
-                        //         this.$message({
-                        //             message:'电话正在转接，请稍后',
-                        //             type:'success'
-                        //         })
-                        //     }else{
-                        //         alert(res.data.msg)
-                        //     }
-                        // })
-                        //console.log(this.form)
-                        
-                        window.theWebPhone .dial(this.form.phoneNum)
                         let customerId=this.form.customerId
-                        this.$http.post(this.$api.amati.callCustomer,{customerId:customerId}).then(res => {
+                        let huashuNo=this.form.huashuNo
+                        let params={customerId:customerId,huashuNo:huashuNo}
+                        this.$http.post(this.$api.amati.callCustomer,params).then(res => {
                             if(res.data.code===0){
-                                this.$message.success('正在拨打中...')
+                                if(res.data.telx!=null){
+                                    this.telx = res.data.telx
+                                    window.theWebPhone .dial(this.telx,0)
+                                }else{
+                                    window.theWebPhone .dial(this.form.phoneNum,0)
+                                } 
+                            }else{
+                                alert(res.data.msg)
                             }
-                        })
+                        }) 
                     }
                 }).catch(error => {
                     console.log(error)
                 })
-                
-
                 this.isSave=false
                  if(this.index == this.total-1){
                     this.showBtn=false
@@ -503,5 +633,45 @@
 <style scoped>
     .pagebutton {
         float:right
+    }
+        .header
+    {
+        width:100%;
+        height:36px;
+        line-height: 36px;
+        text-align:center;
+        position:relative;
+        font-weight:bold;
+        color:#888
+    }
+    .header div:before,.header div:after
+    {
+        position:absolute;
+        background:#ccc;
+        content:"";
+        height:1px;
+        top:50%;
+        width:40%;
+    }
+    .header div:before{left:10px;}
+    .header div:after{right:10px;}
+    .submitBtn{
+        display:block;
+        margin:0 40% 0 37%
+    }
+    .dialogTitle{
+        font-size:16px
+    }
+    .dialogTitle div{
+        padding:10px
+    }
+    .dialogTitle div span:nth-child(1){
+        text-decoration:underline
+    }
+    .dialogTitle>div:nth-child(2)>span:nth-child(1){
+        padding:20px;
+        font-size:38px;
+        color:#64d050;
+        margin:0 20px;
     }
 </style>

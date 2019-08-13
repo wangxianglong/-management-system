@@ -45,13 +45,14 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
             <el-table-column label="企业ID" prop="ent_id" width="100px"></el-table-column>
             <el-table-column label="名称" prop="company"></el-table-column>
+            <el-table-column label="所属代理商" prop="agent_name"></el-table-column>
             <el-table-column label="充值金额" prop="amount"></el-table-column>
             <el-table-column label="事项说明" prop="content"></el-table-column>
-            <el-table-column label="提交时间" prop="createTime" width="150px">
+            <el-table-column label="提交时间" prop="createTime" width="160px">
                 <template slot-scope="scope">
                     <span>{{scope.row.createTime | date(true)}}</span>
                 </template>

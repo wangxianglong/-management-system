@@ -7,6 +7,9 @@
             <el-form-item label="登录账号" prop = "userName">
                 <el-input v-model="myData.userName"></el-input>
             </el-form-item>
+            <el-form-item label="代理商" prop = "agentName">
+                <el-input v-model="myData.agentName"></el-input>
+            </el-form-item>
             <el-form-item label="状态" prop = "status">
                 <el-select class="mySelect" v-model="myData.status" placeholder="请选择">
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -19,23 +22,30 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 40px 20px 17px">
-            <el-button type="primary" @click="addClient">新增客户</el-button>
+            <el-button type="primary" @click="addClient" v-if='roleId==1 || roleId==23 || roleId==25'>新增客户</el-button>
             <el-button type="primary" @click="outExe">导出</el-button>
         </div>
         <div class="divider"></div>
         <!--table表格-->
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" @selection-change="changeFun" border>
             <el-table-column type="selection"></el-table-column>
             <el-table-column label="企业ID" prop="entId"></el-table-column>
-            <el-table-column label="企业名称" prop="company" width="120px"></el-table-column>
-            <el-table-column label="登陆账号" prop="userName" width="100px"></el-table-column>
+            <el-table-column label="企业名称" prop="company" width="180px">
+                <template slot-scope="scope">
+                    <el-badge :value="scope.row.balance<500?'账户余额不足':''" class="item">
+                        <span>{{scope.row.company}}</span>
+                    </el-badge>
+                </template>
+            </el-table-column>
+            <el-table-column label="所属代理商" prop="agentName" width="120px"></el-table-column>
+            <el-table-column label="登陆账号" prop="userName" width="120px"></el-table-column>
             <el-table-column label="登陆密码" prop="passWord"></el-table-column>
             <el-table-column label="联系人" prop="contacts">
             </el-table-column>
             <el-table-column label="电话" prop="phoneNum" width="120px"></el-table-column>
             <el-table-column label="邮箱" prop="email" width="180px"></el-table-column>
-            <el-table-column label="创建时间" prop="createTime" sortable width="150px">
+            <el-table-column label="创建时间" prop="createTime" sortable width="160px">
                 <template slot-scope="scope">
                     {{scope.row.createTime | date(1)}}
                 </template>
@@ -71,7 +81,7 @@
             <el-table-column label="操作" width="150px">
                 <template slot-scope="scope">
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===0" @click="handlesy(scope.row)">试用</el-button> -->
-                    <el-button type="primary" size="small" v-if="scope.row.status===3" @click="handletg(scope.row)">通过</el-button>
+                    <el-button type="primary" size="small" v-if="(scope.row.status===3 && roleId==1) || (scope.row.status===3 && roleId==23) || (scope.row.status===3 && roleId==25)" @click="handletg(scope.row)" >通过</el-button>
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===3" @click="handledh(scope.row)">打回</el-button> -->
                     <!-- <el-button type="text" size="mini" v-if="scope.row.status===1" @click="handledj(scope.row)">冻结</el-button>
                     <el-button type="text" size="mini" v-if="scope.row.status===4 " @click="handlejd(scope.row)">解冻</el-button> -->
@@ -97,7 +107,8 @@
                     roleId:3,
                     company:'',
                     userName:'',
-                    status:''
+                    status:'',
+                    agentName:''
                 },
                 value:'',
                 options:[
@@ -114,7 +125,8 @@
                 tableData:[],
                 
                 selectList:[],
-                url:'http://47.99.37.96:88'
+                url:'http://47.99.37.96:88',
+                roleId:sessionStorage.getItem('roleId')
             }
         },
         methods:{
@@ -257,7 +269,6 @@
         },
         created(){
             this.getTableList()
-            
         }
     }
 </script>
@@ -265,5 +276,12 @@
     .pagebutton {
         float:right
     }
-    
+    .el-popover{
+        height:500px;
+        overflow: auto;
+    }
+    .item {
+        margin-top: 10px;
+        margin-right: 60px;
+    }
 </style>

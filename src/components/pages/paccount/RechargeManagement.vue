@@ -30,9 +30,10 @@
         <div class="table-box">
         <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" v-loading='loading' element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.8)">
+        element-loading-background="rgba(0, 0, 0, 0.8)" border>
             <el-table-column label="企业ID" prop="entId" width="100px"></el-table-column>
             <el-table-column label="名称" prop="company"></el-table-column>
+            <el-table-column label="所属代理商" prop="agentName" width="150"></el-table-column>
             <el-table-column label="充值金额" prop="rechargeTotal">
                 <template slot-scope="scope">
                     <span>{{scope.row.rechargeTotal | toString()}}</span>
@@ -63,7 +64,7 @@
         </el-table>
         </div>
         <!--弹框-->
-        <el-dialog title="充值" :visible.sync="topUpDialog" width="30%" :close-on-click-modal="false">
+        <el-dialog title="充值" :visible.sync="topUpDialog" width="40%" :close-on-click-modal="false">
             <el-form :model="form" label-width="20%" ref='form' :rules="rules">
                 <el-form-item prop="entId" label="企业Id">
                     <el-input placeholder="企业Id" v-model='form.entId' disabled></el-input>

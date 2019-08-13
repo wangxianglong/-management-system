@@ -19,11 +19,11 @@
         </el-form>
         <div class="small-divider"></div>
         <div style="padding:17px 0 17px 20px">
-            <el-button type="primary" @click="$router.go(-1)" v-if='roleId == 1'>返回</el-button>
+            <el-button type="primary" @click="$router.go(-1)" v-if='roleId != 3'>返回</el-button>
         </div>
         <div class="divider"></div>
         <div class="table-box">
-        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle">
+        <el-table :data="tableData" style="width:100%;" show-header :header-cell-style="tableHeaderStyle" border>
             <!-- <el-table-column type="selection"></el-table-column> -->
             <el-table-column type="index" label="序号" :index="indexMethod" align="center" width="200px"></el-table-column>
             <el-table-column label="号码" prop="showNumber"></el-table-column>
@@ -33,6 +33,7 @@
                     <el-button type="text">轮播</el-button>
                 </template>
             </el-table-column>
+            <el-table-column label="创建时间" prop="using" ></el-table-column>
             <el-table-column label="状态" sortable>
                 <template  slot-scope="scope">
                     <el-button type="text" style="color:red" v-if="scope.row.status===0">未使用</el-button>
@@ -40,7 +41,6 @@
                     <el-button type="text" style="color:#000" v-if="scope.row.status===2">已停用</el-button>
                 </template> 
             </el-table-column>
-            <!-- <el-table-column label="创建时间" prop="using" sortable></el-table-column> -->
             <el-table-column label="操作" v-if='roleId == 1'>
                 <template slot-scope="scope">
                     <el-button type="text" v-if="scope.row.status!=1" @click="startUse(scope.row)">启用</el-button>

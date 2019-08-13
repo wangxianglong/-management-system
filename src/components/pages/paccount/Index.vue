@@ -75,11 +75,11 @@
                     <div class="one">
                         <strong>呼叫成功率</strong>
                         <el-tooltip placement="top">
-                        <div slot="content">呼通15s以及以上通话量<br/>占全部呼叫次数的比</div>
+                        <div slot="content">呼通通话量占全部呼叫次数的比</div>
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <div class="two" style="padding:20px"><span>{{statistics.expiration!=null?statistics.successNum/statistics.expiration*100:'0' | toString()}}%</span></div>
+                    <div class="two" style="padding:20px"><span>{{statistics.expiration!=null?statistics.flux/statistics.expiration*100:'0' | toString()}}%</span></div>
                     <!-- <div class="three-box">
                         <el-progress :percentage="78" :text-inside="true" :stroke-width="12" style="width:100%"></el-progress>
                     </div>
@@ -145,7 +145,7 @@
                             <i class="el-icon-info"></i>
                         </el-tooltip>
                     </div>
-                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header >
+                    <el-table :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)" width="100%" show-header border>
                         <el-table-column type="index" label="序号" :index="indexMethod" align="center"></el-table-column>
                         <el-table-column label="坐席" prop="user_name" width="150px"></el-table-column>
                         <el-table-column label="呼叫次数" prop="callNum"></el-table-column>
@@ -300,7 +300,7 @@
             },
             
             legend: {
-                data: ['数据量','下发量','营销量','呼通量','成功量'],
+                data: ['数据量','下发量','营销量','呼通量','意向量'],
                 bottom:0,
                 
             },
@@ -381,7 +381,7 @@
                             data:res.data.data
                         }]
                     })
-                    let arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'成功量'}]
+                    let arr=[{name:'数据量'},{name:'下发量'},{name:'营销量'},{name:'呼通量'},{name:'意向量'}]
                     arr[0].value=this.statistics.cusNum
                     arr[1].value=this.statistics.assignNum
                     arr[2].value=this.statistics.expiration

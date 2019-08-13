@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="login-head">
-            <div class="logo"><img src="../assets/logo.png" alt=""></div>
+            <div class="logo"><span>智能云呼</span></div>
             <div class="title"><span>精准营销外呼平台</span></div>
         </div>
         <div>
@@ -111,10 +111,8 @@ import { mapMutations } from 'vuex'
                         
                         // this.$cookieStore.setCookie( userName ,'',1800);
                         // this.$cookieStore.getCookie('userName')
-                        this.$http.post(this.$api.login.login,{
-                            userName,
-                            passWord
-                        }).then((res) => {
+                        let params={userName:userName,passWord:passWord,platform:1}
+                        this.$http.post(this.$api.login.login,params).then((res) => {
                                 //console.log(res)
                                 if(res.data.data.status=="success"){
                                      let token = this.$cookieStore.getCookie('token')
@@ -124,6 +122,7 @@ import { mapMutations } from 'vuex'
                                     this.$store.commit("GET_ID",res.data.data.id)
                                     // this.$store.commit("GET_USER",userName)
                                     this.$store.commit("GET_ROUTER",res.data.data.router)
+                                    sessionStorage.setItem('id',res.data.data.id)
                                     sessionStorage.setItem('roleId',res.data.data.roleId)
                                     sessionStorage.setItem('phoneNum',res.data.data.phoneNum)
                                     sessionStorage.setItem('entId',res.data.data.entId)
@@ -180,12 +179,13 @@ import { mapMutations } from 'vuex'
         align-items: center;
     }
     .logo{
-        margin-top:10px;
-        margin-left:50px;
-        height:100%;
+        
+        margin-left:5%
     }
-    .logo img{
-        height:55px
+    .logo span{
+        color:#fff;
+        font-size:28px;
+        font-weight: bold
     }
     .title{
         color:#fff;

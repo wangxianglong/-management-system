@@ -1,6 +1,6 @@
 <template>
     <div class="approve">
-        <el-form :model="form" label-width="100px" class="formPage" label-position='right' :rules="rules" ref="form">
+        <el-form :model="form" label-width="120px" class="formPage" label-position='right' :rules="rules" ref="form">
             <div class="title">新增客户</div>
             <div class="boxSize">
                 <!-- <el-form-item label="公司名称">
@@ -16,7 +16,7 @@
                 <el-form-item prop="company" label="公司名称：">
                     <el-input placeholder="公司名称" v-model='form.company'></el-input>
                 </el-form-item>
-                <el-form-item prop="contacts" label="联系人">
+                <el-form-item prop="contacts" label="联系人：">
                     <el-input placeholder="账号" v-model="form.contacts"></el-input>
                 </el-form-item>
                 <el-form-item prop="phoneNum" label="手机号：">
@@ -27,6 +27,16 @@
                 </el-form-item> -->
                 <el-form-item prop="email" label="邮箱：">
                     <el-input placeholder="邮箱" v-model="form.email"></el-input>
+                </el-form-item>
+                <el-form-item prop="agentId1" label='超级代理商：' style="margin-top:20px">
+                    <el-select v-model="form.agentId1" @change='getagent(form.agentId1)' clearable>
+                        <el-option v-for="item in superAgentList" :key='item.id' :label="item.userName" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item prop="agentId2" label='代理商：' style="margin-top:20px">
+                    <el-select v-model="form.agentId2" >
+                        <el-option v-for="item in agentList" :key='item.id' :label="item.userName" :value="item.id"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item prop="bankAccount" label="银行账户：">
                     <el-input placeholder="银行账户" v-model='form.bankAccount'></el-input>
@@ -76,8 +86,10 @@
 </template>
 <script>
     export default {
-        data(){
+        data(){ 
             return {
+                superAgentList:[],
+                agentList:[],
                 form:{
                     company:null,
                     taxNumber:null,
@@ -95,6 +107,9 @@
                     email:[
                          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
                         { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                    ],
+                    agentId1:[
+                        {required:true,message:'请选择超级代理商',trigger:'blur'}
                     ],
                     bankAccount:[
                         {required:true,message:'请输入您的银行账户',trigger:'blur'}
@@ -115,7 +130,26 @@
                 }
             }
         },
+        mounted(){
+            let params1={roleId:21,pageSize:200,pageIndex:1}
+            this.$http.get(this.$api.user.userList,{params:params1}).then(res => {
+                console.log(res)
+                this.superAgentList = res.data.list
+            })
+        },
         methods:{
+            getagent(val){
+                if(val != ''){
+                    let params2={roleId:22,agentId:val,pageSize:200,pageIndex:1}
+                    this.$http.get(this.$api.user.userList,{params:params2}).then(res => {
+                        console.log(res)
+                        this.agentList = res.data.list
+                    })
+                }else{
+                    this.form.agentId2 = null
+                    this.agentList = null
+                }
+            },
             handleAvatarSuccess(res, file) {
                 this.imageUrl = URL.createObjectURL(file.raw);
                 this.form.businessLicense=res.imgPath;

@@ -169,6 +169,11 @@
                         <el-cascader v-model="dxMarketingList.selectBusiness" :props="props" :options="businessList" @change="handleChange"  style="width:300px"></el-cascader>
                     </template>
                 </el-form-item>
+                <el-form-item label="地区">
+                    <template>
+                        <el-cascader ref="cascaderAddr" :options="areaList" :props="addressProps" :change-on-select="true" @change="handleAddress" clearable></el-cascader>
+                    </template>
+                </el-form-item>
                 <el-form-item label="话术">
                     <el-input type="textarea" :rows="4" placeholder="请输入话术内容" v-model="dxMarketingList.content">
                     </el-input>
@@ -327,7 +332,7 @@
     </div>
 </template>
 <script>
-    
+    import areaList from '../../../assets/js/area.js'
     export default {
         data(){
             return {
@@ -336,6 +341,11 @@
                     label:'name',
                 },
                 businessList:[],
+                areaList:areaList,
+                addressProps:{
+                    checkStrictly:true,
+                },
+                thsAreaCode:'',
                 dxMarketingList:{},
                 dxMarketingListDialog:false,
                 dxTime:null,
@@ -549,8 +559,12 @@
             },
             //电信
             handleChange(){
-                console.log(this.dxMarketingList.selectBusiness)
+                console.log(this.dxMarketingList.selectArea)
             },
+            handleAddress(item){
+                this.dxMarketingList.selectArea=this.$refs['cascaderAddr'].currentLabels 
+                // console.log(this.dxMarketingList.selectArea)
+		    },
             dxMarketingListBtn(){
                 this.dxMarketingListDialog=true
                 this.$http.get(this.$api.platform.getIndustry).then(res => {

@@ -38,6 +38,13 @@ const platform={
     insertSingle:'api/price/insertSingle',              //价格配置
     updateSingle:'api/price/updateSingle',              //价格更新
     consumeStat:'api/price/consumeStat',                //消费统计
+    consumeDetail:'api/consumptionLog/list',            //消费详情
+    modelConfigInsert:'api/modelConfig/insert',               //定制费增加
+    modelConfigList:'api/modelConfig/list',                   //定制费详情
+    modelConfiginsertLog:'api/modelConfig/insertLog',         //停用模型
+    modelConfiglistLog:'api/modelConfig/listLog',             //模型日志
+    accountAdjustInsert:'api/accountAdjust/insert',           //调账处理
+    accountAdjustList:'api/accountAdjust/list',               //调账详情
     recharge:'api/recharge/insert',                     //充值功能
     rechargeDetail:'api/recharge/list',                  //充值功能详情
     rechargeUpdate:'api/recharge/update',                //财务管理审核

@@ -224,10 +224,52 @@ const router= new Router({
           meta: {title:'消费统计',isLogin:true},
         },
         {
+          path:'/consumptionDetail',
+          name:'consumptionDetail',
+          component:resolve => require(['../components/pages/paccount/ConsumptionDetail.vue'],resolve),
+          meta: {title:'消费详情',isLogin:true},
+        },
+        {
+          path:'/consumptionAmount',
+          name:'consumptionAmount',
+          component:resolve => require(['../components/pages/paccount/ConsumptionAmount.vue'],resolve),
+          meta: {title:'数据费详情',isLogin:true},
+        },
+        {
+          path:'/consumptionModel',
+          name:'consumptionModel',
+          component:resolve => require(['../components/pages/paccount/ConsumptionModel.vue'],resolve),
+          meta: {title:'定制费详情',isLogin:true},
+        },
+        {
+          path:'/consumptionModelDetail',
+          name:'consumptionModelDetail',
+          component:resolve => require(['../components/pages/paccount/ConsumptionModelDetail.vue'],resolve),
+          meta: {title:'定制费详情日志',isLogin:true},
+        },
+        {
+          path:'/consumptionSeat',
+          name:'consumptionSeat',
+          component:resolve => require(['../components/pages/paccount/ConsumptionSeat.vue'],resolve),
+          meta: {title:'坐席费详情',isLogin:true},
+        },
+        {
+          path:'/consumptionVoice',
+          name:'consumptionVoice',
+          component:resolve => require(['../components/pages/paccount/ConsumptionVoice.vue'],resolve),
+          meta: {title:'语音费详情',isLogin:true},
+        },
+        {
+          path:'/consumptionManualRec',
+          name:'consumptionManualRec',
+          component:resolve => require(['../components/pages/paccount/ConsumptionManualRec.vue'],resolve),
+          meta: {title:'调账详情',isLogin:true},
+        },
+        {
           path:'/hybridDetail',
           name:'hybridDetail',
           component:resolve => require(['../components/pages/firmAccount/HybridDetail.vue'],resolve),
-          meta: {title:'消费统计',isLogin:true},
+          meta: {title:'客户详情',isLogin:true},
         },
         {
           path:'/checkPrice',
